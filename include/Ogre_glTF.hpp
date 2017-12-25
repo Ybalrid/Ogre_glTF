@@ -16,4 +16,5 @@ class Ogre_glTF_EXPORT Ogre_glTF
 {
 public:
 	Ogre_glTF();
+
 };

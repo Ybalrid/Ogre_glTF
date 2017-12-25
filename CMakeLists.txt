@@ -26,6 +26,7 @@ include_directories(
 
 	#local include directory
 	./include
+	./thirdParty/tinygltf/
 )
 
 file(GLOB librarySources ./src/*.cpp ./include/*.hpp)

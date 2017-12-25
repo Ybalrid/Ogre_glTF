@@ -1,5 +1,9 @@
 #include "Ogre_glTF.hpp"
 
+#define TINYGLTF_IMPLEMENTATION
+#define STB_IMAGE_IMPLEMENTATION
+#include "tiny_gltf.h"
+
 Ogre_glTF::Ogre_glTF()
 {
 	if (Ogre::Root::getSingletonPtr() == nullptr) 
