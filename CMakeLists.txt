@@ -19,20 +19,13 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/CMake)
 find_package(OGRE COMPONENTS HlmsPbs REQUIRED)
 
 
-include_directories(
-	#Ogre and the physics based high level material system
-	${OGRE_INCLUDE_DIRS}
-	${OGRE_HlmsPbs_INCLUDE_DIRS}
 
-	#local include directory
-	./include
-	./thirdParty/tinygltf/
-)
-
-file(GLOB librarySources ./src/*.cpp ./include/*.hpp)
+file(GLOB librarySources ./src/*.cpp ./src/private_headers/*.hpp ./include/*.hpp)
 file(GLOB testSources ./test/*.cpp ./test/*.hpp ./include/*.hpp)
 
 add_library(Ogre_glTF SHARED ${librarySources})
+
+
 
 
 if(MSVC)
@@ -40,6 +33,29 @@ add_executable(Ogre_glTF_TEST WIN32 ${testSources})
 else()
 add_executable(Ogre_glTF_TEST ${testSources})
 endif(MSVC)
+
+
+target_include_directories( Ogre_glTF PUBLIC
+	#Ogre and the physics based high level material system
+	${OGRE_INCLUDE_DIRS}
+	${OGRE_HlmsPbs_INCLUDE_DIRS}
+
+	#local include directory
+	./include
+	./src/private_headers
+	./thirdParty/tinygltf/
+)
+
+target_include_directories( Ogre_glTF_TEST PUBLIC
+	#Ogre and the physics based high level material system
+	${OGRE_INCLUDE_DIRS}
+	${OGRE_HlmsPbs_INCLUDE_DIRS}
+
+	#local include directory
+	./include
+)
+
+
 
 target_link_libraries(Ogre_glTF
 	${OGRE_LIBRARIES}

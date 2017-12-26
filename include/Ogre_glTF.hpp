@@ -3,15 +3,7 @@
 #include <memory>
 #include <Ogre.h>
 
-#ifdef _WIN32
-#ifdef DLLDIR_EX
-#define Ogre_glTF_EXPORT __declspec(dllexport)
-#else
-#define Ogre_glTF_EXPORT __declspec(dllimport)
-#endif
-#else
-#define Ogre_glTF_EXPORT //dummy
-#endif
+#include "Ogre_glTF_DLL.hpp"
 
 //Forward declare main class
 class Ogre_glTF;

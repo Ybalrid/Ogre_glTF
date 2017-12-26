@@ -1,4 +1,5 @@
 #include "Ogre_glTF.hpp"
+#include "Ogre_glTF_meshFactory.hpp"
 
 #define TINYGLTF_IMPLEMENTATION
 #define STB_IMAGE_IMPLEMENTATION
@@ -14,6 +15,8 @@ struct Ogre_glTF_adapter::impl
 	bool valid = false;
 	tinygltf::Model model;
 	std::string error;
+
+	Ogre_glTF_meshFactory meshFactory;
 };
 
 Ogre_glTF_adapter::Ogre_glTF_adapter() :
@@ -62,7 +65,7 @@ struct Ogre_glTF::gltfLoader
 		Unknown
 	};
 
-	FileType detectType(const std::string& path)
+	FileType detectType(const std::string& path) const
 	{
 		//Quickly open the file as binary and chekc if there's the gltf binary magic number
 		{
