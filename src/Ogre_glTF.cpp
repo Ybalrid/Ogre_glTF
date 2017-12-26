@@ -4,13 +4,35 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "tiny_gltf.h"
 
+struct Ogre_glTF_adapter::impl
+{
+	bool valid;
+	tinygltf::Model model;
+	tinygltf::Material material;
+};
+
 Ogre_glTF_adapter::Ogre_glTF_adapter()
+{
+	pimpl = new impl;
+}
+
+Ogre_glTF_adapter::~Ogre_glTF_adapter()
+{
+	if (pimpl) delete pimpl;
+}
+
+Ogre::Item* Ogre_glTF_adapter::getItem() const
+{
+	return nullptr;
+}
+
+Ogre_glTF_adapter::Ogre_glTF_adapter(Ogre_glTF_adapter&& other) noexcept : pimpl{ other.pimpl }
 {
 }
 
-Ogre::Item* Ogre_glTF_adapter::getItem()
+bool Ogre_glTF_adapter::isOk() const
 {
-	return nullptr;
+	return pimpl->valid;
 }
 
 Ogre_glTF::Ogre_glTF()
@@ -21,8 +43,9 @@ Ogre_glTF::Ogre_glTF()
 	Ogre::LogManager::getSingleton().logMessage("Ogre_glTF created!");
 }
 
-Ogre_glTF_adapter Ogre_glTF::loadFile(const std::string& path)
+Ogre_glTF_adapter Ogre_glTF::loadFile(const std::string& path) const
 {
-	//TODO implement me
-	return Ogre_glTF_adapter();
+	Ogre_glTF_adapter adapter;
+
+	return std::move(adapter);
 }
