@@ -11,14 +11,13 @@ struct Ogre_glTF_adapter::impl
 	tinygltf::Material material;
 };
 
-Ogre_glTF_adapter::Ogre_glTF_adapter()
+Ogre_glTF_adapter::Ogre_glTF_adapter() :
+	pimpl{ std::make_unique<Ogre_glTF_adapter::impl>() }
 {
-	pimpl = new impl;
 }
 
 Ogre_glTF_adapter::~Ogre_glTF_adapter()
 {
-	if (pimpl) delete pimpl;
 }
 
 Ogre::Item* Ogre_glTF_adapter::getItem() const
@@ -26,7 +25,7 @@ Ogre::Item* Ogre_glTF_adapter::getItem() const
 	return nullptr;
 }
 
-Ogre_glTF_adapter::Ogre_glTF_adapter(Ogre_glTF_adapter&& other) noexcept : pimpl{ other.pimpl }
+Ogre_glTF_adapter::Ogre_glTF_adapter(Ogre_glTF_adapter&& other) noexcept : pimpl{ std::move(other.pimpl) }
 {
 }
 

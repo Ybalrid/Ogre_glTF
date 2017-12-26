@@ -27,7 +27,7 @@ class Ogre_glTF_EXPORT Ogre_glTF_adapter
 	struct impl;
 
 	///pointer to implementation
-	impl* pimpl = nullptr;
+	std::unique_ptr<Ogre_glTF_adapter::impl> pimpl;
 
 public:
 	///This clear the pimpl structure
