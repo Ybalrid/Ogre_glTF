@@ -89,6 +89,14 @@ int main(int argc, char* argv[])
 
 	//Initialize the library
 	auto gltf = std::make_unique<Ogre_glTF>();
+	try
+	{
+		auto adapter = gltf->loadFile("./test.gltf");
+	}
+	catch (std::exception& e)
+	{
+		Ogre::LogManager::getSingleton().logMessage(e.what());
+	}
 
 	while (!window->isClosed())
 	{
