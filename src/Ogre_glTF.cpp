@@ -72,8 +72,11 @@ struct Ogre_glTF::gltfLoader
 			for (size_t i{ 0 }; i < 4; ++i)
 				probe >> buffer[i];
 			buffer[4] = 0;
-			if (std::string("gltf") == std::string(buffer.data()))
+			if (std::string("glTF") == std::string(buffer.data()))
+			{
+				log("Detected binary file thanks to the magic number at the start!");
 				return FileType::Binary;
+			}
 		}
 
 		//If we don't have any better, check the file extension.
@@ -119,6 +122,11 @@ Ogre_glTF_adapter Ogre_glTF::loadFile(const std::string& path) const
 	log("Attempting to log " + path);
 	Ogre_glTF_adapter adapter;
 	loaderImpl->loadInto(adapter, path);
+	if (adapter.getLastError().empty())
+	{
+		log("Debug : it looks like the file was loaded without error!");
+		adapter.pimpl->valid = true;
+	}
 	return std::move(adapter);
 }
 
