@@ -68,26 +68,105 @@ Ogre::VaoManager* Ogre_glTF_modelConverter::getVaoManager()
 	return Ogre::Root::getSingletonPtr()->getRenderSystem()->getVaoManager();
 }
 
-Ogre::IndexBufferPacked* Ogre_glTF_modelConverter::extractIndexBuffer(int accessorID)
+class Ogre_glTF_geometryBuffer_base
+{
+public:
+	virtual ~Ogre_glTF_geometryBuffer_base() = default;
+	virtual unsigned char* dataAddress() = 0;
+	virtual size_t dataSize() = 0;
+	virtual size_t elementSize() = 0;
+};
+
+template <typename T> class Ogre_glTF_geometryBuffer : public Ogre_glTF_geometryBuffer_base
+{
+	T* buffer;
+	const size_t bufferSize;
+
+	static T* createSimdBuffer(size_t size)
+	{
+		return reinterpret_cast<T*>(OGRE_MALLOC_SIMD(sizeof(T) * size, Ogre::MEMCATEGORY_GEOMETRY));
+	}
+
+	static void freeSimdBuffer(T* buffer)
+	{
+		OGRE_FREE_SIMD(buffer, Ogre::MEMCATEGORY_GEOMETRY);
+	}
+
+public:
+
+	unsigned char* dataAddress() final { return reinterpret_cast<unsigned char*>(data()); }
+	size_t dataSize() final { return bufferSize; }
+	size_t elementSize() final { return sizeof(T); }
+
+	Ogre_glTF_geometryBuffer(size_t size) :
+		buffer{ createSimdBuffer(size) },
+		bufferSize{ size }
+	{
+	}
+
+	~Ogre_glTF_geometryBuffer()
+	{
+		freeSimdBuffer(buffer);
+	}
+
+	T* data() { return buffer; }
+
+	size_t size() const { return bufferSize; }
+
+	Ogre_glTF_geometryBuffer(const Ogre_glTF_geometryBuffer&) = delete;
+	Ogre_glTF_geometryBuffer operator=(const Ogre_glTF_geometryBuffer&) = delete;
+	Ogre_glTF_geometryBuffer(Ogre_glTF_geometryBuffer&& other) noexcept :
+	buffer{ other.buffer },
+		bufferSize{ other.bufferSize }
+	{}
+};
+
+Ogre::IndexBufferPacked* Ogre_glTF_modelConverter::extractIndexBuffer(int accessorID) const
 {
 	auto vaoManager{ getVaoManager() };
 
 	auto& accessor = model.accessors[accessorID];
 	auto& bufferView = model.bufferViews[accessor.bufferView];
+	auto& buffer = model.buffers[bufferView.buffer];
 
-	size_t elementSize;
+	auto indexBufferLen = bufferView.byteLength;
 
-	//TODO implement loading of index buffer
+	std::unique_ptr<Ogre_glTF_geometryBuffer_base> geometryBuffer{ nullptr };
+	Ogre::IndexBufferPacked::IndexType type;
 	switch (accessor.componentType)
 	{
-	case TINYGLTF_COMPONENT_TYPE_BYTE:
+	case TINYGLTF_COMPONENT_TYPE_SHORT:
+		geometryBuffer = std::make_unique<Ogre_glTF_geometryBuffer<Ogre::int16>>(indexBufferLen);
+		type = Ogre::IndexBufferPacked::IT_16BIT;
 		break;
+	case TINYGLTF_COMPONENT_TYPE_INT:
+		geometryBuffer = std::make_unique<Ogre_glTF_geometryBuffer<Ogre::int32>>(indexBufferLen);
+		type = Ogre::IndexBufferPacked::IT_32BIT;
+		break;
+	case TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT:
+		geometryBuffer = std::make_unique<Ogre_glTF_geometryBuffer<Ogre::uint16>>(indexBufferLen);
+		type = Ogre::IndexBufferPacked::IT_16BIT;
+		break;
+	case TINYGLTF_COMPONENT_TYPE_UNSIGNED_INT:
+		type = Ogre::IndexBufferPacked::IT_32BIT;
+		geometryBuffer = std::make_unique<Ogre_glTF_geometryBuffer<Ogre::uint32>>(indexBufferLen);
+		break;
+	default:
+		throw std::runtime_error("Unrecognized index data format");
 	}
 
-	return nullptr;
+	const auto nbIndices = indexBufferLen / geometryBuffer->elementSize();
+	for (size_t i = 0; i < nbIndices; i++)
+	{
+		memcpy(&geometryBuffer->dataAddress()[i],
+			&buffer.data[(bufferView.byteOffset + accessor.byteOffset) + i * bufferView.byteStride],
+			geometryBuffer->elementSize());
+	}
+
+	return vaoManager->createIndexBuffer(type, nbIndices, Ogre::BT_IMMUTABLE, geometryBuffer->dataAddress(), true);
 }
 
-Ogre::VertexBufferPacked* Ogre_glTF_modelConverter::extractVertexBuffer()
+Ogre::VertexBufferPacked* Ogre_glTF_modelConverter::extractVertexBuffer(int accessor) const
 {
 	auto vaoManager{ getVaoManager() };
 
