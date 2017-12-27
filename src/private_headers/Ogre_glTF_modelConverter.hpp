@@ -14,7 +14,7 @@ private:
 
 	static Ogre::VaoManager* getVaoManager();
 	Ogre::IndexBufferPacked* extractIndexBuffer(int accessor) const;
-	Ogre::VertexBufferPacked* extractVertexBuffer(int accessor) const;
+	Ogre::VertexBufferPacked* extractVertexBuffer(const std::pair<std::string, int>& attribute) const;
 
 	tinygltf::Model& model;
 };
