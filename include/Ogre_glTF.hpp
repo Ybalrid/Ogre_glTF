@@ -33,7 +33,7 @@ public:
 	Ogre_glTF_adapter& operator=(const Ogre_glTF_adapter&) = delete;
 
 	///Construct an item for this object
-	Ogre::Item* getItem() const;
+	Ogre::Item* getItem(Ogre::SceneManager* smgr) const;
 
 	///Move constructor : object is movable
 	Ogre_glTF_adapter(Ogre_glTF_adapter&& other) noexcept;

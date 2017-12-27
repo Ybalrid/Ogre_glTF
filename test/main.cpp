@@ -87,17 +87,26 @@ int main(int argc, char* argv[])
 
 	declareHlmsLibrary("./");
 
+	Ogre::Item* CorsetItem = nullptr;
+	Ogre::SceneNode* CorsetNode = nullptr;
+
 	//Initialize the library
 	auto gltf = std::make_unique<Ogre_glTF>();
 	try
 	{
 		auto adapter = gltf->loadFile("./Corset.glb");
-		auto item = adapter.getItem();
+		CorsetItem = adapter.getItem(smgr);
 	}
 	catch (std::exception& e)
 	{
 		Ogre::LogManager::getSingleton().logMessage(e.what());
 	}
+
+	CorsetNode = smgr->getRootSceneNode()->createChildSceneNode();
+	camera->setNearClipDistance(0.1);
+	camera->setFarClipDistance(100);
+	camera->setPosition({ 5, 5, 5 });
+	camera->lookAt({ 0, 0, 0 });
 
 	while (!window->isClosed())
 	{

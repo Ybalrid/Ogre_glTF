@@ -31,11 +31,12 @@ Ogre_glTF_adapter::~Ogre_glTF_adapter()
 	log("Destructed adapter object...");
 }
 
-Ogre::Item* Ogre_glTF_adapter::getItem() const
+Ogre::Item* Ogre_glTF_adapter::getItem(Ogre::SceneManager* smgr) const
 {
 	if (isOk())
 	{
 		auto Mesh = pimpl->modelConverter.generateOgreMesh();
+		return smgr->createItem(Mesh);
 	}
 	return nullptr;
 }
