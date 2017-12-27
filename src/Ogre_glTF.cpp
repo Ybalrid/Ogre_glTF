@@ -1,5 +1,5 @@
 #include "Ogre_glTF.hpp"
-#include "Ogre_glTF_meshFactory.hpp"
+#include "Ogre_glTF_modelConverter.hpp"
 
 #define TINYGLTF_IMPLEMENTATION
 #define STB_IMAGE_IMPLEMENTATION
@@ -12,11 +12,12 @@ inline void log(const std::string& message)
 
 struct Ogre_glTF_adapter::impl
 {
+	impl() : meshFactory(model) {}
 	bool valid = false;
 	tinygltf::Model model;
-	std::string error;
+	std::string error = "";
 
-	Ogre_glTF_meshFactory meshFactory;
+	Ogre_glTF_modelConverter meshFactory;
 };
 
 Ogre_glTF_adapter::Ogre_glTF_adapter() :
@@ -130,6 +131,8 @@ Ogre_glTF_adapter Ogre_glTF::loadFile(const std::string& path) const
 		log("Debug : it looks like the file was loaded without error!");
 		adapter.pimpl->valid = true;
 	}
+
+	adapter.pimpl->meshFactory.debugDump();
 	return std::move(adapter);
 }
 

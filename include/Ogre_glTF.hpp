@@ -56,6 +56,8 @@ class Ogre_glTF_EXPORT Ogre_glTF
 public:
 	///Initialize the library by creating this object.
 	Ogre_glTF();
+
+	///Move constructor
 	Ogre_glTF(Ogre_glTF&& other) noexcept;
 
 	///Deinitialize the library at this object destruction
@@ -66,6 +68,7 @@ public:
 
 	///Deleted copy contructor
 	Ogre_glTF(const Ogre_glTF&) = delete;
+
 	///Deleted asignment operator
 	Ogre_glTF& operator=(const Ogre_glTF&) = delete;
 };
