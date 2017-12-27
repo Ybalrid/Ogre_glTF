@@ -92,6 +92,7 @@ int main(int argc, char* argv[])
 	try
 	{
 		auto adapter = gltf->loadFile("./Corset.glb");
+		auto item = adapter.getItem();
 	}
 	catch (std::exception& e)
 	{

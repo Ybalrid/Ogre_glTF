@@ -12,12 +12,12 @@ inline void log(const std::string& message)
 
 struct Ogre_glTF_adapter::impl
 {
-	impl() : meshFactory(model) {}
+	impl() : modelConverter(model) {}
 	bool valid = false;
 	tinygltf::Model model;
 	std::string error = "";
 
-	Ogre_glTF_modelConverter meshFactory;
+	Ogre_glTF_modelConverter modelConverter;
 };
 
 Ogre_glTF_adapter::Ogre_glTF_adapter() :
@@ -33,6 +33,10 @@ Ogre_glTF_adapter::~Ogre_glTF_adapter()
 
 Ogre::Item* Ogre_glTF_adapter::getItem() const
 {
+	if (isOk())
+	{
+		auto Mesh = pimpl->modelConverter.generateOgreMesh();
+	}
 	return nullptr;
 }
 
@@ -126,13 +130,13 @@ Ogre_glTF_adapter Ogre_glTF::loadFile(const std::string& path) const
 	log("Attempting to log " + path);
 	Ogre_glTF_adapter adapter;
 	loaderImpl->loadInto(adapter, path);
-	if (adapter.getLastError().empty())
+	//if (adapter.getLastError().empty())
 	{
 		log("Debug : it looks like the file was loaded without error!");
 		adapter.pimpl->valid = true;
 	}
 
-	adapter.pimpl->meshFactory.debugDump();
+	adapter.pimpl->modelConverter.debugDump();
 	return std::move(adapter);
 }
 
