@@ -1,11 +1,19 @@
 #include <Ogre.h>
+//To create workspace definitions and workspaces
 #include <Compositor/OgreCompositorManager2.h>
+//To use the hlms
 #include <Hlms/Pbs/OgreHlmsPbs.h>
 #include <Hlms/Unlit/OgreHlmsUnlit.h>
 #include <OgreHlms.h>
+//To load Hlms
 #include <OgreArchive.h>
+//To use objects
+#include <OgreItem.h>
+
+//To use smart pointers
 #include <memory>
 
+//The library we are trying out in this program
 #include <Ogre_glTF.hpp>
 
 #ifdef _DEBUG
@@ -70,6 +78,8 @@ int main(int argc, char* argv[])
 {
 	//Init Ogre
 	auto root = std::make_unique<Ogre::Root>();
+	Ogre::LogManager::getSingleton().setLogDetail(Ogre::LoggingLevel::LL_BOREME);
+
 	root->loadPlugin(RENDER_PLUGIN);
 	root->setRenderSystem(root->getAvailableRenderers().front());
 	root->initialise(false);
@@ -87,6 +97,8 @@ int main(int argc, char* argv[])
 
 	declareHlmsLibrary("./");
 
+	Ogre::ResourceGroupManager::getSingleton().initialiseAllResourceGroups(true);
+
 	Ogre::Item* CorsetItem = nullptr;
 	Ogre::SceneNode* CorsetNode = nullptr;
 
@@ -103,16 +115,24 @@ int main(int argc, char* argv[])
 	}
 
 	CorsetNode = smgr->getRootSceneNode()->createChildSceneNode();
+	CorsetNode->attachObject(CorsetItem);
 	camera->setNearClipDistance(0.1);
 	camera->setFarClipDistance(100);
 	camera->setPosition({ 5, 5, 5 });
 	camera->lookAt({ 0, 0, 0 });
+
+	auto light = smgr->createLight();
+	smgr->getRootSceneNode()->createChildSceneNode()->attachObject(light);
+	light->setType(Ogre::Light::LT_DIRECTIONAL);
+	light->setDirection({ -1, -1, -0.5 });
 
 	while (!window->isClosed())
 	{
 		Ogre::WindowEventUtilities::messagePump();
 		root->renderOneFrame();
 	}
+
+	//TODO FIX Looks like the program is haning somewher at this point. This doesn't make sense
 
 	return 0;
 }

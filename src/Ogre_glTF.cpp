@@ -5,7 +5,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "tiny_gltf.h"
 
-inline void log(const std::string& message)
+inline void OgreLog(const std::string& message)
 {
 	Ogre::LogManager::getSingleton().logMessage(message);
 }
@@ -23,12 +23,12 @@ struct Ogre_glTF_adapter::impl
 Ogre_glTF_adapter::Ogre_glTF_adapter() :
 	pimpl{ std::make_unique<Ogre_glTF_adapter::impl>() }
 {
-	log("Created adapter object...");
+	OgreLog("Created adapter object...");
 }
 
 Ogre_glTF_adapter::~Ogre_glTF_adapter()
 {
-	log("Destructed adapter object...");
+	OgreLog("Destructed adapter object...");
 }
 
 Ogre::Item* Ogre_glTF_adapter::getItem(Ogre::SceneManager* smgr) const
@@ -43,6 +43,7 @@ Ogre::Item* Ogre_glTF_adapter::getItem(Ogre::SceneManager* smgr) const
 
 Ogre_glTF_adapter::Ogre_glTF_adapter(Ogre_glTF_adapter&& other) noexcept : pimpl{ std::move(other.pimpl) }
 {
+	OgreLog("Moved adapter object...");
 }
 
 bool Ogre_glTF_adapter::isOk() const
@@ -61,7 +62,7 @@ struct Ogre_glTF::gltfLoader
 
 	gltfLoader()
 	{
-		log("initialized TinyGLTF loader");
+		OgreLog("initialized TinyGLTF loader");
 	}
 
 	enum class FileType
@@ -76,14 +77,17 @@ struct Ogre_glTF::gltfLoader
 		//Quickly open the file as binary and chekc if there's the gltf binary magic number
 		{
 			auto probe = std::ifstream(path, std::ios_base::binary);
-			if (!probe) throw std::runtime_error("Could not open " + path);
+			if (!probe)
+				throw std::runtime_error("Could not open " + path);
+
 			std::array<char, 5> buffer;
 			for (size_t i{ 0 }; i < 4; ++i)
 				probe >> buffer[i];
 			buffer[4] = 0;
+
 			if (std::string("glTF") == std::string(buffer.data()))
 			{
-				log("Detected binary file thanks to the magic number at the start!");
+				OgreLog("Detected binary file thanks to the magic number at the start!");
 				return FileType::Binary;
 			}
 		}
@@ -105,10 +109,10 @@ struct Ogre_glTF::gltfLoader
 		case FileType::Unknown:
 			return false;
 		case FileType::Ascii:
-			log("Detected ascii file type");
+			OgreLog("Detected ascii file type");
 			return loader.LoadASCIIFromFile(&adapter.pimpl->model, &adapter.pimpl->error, path);
 		case FileType::Binary:
-			log("Deteted binary file type");
+			OgreLog("Deteted binary file type");
 			return loader.LoadBinaryFromFile(&adapter.pimpl->model, &adapter.pimpl->error, path);
 		}
 	}
@@ -119,7 +123,7 @@ Ogre_glTF::Ogre_glTF() : loaderImpl{ std::make_unique<Ogre_glTF::gltfLoader>() }
 	if (Ogre::Root::getSingletonPtr() == nullptr)
 		throw std::runtime_error("Please create an Ogre::Root instance before initializing the glTF library!");
 
-	log("Ogre_glTF created!");
+	OgreLog("Ogre_glTF created!");
 }
 
 Ogre_glTF::~Ogre_glTF()
@@ -128,12 +132,12 @@ Ogre_glTF::~Ogre_glTF()
 
 Ogre_glTF_adapter Ogre_glTF::loadFile(const std::string& path) const
 {
-	log("Attempting to log " + path);
+	OgreLog("Attempting to log " + path);
 	Ogre_glTF_adapter adapter;
 	loaderImpl->loadInto(adapter, path);
 	//if (adapter.getLastError().empty())
 	{
-		log("Debug : it looks like the file was loaded without error!");
+		OgreLog("Debug : it looks like the file was loaded without error!");
 		adapter.pimpl->valid = true;
 	}
 
