@@ -3,7 +3,7 @@
 #include "OgreMeshManager2.h"
 #include "OgreSubMesh2.h"
 
-inline void log(const std::string messages)
+inline void OgreLog(const std::string messages)
 {
 	Ogre::LogManager::getSingleton().logMessage(messages);
 }
@@ -48,10 +48,10 @@ Ogre::VertexBufferPackedVec Ogre_glTF_modelConverter::constructVertexBuffer(cons
 		}
 	}
 
-	log("There will be " + std::to_string(vertexCount) + " vertices with a stride of " + std::to_string(stride) + " bytes");
+	OgreLog("There will be " + std::to_string(vertexCount) + " vertices with a stride of " + std::to_string(stride) + " bytes");
 
 	Ogre_glTF_geometryBuffer<float> finalBuffer(vertexCount * strideInElements);
-	size_t bytesWrittenInCurrentStride{};
+	size_t bytesWrittenInCurrentStride;
 	for (size_t vertexIndex = 0; vertexIndex < vertexCount; ++vertexIndex)
 	{
 		bytesWrittenInCurrentStride = 0;
@@ -60,13 +60,12 @@ Ogre::VertexBufferPackedVec Ogre_glTF_modelConverter::constructVertexBuffer(cons
 			memcpy(finalBuffer.dataAddress() + (bytesWrittenInCurrentStride + vertexIndex * stride),
 				(part.buffer->dataAddress() + (vertexIndex * part.getPartStride())),
 				part.getPartStride()
-
 			);
 			bytesWrittenInCurrentStride += part.getPartStride();
 		}
 	}
 
-	//log("Final content of the buffer:");
+	//OgreLog("Final content of the buffer:");
 	//finalBuffer.debugContentToLog();
 
 	Ogre::VertexBufferPackedVec vec;
@@ -85,51 +84,50 @@ Ogre::MeshPtr Ogre_glTF_modelConverter::generateOgreMesh()
 {
 	const auto mainMeshIndex = model.nodes[model.scenes[model.defaultScene].nodes.front()].mesh;
 	const auto& mesh = model.meshes[mainMeshIndex];
-	log("Found mesh " + mesh.name);
-	log("mesh has " + std::to_string(mesh.primitives.size()) + " primitives");
+	OgreLog("Found mesh " + mesh.name);
+	OgreLog("mesh has " + std::to_string(mesh.primitives.size()) + " primitives");
 
 	auto OgreMesh = Ogre::MeshManager::getSingleton().createManual(mesh.name, Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
-	log("Created mesh on v2 MeshManager");
+	OgreLog("Created mesh on v2 MeshManager");
 	for (const auto& primitive : mesh.primitives)
 	{
 		auto subMesh = OgreMesh->createSubMesh();
-		log("Created one submesh");
+		OgreLog("Created one submesh");
 		auto indexBuffer = extractIndexBuffer(primitive.indices);
 
-		//TODO load vertex buffer below :
 		std::vector<Ogre_glTF_vertexBufferPart> parts;
-		log("\tprimitive has : " + std::to_string(primitive.attributes.size()) + " atributes");
+		OgreLog("\tprimitive has : " + std::to_string(primitive.attributes.size()) + " atributes");
 		for (const auto& atribute : primitive.attributes)
 		{
-			log("\t " + atribute.first);
+			OgreLog("\t " + atribute.first);
 			parts.push_back(std::move(extractVertexBuffer(atribute)));
 		}
 
 		auto vertexBuffers = constructVertexBuffer(parts);
-		auto vao = getVaoManager()->createVertexArrayObject(vertexBuffers, indexBuffer, [&]()
+		auto vao = getVaoManager()->createVertexArrayObject(vertexBuffers, indexBuffer, [&]
 		{
 			switch (primitive.mode)
 			{
 			case TINYGLTF_MODE_LINE:
-				log("Line List");
+				OgreLog("Line List");
 				return Ogre::OT_LINE_LIST;
 			case TINYGLTF_MODE_LINE_LOOP:
-				log("Line Loop");
+				OgreLog("Line Loop");
 				return Ogre::OT_LINE_STRIP;
 			case TINYGLTF_MODE_POINTS:
-				log("Points");
+				OgreLog("Points");
 				return Ogre::OT_POINT_LIST;
 			case TINYGLTF_MODE_TRIANGLES:
-				log("Triangle List");
+				OgreLog("Triangle List");
 				return Ogre::OT_TRIANGLE_LIST;
 			case TINYGLTF_MODE_TRIANGLE_FAN:
-				log("Trinagle Fan");
+				OgreLog("Trinagle Fan");
 				return Ogre::OT_TRIANGLE_FAN;
 			case TINYGLTF_MODE_TRIANGLE_STRIP:
-				log("Triangle Strip");
+				OgreLog("Triangle Strip");
 				return Ogre::OT_TRIANGLE_STRIP;
 			default:
-				log("Unknown");
+				OgreLog("Unknown");
 				throw std::runtime_error("Can't understand primitive mode!");
 			};
 		}());
@@ -138,16 +136,16 @@ Ogre::MeshPtr Ogre_glTF_modelConverter::generateOgreMesh()
 		subMesh->mVao[Ogre::VpShadow].push_back(vao);
 	}
 
-	//Set the bounds to get frustum culling and LOD to work correctly.
+	//TODO use the min and max values of the mesh accessor to actually calculate AABB for this object
 	OgreMesh->_setBounds(Ogre::Aabb(Ogre::Vector3::ZERO, Ogre::Vector3::UNIT_SCALE), false);
 	OgreMesh->_setBoundingSphereRadius(1.732f);
+
 	return OgreMesh;
 }
 
 void Ogre_glTF_modelConverter::debugDump() const
 {
 	std::stringstream ss;
-
 	ss << "This glTF model has:\n"
 		<< model.accessors.size() << " accessors\n"
 		<< model.animations.size() << " animations\n"
@@ -162,21 +160,20 @@ void Ogre_glTF_modelConverter::debugDump() const
 		<< model.samplers.size() << " samplers\n"
 		<< model.cameras.size() << " cameras\n"
 		<< model.scenes.size() << " scenes\n"
-		<< model.lights.size() << " lights\n"
-		;
+		<< model.lights.size() << " lights\n";
 
-	log(ss.str());
+	OgreLog(ss.str());
 }
 
 Ogre::VaoManager* Ogre_glTF_modelConverter::getVaoManager()
 {
-	//Our class shouldn't be able to exist if Ogre hasn't been initalized. This call should allways succeed.
+	//Our class shouldn't be able to exist if Ogre hasn't been initalized with a valid render system. This call should allways succeed.
 	return Ogre::Root::getSingletonPtr()->getRenderSystem()->getVaoManager();
 }
 
 Ogre::IndexBufferPacked* Ogre_glTF_modelConverter::extractIndexBuffer(int accessorID) const
 {
-	log("Extracting index buffer");
+	OgreLog("Extracting index buffer");
 	auto& accessor = model.accessors[accessorID];
 	auto& bufferView = model.bufferViews[accessor.bufferView];
 	auto& buffer = model.buffers[bufferView.buffer];
@@ -187,6 +184,8 @@ Ogre::IndexBufferPacked* Ogre_glTF_modelConverter::extractIndexBuffer(int access
 	Ogre::IndexBufferPacked::IndexType type;
 
 	auto convertTo16Bit{ false };
+
+	//TODO refactor this block to use one IILE while setting these values as const
 	switch (accessor.componentType)
 	{
 	case TINYGLTF_COMPONENT_TYPE_BYTE:
@@ -211,7 +210,7 @@ Ogre::IndexBufferPacked* Ogre_glTF_modelConverter::extractIndexBuffer(int access
 	const auto byteStride = [&]() -> size_t
 	{
 		if (bufferView.byteStride) return bufferView.byteStride;
-		log("Index buffer is 'tightly packed'");
+		OgreLog("Index buffer is 'tightly packed'");
 		if (convertTo16Bit) return sizeof(char);
 		switch (accessor.componentType)
 		{
@@ -224,7 +223,9 @@ Ogre::IndexBufferPacked* Ogre_glTF_modelConverter::extractIndexBuffer(int access
 		default: throw std::runtime_error("Can't deduce byte stride");
 		}
 	}();
+	//End of block to refactor
 
+	//Make the calls to loadIndexBuffer less ugly if possible
 	if (convertTo16Bit)
 	{
 		loadIndexBuffer<Ogre::uint16, Ogre::uint8>((Ogre::uint16*)geometryBuffer->dataAddress(), buffer.data.data(), indexCount, bufferView.byteOffset + accessor.byteOffset, byteStride);
@@ -304,19 +305,19 @@ Ogre_glTF_vertexBufferPart Ogre_glTF_modelConverter::extractVertexBuffer(const s
 	if (numberOfElementPerVertex == 3) elementType = Ogre::VET_FLOAT3;
 	if (numberOfElementPerVertex == 4) elementType = Ogre::VET_FLOAT4;
 
-	if (bufferView.byteStride == 0) log("Vertex buffer is 'tightly packed'");
+	if (bufferView.byteStride == 0) OgreLog("Vertex buffer is 'tightly packed'");
 	const auto byteStride = (bufferView.byteStride != 0 ? bufferView.byteStride : numberOfElementPerVertex * sizeof(float));
 	const auto vertexCount = bufferLenghtInBufferBasicType / numberOfElementPerVertex;
 
 	const auto vertexElementLenghtInBytes = numberOfElementPerVertex * geometryBuffer->elementSize();
-	log("A vertex element on this buffer is " + std::to_string(vertexElementLenghtInBytes) + " bytes long");
+	OgreLog("A vertex element on this buffer is " + std::to_string(vertexElementLenghtInBytes) + " bytes long");
 	for (size_t vertexIndex = 0; vertexIndex < vertexCount; vertexIndex++)
 	{
 		const size_t destOffset = vertexIndex * vertexElementLenghtInBytes;
 		const size_t sourceOffset = elementOffsetInBuffer + vertexIndex * byteStride;
 
-		//log("source byte + " + std::to_string(sourceOffset));
-		//log("desination byte + " + std::to_string(destOffset));
+		//OgreLog("source byte + " + std::to_string(sourceOffset));
+		//OgreLog("desination byte + " + std::to_string(destOffset));
 		memcpy((geometryBuffer->dataAddress() + destOffset),
 			(buffer.data.data() + sourceOffset),
 			vertexElementLenghtInBytes);
