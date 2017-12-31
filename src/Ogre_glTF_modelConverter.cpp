@@ -51,9 +51,10 @@ Ogre::VertexBufferPackedVec Ogre_glTF_modelConverter::constructVertexBuffer(cons
 	log("There will be " + std::to_string(vertexCount) + " vertices with a stride of " + std::to_string(stride) + " bytes");
 
 	Ogre_glTF_geometryBuffer<float> finalBuffer(vertexCount * strideInElements);
+	size_t bytesWrittenInCurrentStride{};
 	for (size_t vertexIndex = 0; vertexIndex < vertexCount; ++vertexIndex)
 	{
-		size_t bytesWrittenInCurrentStride = 0;
+		bytesWrittenInCurrentStride = 0;
 		for (const auto& part : parts)
 		{
 			memcpy(finalBuffer.dataAddress() + (bytesWrittenInCurrentStride + vertexIndex * stride),
