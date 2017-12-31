@@ -80,6 +80,18 @@ struct Ogre_glTF_vertexBufferPart
 	size_t getPartStride() const;
 };
 
+template <typename bufferType, typename sourceType> void loadIndexBuffer(bufferType* dest,
+	sourceType* source,
+	size_t indexCount,
+	size_t offset,
+	size_t stride)
+{
+	for (size_t i = 0; i < indexCount; ++i)
+	{
+		dest[i] = *(reinterpret_cast<sourceType*>(reinterpret_cast<unsigned char*>(source) + (offset + i * stride)));
+	}
+}
+
 class Ogre_glTF_EXPORT Ogre_glTF_modelConverter
 {
 public:
@@ -90,6 +102,7 @@ private:
 	static Ogre::VaoManager* getVaoManager();
 	static size_t getVertexBufferElementsPerVertexCount(int type);
 	static Ogre::VertexElementSemantic getVertexElementScemantic(const std::string& type);
+
 	Ogre::IndexBufferPacked* extractIndexBuffer(int accessor) const;
 	Ogre_glTF_vertexBufferPart extractVertexBuffer(const std::pair<std::string, int>& attribute) const;
 	Ogre::VertexBufferPackedVec constructVertexBuffer(const std::vector<Ogre_glTF_vertexBufferPart>& parts) const;

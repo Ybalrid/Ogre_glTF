@@ -21,11 +21,12 @@ Ogre_glTF_modelConverter::Ogre_glTF_modelConverter(tinygltf::Model& input) :
 Ogre::VertexBufferPackedVec Ogre_glTF_modelConverter::constructVertexBuffer(const std::vector<Ogre_glTF_vertexBufferPart>& parts) const
 {
 	Ogre::VertexElement2Vec vertexElements;
-	size_t stride{ 0 };
+	size_t stride{ 0 }, strideInElements{ 0 };
 	size_t vertexCount{ 0 }, previousVertexCount{ 0 };
 	for (const auto& part : parts)
 	{
 		vertexElements.emplace_back(part.type, part.semantic);
+		strideInElements += part.perVertex;
 		stride += part.buffer->elementSize() * part.perVertex;
 		vertexCount = part.vertexCount;
 
@@ -49,20 +50,23 @@ Ogre::VertexBufferPackedVec Ogre_glTF_modelConverter::constructVertexBuffer(cons
 
 	log("There will be " + std::to_string(vertexCount) + " vertices with a stride of " + std::to_string(stride) + " bytes");
 
-	Ogre_glTF_geometryBuffer<unsigned char> finalBuffer(vertexCount * stride);
+	Ogre_glTF_geometryBuffer<float> finalBuffer(vertexCount * strideInElements);
 	for (size_t vertexIndex = 0; vertexIndex < vertexCount; ++vertexIndex)
 	{
-		size_t written = 0;
+		size_t bytesWrittenInCurrentStride = 0;
 		for (const auto& part : parts)
 		{
-			memcpy(&finalBuffer.data()[written + vertexIndex * stride],
-				&part.buffer->dataAddress()[vertexIndex * part.getPartStride()],
+			memcpy(finalBuffer.dataAddress() + (bytesWrittenInCurrentStride + vertexIndex * stride),
+				(part.buffer->dataAddress() + (vertexIndex * part.getPartStride())),
 				part.getPartStride()
 
 			);
-			written += part.buffer->elementSize();
+			bytesWrittenInCurrentStride += part.getPartStride();
 		}
 	}
+
+	//log("Final content of the buffer:");
+	//finalBuffer.debugContentToLog();
 
 	Ogre::VertexBufferPackedVec vec;
 	auto vertexBuffer = Ogre_glTF_modelConverter::getVaoManager()->
@@ -169,18 +173,6 @@ Ogre::VaoManager* Ogre_glTF_modelConverter::getVaoManager()
 	return Ogre::Root::getSingletonPtr()->getRenderSystem()->getVaoManager();
 }
 
-template <typename bufferType, typename sourceType> void loadIndexBuffer(bufferType* dest,
-	sourceType* source,
-	size_t indexCount,
-	size_t offset,
-	size_t stride)
-{
-	for (size_t i = 0; i < indexCount; ++i)
-	{
-		dest[i] = *(reinterpret_cast<sourceType*>(reinterpret_cast<unsigned char*>(source) + (offset + i * stride)));
-	}
-}
-
 Ogre::IndexBufferPacked* Ogre_glTF_modelConverter::extractIndexBuffer(int accessorID) const
 {
 	log("Extracting index buffer");
@@ -215,17 +207,10 @@ Ogre::IndexBufferPacked* Ogre_glTF_modelConverter::extractIndexBuffer(int access
 		throw std::runtime_error("Unrecognized index data format");
 	}
 
-	const auto elementSizeInByte = geometryBuffer->elementSize();
-	//for (size_t i = 0; i < indexCount; i++)
-	//{
-	//	memcpy(&geometryBuffer->dataAddress()[i* elementSizeInByte],
-	//		&buffer.data[(bufferView.byteOffset + accessor.byteOffset) + i * bufferView.byteStride],
-	//		elementSizeInByte);
-	//}
-
 	const auto byteStride = [&]() -> size_t
 	{
 		if (bufferView.byteStride) return bufferView.byteStride;
+		log("Index buffer is 'tightly packed'");
 		if (convertTo16Bit) return sizeof(char);
 		switch (accessor.componentType)
 		{
@@ -318,8 +303,8 @@ Ogre_glTF_vertexBufferPart Ogre_glTF_modelConverter::extractVertexBuffer(const s
 	if (numberOfElementPerVertex == 3) elementType = Ogre::VET_FLOAT3;
 	if (numberOfElementPerVertex == 4) elementType = Ogre::VET_FLOAT4;
 
+	if (bufferView.byteStride == 0) log("Vertex buffer is 'tightly packed'");
 	const auto byteStride = (bufferView.byteStride != 0 ? bufferView.byteStride : numberOfElementPerVertex * sizeof(float));
-
 	const auto vertexCount = bufferLenghtInBufferBasicType / numberOfElementPerVertex;
 
 	const auto vertexElementLenghtInBytes = numberOfElementPerVertex * geometryBuffer->elementSize();
@@ -329,8 +314,8 @@ Ogre_glTF_vertexBufferPart Ogre_glTF_modelConverter::extractVertexBuffer(const s
 		const size_t destOffset = vertexIndex * vertexElementLenghtInBytes;
 		const size_t sourceOffset = elementOffsetInBuffer + vertexIndex * byteStride;
 
-		log("desination byte + " + std::to_string(destOffset));
-		log("desination byte + " + std::to_string(sourceOffset));
+		//log("source byte + " + std::to_string(sourceOffset));
+		//log("desination byte + " + std::to_string(destOffset));
 		memcpy((geometryBuffer->dataAddress() + destOffset),
 			(buffer.data.data() + sourceOffset),
 			vertexElementLenghtInBytes);

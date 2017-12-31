@@ -148,17 +148,20 @@ int main(int argc, char* argv[])
 	ObjectNode->attachObject(ObjectItem);
 	camera->setNearClipDistance(0.1);
 	camera->setFarClipDistance(100);
-	camera->setPosition({ 5, 5, 5 });
+	camera->setPosition({ 0.125, 0.125, 0.125 });
 	camera->lookAt({ 0, 0, 0 });
+	camera->setAutoAspectRatio(true);
 
 	auto light = smgr->createLight();
 	smgr->getRootSceneNode()->createChildSceneNode()->attachObject(light);
 	light->setType(Ogre::Light::LT_DIRECTIONAL);
 	light->setDirection({ -1, -1, -0.5 });
+	light->setPowerScale(5);
 
 	while (!window->isClosed())
 	{
 		Ogre::WindowEventUtilities::messagePump();
+		ObjectNode->setOrientation(Ogre::Quaternion(Ogre::Degree(root->getTimer()->getMilliseconds() / 10), Ogre::Vector3::NEGATIVE_UNIT_Y));
 		root->renderOneFrame();
 	}
 
