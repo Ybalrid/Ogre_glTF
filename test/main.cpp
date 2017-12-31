@@ -9,6 +9,11 @@
 #include <OgreArchive.h>
 //To use objects
 #include <OgreItem.h>
+//To load Ogre v1 meshes
+#include <OgreMeshManager2.h>
+#include <OgreMesh2.h>
+#include <OgreMesh.h>
+#include <OgreMeshManager.h>
 
 //To use smart pointers
 #include <memory>
@@ -21,6 +26,29 @@ const char RENDER_PLUGIN[] = "RenderSystem_GL3Plus_d";
 #else
 const char RENDER_PLUGIN[] = "RenderSystem_GL3Plus";
 #endif
+
+decltype(auto) loadV1mesh(Ogre::String meshName)
+{
+	return Ogre::v1::MeshManager::getSingleton().load(meshName, Ogre::ResourceGroupManager::AUTODETECT_RESOURCE_GROUP_NAME, Ogre::v1::HardwareBuffer::HBU_STATIC, Ogre::v1::HardwareBuffer::HBU_STATIC);
+}
+
+decltype(auto) asV2mesh(Ogre::String meshName, Ogre::String ResourceGroup = Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, Ogre::String sufix = " V2",
+	bool halfPos = true, bool halfTextCoords = true, bool qTangents = true)
+{
+	//Get the V1 mesh
+	auto v1mesh = loadV1mesh(meshName);
+
+	//Convert it as a V2 mesh
+	auto mesh = Ogre::MeshManager::getSingletonPtr()->createManual(meshName + sufix, ResourceGroup);
+	mesh->importV1(v1mesh.get(), halfPos, halfTextCoords, qTangents);
+
+	//Unload the useless V1 mesh
+	v1mesh->unload();
+	v1mesh.setNull();
+
+	//Return the shared pointer to the new mesh
+	return mesh;
+}
 
 void declareHlmsLibrary(Ogre::String dataFolder)
 {
@@ -97,25 +125,27 @@ int main(int argc, char* argv[])
 
 	declareHlmsLibrary("./");
 
+	//Ogre::ResourceGroupManager::getSingleton().addResourceLocation("./media", "FileSystem");
 	Ogre::ResourceGroupManager::getSingleton().initialiseAllResourceGroups(true);
 
-	Ogre::Item* CorsetItem = nullptr;
-	Ogre::SceneNode* CorsetNode = nullptr;
+	Ogre::Item* ObjectItem = nullptr;
+	Ogre::SceneNode* ObjectNode = nullptr;
 
 	//Initialize the library
 	auto gltf = std::make_unique<Ogre_glTF>();
 	try
 	{
 		auto adapter = gltf->loadFile("./Corset.glb");
-		CorsetItem = adapter.getItem(smgr);
+		ObjectItem = adapter.getItem(smgr);
 	}
 	catch (std::exception& e)
 	{
 		Ogre::LogManager::getSingleton().logMessage(e.what());
+		throw e;
 	}
 
-	CorsetNode = smgr->getRootSceneNode()->createChildSceneNode();
-	CorsetNode->attachObject(CorsetItem);
+	ObjectNode = smgr->getRootSceneNode()->createChildSceneNode();
+	ObjectNode->attachObject(ObjectItem);
 	camera->setNearClipDistance(0.1);
 	camera->setFarClipDistance(100);
 	camera->setPosition({ 5, 5, 5 });

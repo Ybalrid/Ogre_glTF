@@ -8,12 +8,17 @@ inline void log(const std::string messages)
 	Ogre::LogManager::getSingleton().logMessage(messages);
 }
 
+size_t Ogre_glTF_vertexBufferPart::getPartStride() const
+{
+	return buffer->elementSize() * perVertex;
+}
+
 Ogre_glTF_modelConverter::Ogre_glTF_modelConverter(tinygltf::Model& input) :
 	model{ input }
 {
 }
 
-Ogre::VertexBufferPackedVec constructVertexBuffer(const std::vector<Ogre_glTF_vertexBufferPart>& parts)
+Ogre::VertexBufferPackedVec Ogre_glTF_modelConverter::constructVertexBuffer(const std::vector<Ogre_glTF_vertexBufferPart>& parts) const
 {
 	Ogre::VertexElement2Vec vertexElements;
 	size_t stride{ 0 };
@@ -25,13 +30,20 @@ Ogre::VertexBufferPackedVec constructVertexBuffer(const std::vector<Ogre_glTF_ve
 		vertexCount = part.vertexCount;
 
 		//Sanity check
-		if (previousVertexCount && vertexCount == previousVertexCount)
+		if (previousVertexCount != 0)
 		{
-			previousVertexCount = vertexCount;
+			if (vertexCount == previousVertexCount)
+			{
+				previousVertexCount = vertexCount;
+			}
+			else
+			{
+				throw std::runtime_error("Part of vertex buffer for the same primitive have different vertex counts!");
+			}
 		}
 		else
 		{
-			throw std::runtime_error("Part of vertex buffer for the same primitive have different vertex counts!");
+			previousVertexCount = vertexCount;
 		}
 	}
 
@@ -121,6 +133,9 @@ Ogre::MeshPtr Ogre_glTF_modelConverter::generateOgreMesh()
 		subMesh->mVao[Ogre::VpShadow].push_back(vao);
 	}
 
+	//Set the bounds to get frustum culling and LOD to work correctly.
+	OgreMesh->_setBounds(Ogre::Aabb(Ogre::Vector3::ZERO, Ogre::Vector3::UNIT_SCALE), false);
+	OgreMesh->_setBoundingSphereRadius(1.732f);
 	return OgreMesh;
 }
 
@@ -154,6 +169,18 @@ Ogre::VaoManager* Ogre_glTF_modelConverter::getVaoManager()
 	return Ogre::Root::getSingletonPtr()->getRenderSystem()->getVaoManager();
 }
 
+template <typename bufferType, typename sourceType> void loadIndexBuffer(bufferType* dest,
+	sourceType* source,
+	size_t indexCount,
+	size_t offset,
+	size_t stride)
+{
+	for (size_t i = 0; i < indexCount; ++i)
+	{
+		dest[i] = *(reinterpret_cast<sourceType*>(reinterpret_cast<unsigned char*>(source) + (offset + i * stride)));
+	}
+}
+
 Ogre::IndexBufferPacked* Ogre_glTF_modelConverter::extractIndexBuffer(int accessorID) const
 {
 	log("Extracting index buffer");
@@ -162,14 +189,19 @@ Ogre::IndexBufferPacked* Ogre_glTF_modelConverter::extractIndexBuffer(int access
 	auto& buffer = model.buffers[bufferView.buffer];
 	const auto indexBufferByteLen = bufferView.byteLength;
 	size_t indexCount;
+	// ReSharper disable once CppInitializedValueIsAlwaysRewritten
 	std::unique_ptr<Ogre_glTF_geometryBuffer_base> geometryBuffer{ nullptr };
 	Ogre::IndexBufferPacked::IndexType type;
 
+	auto convertTo16Bit{ false };
 	switch (accessor.componentType)
 	{
+	case TINYGLTF_COMPONENT_TYPE_BYTE:
+	case TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE:
+		convertTo16Bit = true;
 	case TINYGLTF_COMPONENT_TYPE_SHORT:;
 	case TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT:
-		indexCount = indexBufferByteLen / sizeof(Ogre::uint16);
+		indexCount = accessor.count;
 		geometryBuffer = std::make_unique<Ogre_glTF_geometryBuffer<Ogre::uint16>>(indexCount);
 		type = Ogre::IndexBufferPacked::IT_16BIT;
 		break;
@@ -183,14 +215,49 @@ Ogre::IndexBufferPacked* Ogre_glTF_modelConverter::extractIndexBuffer(int access
 		throw std::runtime_error("Unrecognized index data format");
 	}
 
-	const auto chunkLen = geometryBuffer->elementSize();
-	for (size_t i = 0; i < indexCount; i++)
+	const auto elementSizeInByte = geometryBuffer->elementSize();
+	//for (size_t i = 0; i < indexCount; i++)
+	//{
+	//	memcpy(&geometryBuffer->dataAddress()[i* elementSizeInByte],
+	//		&buffer.data[(bufferView.byteOffset + accessor.byteOffset) + i * bufferView.byteStride],
+	//		elementSizeInByte);
+	//}
+
+	const auto byteStride = [&]() -> size_t
 	{
-		memcpy(&geometryBuffer->dataAddress()[i* chunkLen],
-			&buffer.data[(bufferView.byteOffset + accessor.byteOffset) + i * bufferView.byteStride],
-			chunkLen);
+		if (bufferView.byteStride) return bufferView.byteStride;
+		if (convertTo16Bit) return sizeof(char);
+		switch (accessor.componentType)
+		{
+		case TINYGLTF_COMPONENT_TYPE_SHORT:;
+		case TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT:
+			return 2;
+		case TINYGLTF_COMPONENT_TYPE_INT:;
+		case TINYGLTF_COMPONENT_TYPE_UNSIGNED_INT:
+			return 4;
+		default: throw std::runtime_error("Can't deduce byte stride");
+		}
+	}();
+
+	if (convertTo16Bit)
+	{
+		loadIndexBuffer<Ogre::uint16, Ogre::uint8>((Ogre::uint16*)geometryBuffer->dataAddress(), buffer.data.data(), indexCount, bufferView.byteOffset + accessor.byteOffset, byteStride);
+	}
+	else
+	{
+		if (type == Ogre::IndexBufferPacked::IT_16BIT)
+		{
+			loadIndexBuffer<Ogre::uint16, Ogre::uint16>((Ogre::uint16*)geometryBuffer->dataAddress(), (Ogre::uint16*)buffer.data.data(),
+				indexCount, bufferView.byteOffset + accessor.byteOffset, byteStride);
+		}
+		if (type == Ogre::IndexBufferPacked::IT_32BIT)
+		{
+			loadIndexBuffer<Ogre::uint32, Ogre::uint32>((Ogre::uint32*)geometryBuffer->dataAddress(), (Ogre::uint32*)buffer.data.data(),
+				indexCount, bufferView.byteOffset + accessor.byteOffset, byteStride);
+		}
 	}
 
+	//geometryBuffer->debugContentToLog();
 	return getVaoManager()->createIndexBuffer(type, indexCount, Ogre::BT_IMMUTABLE, geometryBuffer->dataAddress(), false);
 }
 
@@ -228,16 +295,15 @@ Ogre_glTF_vertexBufferPart Ogre_glTF_modelConverter::extractVertexBuffer(const s
 	const auto vertexBufferByteLen = bufferView.byteLength;
 	const auto numberOfElementPerVertex = getVertexBufferElementsPerVertexCount(accessor.type);
 	const auto elementOffsetInBuffer = bufferView.byteOffset + accessor.byteOffset;
+	size_t bufferLenghtInBufferBasicType;
 
-	size_t bufferLenghtInBufferBasicType{ 0 };
-
+	// ReSharper disable once CppInitializedValueIsAlwaysRewritten
 	std::unique_ptr<Ogre_glTF_geometryBuffer_base> geometryBuffer{ nullptr };
 
-	bool doublePrecision{ false };
 	switch (accessor.componentType)
 	{
 	case TINYGLTF_COMPONENT_TYPE_DOUBLE:
-		doublePrecision = true;
+		throw std::runtime_error("Double pressision not implemented!");
 	case TINYGLTF_COMPONENT_TYPE_FLOAT:
 		bufferLenghtInBufferBasicType = (vertexBufferByteLen / sizeof(float));
 		geometryBuffer = std::make_unique<Ogre_glTF_geometryBuffer<float>>(bufferLenghtInBufferBasicType);
@@ -252,23 +318,25 @@ Ogre_glTF_vertexBufferPart Ogre_glTF_modelConverter::extractVertexBuffer(const s
 	if (numberOfElementPerVertex == 3) elementType = Ogre::VET_FLOAT3;
 	if (numberOfElementPerVertex == 4) elementType = Ogre::VET_FLOAT4;
 
+	const auto byteStride = (bufferView.byteStride != 0 ? bufferView.byteStride : numberOfElementPerVertex * sizeof(float));
+
 	const auto vertexCount = bufferLenghtInBufferBasicType / numberOfElementPerVertex;
 
-	if (!doublePrecision)
+	const auto vertexElementLenghtInBytes = numberOfElementPerVertex * geometryBuffer->elementSize();
+	log("A vertex element on this buffer is " + std::to_string(vertexElementLenghtInBytes) + " bytes long");
+	for (size_t vertexIndex = 0; vertexIndex < vertexCount; vertexIndex++)
 	{
-		const auto vertexElementLenghtInBytes = numberOfElementPerVertex * geometryBuffer->elementSize();
-		log("A vertex element on this buffer is " + std::to_string(vertexElementLenghtInBytes) + " bytes long");
-		for (size_t vertexIndex = 0; vertexIndex < vertexCount; vertexIndex++)
-		{
-			memcpy(&geometryBuffer->dataAddress()[vertexIndex * vertexElementLenghtInBytes],
-				&buffer.data[elementOffsetInBuffer + vertexIndex * bufferView.byteStride],
-				vertexElementLenghtInBytes);
-		}
+		const size_t destOffset = vertexIndex * vertexElementLenghtInBytes;
+		const size_t sourceOffset = elementOffsetInBuffer + vertexIndex * byteStride;
+
+		log("desination byte + " + std::to_string(destOffset));
+		log("desination byte + " + std::to_string(sourceOffset));
+		memcpy((geometryBuffer->dataAddress() + destOffset),
+			(buffer.data.data() + sourceOffset),
+			vertexElementLenghtInBytes);
 	}
-	else
-	{
-		log("Attempting to load a double precision model. Sorry but as implemented, this is unsuported.");
-	}
+
+	//geometryBuffer->debugContentToLog();
 
 	return {
 		std::move(geometryBuffer),

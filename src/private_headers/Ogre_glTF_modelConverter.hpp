@@ -9,11 +9,13 @@ class Ogre_glTF_geometryBuffer_base
 public:
 	virtual ~Ogre_glTF_geometryBuffer_base() = default;
 	virtual unsigned char* dataAddress() = 0;
-	virtual size_t dataSize() = 0;
-	virtual size_t elementSize() = 0;
+	virtual size_t dataSize() const = 0;
+	virtual size_t elementSize() const = 0;
+	virtual void debugContentToLog() const = 0;
 };
 
-template <typename T> class Ogre_glTF_geometryBuffer : public Ogre_glTF_geometryBuffer_base
+template <typename T>
+class Ogre_glTF_geometryBuffer : public Ogre_glTF_geometryBuffer_base
 {
 	T* buffer;
 	const size_t bufferSize;
@@ -30,9 +32,17 @@ template <typename T> class Ogre_glTF_geometryBuffer : public Ogre_glTF_geometry
 
 public:
 
+	void debugContentToLog() const final
+	{
+		for (size_t i{ 0 }; i < bufferSize; ++i)
+		{
+			Ogre::LogManager::getSingleton().logMessage("BufferContent[" + std::to_string(i) + "] = " + std::to_string(buffer[i]));
+		}
+	}
+
 	unsigned char* dataAddress() final { return reinterpret_cast<unsigned char*>(data()); }
-	size_t dataSize() final { return bufferSize; }
-	size_t elementSize() final { return sizeof(T); }
+	size_t dataSize() const final { return bufferSize; }
+	size_t elementSize() const final { return sizeof(T); }
 
 	Ogre_glTF_geometryBuffer(size_t size) :
 		buffer{ allocateSimdBuffer(size) },
@@ -51,10 +61,12 @@ public:
 
 	Ogre_glTF_geometryBuffer(const Ogre_glTF_geometryBuffer&) = delete;
 	Ogre_glTF_geometryBuffer operator=(const Ogre_glTF_geometryBuffer&) = delete;
+
 	Ogre_glTF_geometryBuffer(Ogre_glTF_geometryBuffer&& other) noexcept :
 	buffer{ other.buffer },
 		bufferSize{ other.bufferSize }
-	{}
+	{
+	}
 };
 
 struct Ogre_glTF_vertexBufferPart
@@ -65,10 +77,7 @@ struct Ogre_glTF_vertexBufferPart
 	size_t vertexCount;
 	size_t perVertex;
 
-	size_t getPartStride() const
-	{
-		return buffer->elementSize() * perVertex;
-	}
+	size_t getPartStride() const;
 };
 
 class Ogre_glTF_EXPORT Ogre_glTF_modelConverter
@@ -77,12 +86,13 @@ public:
 	Ogre_glTF_modelConverter(tinygltf::Model& intput);
 	Ogre::MeshPtr generateOgreMesh();
 	void debugDump() const;
-	static Ogre::VaoManager* getVaoManager();
 private:
+	static Ogre::VaoManager* getVaoManager();
 	static size_t getVertexBufferElementsPerVertexCount(int type);
 	static Ogre::VertexElementSemantic getVertexElementScemantic(const std::string& type);
 	Ogre::IndexBufferPacked* extractIndexBuffer(int accessor) const;
 	Ogre_glTF_vertexBufferPart extractVertexBuffer(const std::pair<std::string, int>& attribute) const;
+	Ogre::VertexBufferPackedVec constructVertexBuffer(const std::vector<Ogre_glTF_vertexBufferPart>& parts) const;
 
 	tinygltf::Model& model;
 };
