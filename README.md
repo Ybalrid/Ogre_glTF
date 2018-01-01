@@ -16,7 +16,7 @@ I'm wanting to get this functionality working inside my game engine (Annwvyn, a 
 This is a projet under developement. Here's a short todolist beofre this thing will be in an "usable" state:
 
  - [x] Load mesh infrmation (index and vertex buffer, including vertex coordinates, normal vectors, texture coordinates) and create an Ogre::Mesh out of it via Ogre::MeshManager and Ogre::VaoManager
- - [ ] Load Image information from glTF into Ogre::TextureManager
+ - [x] Load Image information from glTF into Ogre::TextureManager
  - [ ] Load PBR material definition form glTF and create coresponding Ogre::HlmsPbsDatablock for them. (Ogre call PBR "PBS", more or less)
 
  At this point, the library will be able to load static geometry into Ogre.
@@ -38,7 +38,6 @@ To build the project, you need to have Ogre 2.1 build and "installed" somewhere.
 then, do the folliwng :
 
 ```bash
-mkdir build                     #creating a build directory is recomended
 cd build
 cmake ..                        #execute CMake while pointing at the parent directory
 make
