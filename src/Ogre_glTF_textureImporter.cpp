@@ -44,8 +44,14 @@ void Ogre_glTF_textureImporter::loadTexture(const tinygltf::Texture& texture)
 	}
 
 	Ogre::Image OgreImage;
+
+	//The OgreImage class can take ownership of the pointer to the data and automatically delete it.
+	//We don't want that.
+	//The rest of the funciton is not modifying the model object. We get the image as a const ref.
+	//In order to keep the rest of this code const correct, and knowing that the "autoDelete" is specifically
+	//set to `false`, we're casting away const on the pointer to the image data
 	OgreImage.loadDynamicImage(const_cast<Ogre::uchar*>(image.image.data()),
-		image.width, image.height, 1, pixelFormat);
+		image.width, image.height, 1, pixelFormat, false);
 
 	Ogre::TexturePtr OgreTexture = textureManager->createManual(name,
 		Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
