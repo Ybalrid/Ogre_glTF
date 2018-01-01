@@ -149,7 +149,7 @@ int main(int argc, char* argv[])
 	camera->setNearClipDistance(0.1);
 	camera->setFarClipDistance(100);
 	camera->setPosition({ 0.125, 0.125, 0.125 });
-	camera->lookAt({ 0, 0, 0 });
+	camera->lookAt({ 0, 0.03125, 0 });
 	camera->setAutoAspectRatio(true);
 
 	auto light = smgr->createLight();
