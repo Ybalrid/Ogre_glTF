@@ -25,6 +25,11 @@ void Ogre_glTF_materialLoader::setRoughnesValue(Ogre::HlmsPbsDatablock* block, O
 	block->setRoughness(value);
 }
 
+void Ogre_glTF_materialLoader::setEmissiveColor(Ogre::HlmsPbsDatablock* block, Ogre::Vector3 color) const
+{
+	block->setEmissive(color);
+}
+
 bool Ogre_glTF_materialLoader::isTextureIndexValid(int value) const
 {
 	return !(value < 0);
@@ -86,6 +91,17 @@ void Ogre_glTF_materialLoader::setOcclusionTexture(Ogre::HlmsPbsDatablock* block
 	}
 }
 
+void Ogre_glTF_materialLoader::setEmissiveTexture(Ogre::HlmsPbsDatablock* block, int value) const
+{
+	if (!isTextureIndexValid(value)) return;
+	auto texture = textureImporter.getTexture(value);
+	if (texture)
+	{
+		OgreLog("emissive texture from textureImporter : " + texture->getName());
+		block->setTexture(Ogre::PbsTextureTypes::PBSM_EMISSIVE, 0, texture);
+	}
+}
+
 Ogre_glTF_materialLoader::Ogre_glTF_materialLoader(tinygltf::Model& input, Ogre_glTF_textureImporter& textureInterface) :
 	textureImporter{ textureInterface },
 	model{ input }
@@ -97,7 +113,7 @@ Ogre::HlmsDatablock* Ogre_glTF_materialLoader::getDatablock() const
 	OgreLog("Loading material...");
 	//TODO this will need some modification if we support multiple meshes by glTF file
 	auto HlmsPbs = static_cast<Ogre::HlmsPbs*>(Ogre::Root::getSingleton().getHlmsManager()->getHlms(Ogre::HlmsTypes::HLMS_PBS));
-	const auto mainMeshIndex = model.nodes[model.scenes[model.defaultScene].nodes.front()].mesh;
+	const auto mainMeshIndex = (model.defaultScene != 0 ? model.nodes[model.scenes[model.defaultScene].nodes.front()].mesh : 0);
 	const auto& mesh = model.meshes[mainMeshIndex];
 	const auto material = model.materials[mesh.primitives.front().material];
 
@@ -131,10 +147,16 @@ Ogre::HlmsDatablock* Ogre_glTF_materialLoader::getDatablock() const
 	{
 		OgreLog(content.first);
 		if (content.first == "normalTexture")
-			setMetalRoughTexture(block, getTextureIndex(content));
+			setNormalTexture(block, getTextureIndex(content));
 
 		if (content.first == "occlusionTexture")
 			setOcclusionTexture(block, getTextureIndex(content));
+
+		if (content.first == "emissiveTexture")
+			setEmissiveTexture(block, getTextureIndex(content));
+
+		if (content.first == "emissiveFactor")
+			setEmissiveColor(block, getColorData(content));
 	}
 
 	OgreLog("extCommonValues");

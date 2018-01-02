@@ -82,7 +82,8 @@ Ogre::VertexBufferPackedVec Ogre_glTF_modelConverter::constructVertexBuffer(cons
 
 Ogre::MeshPtr Ogre_glTF_modelConverter::generateOgreMesh()
 {
-	const auto mainMeshIndex = model.nodes[model.scenes[model.defaultScene].nodes.front()].mesh;
+	OgreLog("Default scene" + std::to_string(model.defaultScene));
+	const auto mainMeshIndex = (model.defaultScene != 0 ? model.nodes[model.scenes[model.defaultScene].nodes.front()].mesh : 0);
 	const auto& mesh = model.meshes[mainMeshIndex];
 	OgreLog("Found mesh " + mesh.name);
 	OgreLog("mesh has " + std::to_string(mesh.primitives.size()) + " primitives");
@@ -307,7 +308,7 @@ Ogre_glTF_vertexBufferPart Ogre_glTF_modelConverter::extractVertexBuffer(const s
 
 	if (bufferView.byteStride == 0) OgreLog("Vertex buffer is 'tightly packed'");
 	const auto byteStride = (bufferView.byteStride != 0 ? bufferView.byteStride : numberOfElementPerVertex * sizeof(float));
-	const auto vertexCount = bufferLenghtInBufferBasicType / numberOfElementPerVertex;
+	const auto vertexCount = /*bufferLenghtInBufferBasicType / numberOfElementPerVertex;*/accessor.count;
 
 	const auto vertexElementLenghtInBytes = numberOfElementPerVertex * geometryBuffer->elementSize();
 	OgreLog("A vertex element on this buffer is " + std::to_string(vertexElementLenghtInBytes) + " bytes long");
