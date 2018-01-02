@@ -71,7 +71,7 @@ void Ogre_glTF_materialLoader::setMetalRoughTexture(Ogre::HlmsPbsDatablock* bloc
 void Ogre_glTF_materialLoader::setNormalTexture(Ogre::HlmsPbsDatablock* block, int value) const
 {
 	if (!isTextureIndexValid(value)) return;
-	auto texture = textureImporter.getTexture(value);
+	auto texture = textureImporter.getNormalFlipped(value);
 	if (texture)
 	{
 		OgreLog("normal texture from textureImporter : " + texture->getName());
@@ -149,8 +149,8 @@ Ogre::HlmsDatablock* Ogre_glTF_materialLoader::getDatablock() const
 		if (content.first == "normalTexture")
 			setNormalTexture(block, getTextureIndex(content));
 
-		if (content.first == "occlusionTexture")
-			setOcclusionTexture(block, getTextureIndex(content));
+		//if (content.first == "occlusionTexture")
+		//	setOcclusionTexture(block, getTextureIndex(content));
 
 		if (content.first == "emissiveTexture")
 			setEmissiveTexture(block, getTextureIndex(content));

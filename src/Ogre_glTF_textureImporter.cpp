@@ -57,7 +57,7 @@ void Ogre_glTF_textureImporter::loadTexture(const tinygltf::Texture& texture)
 	OgreTexture = textureManager->createManual(name,
 		Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
 		Ogre::TextureType::TEX_TYPE_2D_ARRAY, image.width, image.height,
-		1, 1, pixelFormat, Ogre::TU_DEFAULT | Ogre::TU_AUTOMIPMAP
+		1, 1, pixelFormat, Ogre::TU_DEFAULT
 #ifdef DEBUG_TEXTURE_OUTPUT
 		| Ogre::TU_RENDERTARGET
 #endif
@@ -155,7 +155,78 @@ Ogre::TexturePtr Ogre_glTF_textureImporter::generateGreyScaleFromChannel(int glt
 	OgreTexture = textureManager->createManual(name,
 		Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
 		Ogre::TextureType::TEX_TYPE_2D_ARRAY, image.width, image.height,
-		1, 1, pixelFormat, Ogre::TU_DEFAULT | Ogre::TU_AUTOMIPMAP
+		1, 1, pixelFormat, Ogre::TU_DEFAULT
+#ifdef DEBUG_TEXTURE_OUTPUT
+		| Ogre::TU_RENDERTARGET
+#endif
+	);
+
+	OgreTexture->loadImage(OgreImage);
+
+#ifdef DEBUG_TEXTURE_OUTPUT
+	//This was for debug, for that line to work you nee dthe texture to be declared with "texture usage render target"
+	OgreTexture->getBuffer()->getRenderTarget()->writeContentsToTimestampedFile(name, ".png");
+#endif
+
+	return OgreTexture;
+}
+
+Ogre::TexturePtr Ogre_glTF_textureImporter::getNormalFlipped(int gltfTextureSourceID)
+{
+	auto textureManager = Ogre::TextureManager::getSingletonPtr();
+	const auto& image = model.images[gltfTextureSourceID];
+	const auto name = "glTF_texture_" + image.name + std::to_string(id) + std::to_string(gltfTextureSourceID) + "_NormalFixed";
+
+	auto texture = textureManager->getByName(name);
+	if (texture) return texture;
+
+	OgreLog("Can't find texure " + name + ". Generating it from glTF");
+
+	const auto pixelFormat = [&]
+	{
+		if (image.component == 3)
+			return Ogre::PF_B8G8R8;
+		if (image.component == 4)
+			return Ogre::PF_B8G8R8A8;
+
+		//TODO do this properly. Right now it is guesswork
+
+		OgreLog("unrecognized pixel format from tinygltf image");
+	}();
+
+	if (image.image.size() / image.component == image.width*image.height)
+	{
+		OgreLog("It looks like the image.component field and the image size does match");
+	}
+	else
+	{
+		OgreLog("I have no idea what is going on with the image format");
+	}
+
+	Ogre::Image OgreImage;
+	Ogre::TexturePtr OgreTexture;
+
+	//Greyscale the image by putting all channel to the same value, ignoring alpha
+	std::vector<Ogre::uchar> imageData(image.image.size());
+	const auto pixelCount{ imageData.size() / image.component };
+	for (size_t i{ 0 }; i < pixelCount; i++)//for each pixel
+	{
+		imageData[image.component * i + 0] = image.image[image.component * i + 0];
+		imageData[image.component * i + 1] = 255 - image.image[image.component * i + 1];
+		imageData[image.component * i + 2] = image.image[image.component * i + 2];
+		if (image.component > 3)
+		{
+			imageData[image.component * i + 3] = image.image[image.component * i + 3];
+		}
+	}
+
+	OgreImage.loadDynamicImage(imageData.data(),
+		image.width, image.height, 1, pixelFormat, false);
+
+	OgreTexture = textureManager->createManual(name,
+		Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
+		Ogre::TextureType::TEX_TYPE_2D_ARRAY, image.width, image.height,
+		1, 1, pixelFormat, Ogre::TU_DEFAULT
 #ifdef DEBUG_TEXTURE_OUTPUT
 		| Ogre::TU_RENDERTARGET
 #endif
