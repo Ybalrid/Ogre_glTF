@@ -10,6 +10,21 @@ inline void OgreLog(const std::string& message)
 	Ogre::LogManager::getSingleton().logMessage(message);
 }
 
+void Ogre_glTF_materialLoader::setBaseColor(Ogre::HlmsPbsDatablock* block, Ogre::Vector3 color) const
+{
+	block->setDiffuse(color);
+}
+
+void Ogre_glTF_materialLoader::setMetallicValue(Ogre::HlmsPbsDatablock* block, Ogre::Real value) const
+{
+	block->setMetalness(value);
+}
+
+void Ogre_glTF_materialLoader::setRoughnesValue(Ogre::HlmsPbsDatablock* block, Ogre::Real value) const
+{
+	block->setRoughness(value);
+}
+
 bool Ogre_glTF_materialLoader::isTextureIndexValid(int value) const
 {
 	return !(value < 0);
@@ -100,6 +115,15 @@ Ogre::HlmsDatablock* Ogre_glTF_materialLoader::getDatablock() const
 
 		if (content.first == "metallicRoughnessTexture")
 			setMetalRoughTexture(block, getTextureIndex(content));
+
+		if (content.first == "baseColorFactor")
+			setBaseColor(block, getColorData(content));
+
+		if (content.first == "metallicFactor")
+			setMetallicValue(block, getNumericData(content));
+
+		if (content.first == "roughnessFactor")
+			setRoughnesValue(block, getNumericData(content));
 	}
 
 	OgreLog("additionalValues");
@@ -110,7 +134,7 @@ Ogre::HlmsDatablock* Ogre_glTF_materialLoader::getDatablock() const
 			setMetalRoughTexture(block, getTextureIndex(content));
 
 		if (content.first == "occlusionTexture")
-			setMetalRoughTexture(block, getTextureIndex(content));
+			setOcclusionTexture(block, getTextureIndex(content));
 	}
 
 	OgreLog("extCommonValues");

@@ -24,6 +24,35 @@ class Ogre_glTF_materialLoader
 		return -1;
 	}
 
+	///Get the color data from a material field
+	template<typename T> Ogre::Vector3 getColorData(const T& content) const
+	{
+		return {
+			static_cast<float>(content.second.number_array[0]),
+			static_cast<float>(content.second.number_array[1]),
+			static_cast<float>(content.second.number_array[2])
+		};
+	}
+
+	template<typename T> Ogre::Real getNumericData(const T& content) const
+	{
+		return Ogre::Real(content.second.number_array[0]);
+	}
+
+	///Set the diffuse color of the material
+	/// \param block datablock to set
+	/// \param color the color diffused by the material
+	void setBaseColor(Ogre::HlmsPbsDatablock* block, Ogre::Vector3 color) const;
+
+	///Set the metallness of the material
+	/// \param block datablock to set
+	/// \param value floating point value that represent metalness of the surface
+	void setMetallicValue(Ogre::HlmsPbsDatablock* block, Ogre::Real value) const;
+	///Set the roughness of the material
+	/// \param block datablock to set
+	/// \param value floating point value that represent metalness of the surface
+	void setRoughnesValue(Ogre::HlmsPbsDatablock* block, Ogre::Real value) const;
+
 	///Return true if the texture index is valid
 	bool isTextureIndexValid(int textureIndex) const;
 
