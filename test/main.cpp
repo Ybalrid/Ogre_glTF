@@ -151,6 +151,7 @@ int main(int argc, char* argv[])
 	auto gltf = std::make_unique<Ogre_glTF>();
 	try
 	{
+		//auto adapter = gltf->loadFile("./damagedHelmet/damagedHelmet.gltf");
 		auto adapter = gltf->loadFile("./Corset.glb");
 		ObjectItem = adapter.getItem(smgr);
 	}
@@ -164,8 +165,10 @@ int main(int argc, char* argv[])
 	ObjectNode->attachObject(ObjectItem);
 	camera->setNearClipDistance(0.001);
 	camera->setFarClipDistance(100);
-	camera->setPosition(Ogre::Vector3::UNIT_SCALE * 0.0625);
-	camera->lookAt({ 0, 0.03125, 0 });
+	/*camera->setPosition(Ogre::Vector3::UNIT_SCALE * 0.0625);
+	camera->lookAt({ 0, 0.03125, 0 });*/
+	camera->setPosition(Ogre::Vector3::UNIT_SCALE * 2);
+	camera->lookAt({ 0, 0, 0 });
 	camera->setAutoAspectRatio(true);
 
 	auto light = smgr->createLight();
@@ -176,7 +179,7 @@ int main(int argc, char* argv[])
 
 	while (!window->isClosed())
 	{
-		ObjectNode->setOrientation(Ogre::Quaternion(Ogre::Degree(root->getTimer()->getMilliseconds() / 10), Ogre::Vector3::NEGATIVE_UNIT_Y));
+		ObjectNode->setOrientation(Ogre::Quaternion(Ogre::Degree(float(root->getTimer()->getMilliseconds()) / 10.0f), Ogre::Vector3::NEGATIVE_UNIT_Y));
 		root->renderOneFrame();
 		Ogre::WindowEventUtilities::messagePump();
 	}
