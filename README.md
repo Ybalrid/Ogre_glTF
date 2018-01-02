@@ -17,7 +17,7 @@ This is a projet under developement. Here's a short todolist beofre this thing w
 
  - [x] Load mesh infrmation (index and vertex buffer, including vertex coordinates, normal vectors, texture coordinates) and create an Ogre::Mesh out of it via Ogre::MeshManager and Ogre::VaoManager
  - [x] Load Image information from glTF into Ogre::TextureManager
- - [ ] Load PBR material definition form glTF and create coresponding Ogre::HlmsPbsDatablock for them. (Ogre call PBR "PBS", more or less)
+ - [x] Load PBR material definition form glTF and create coresponding Ogre::HlmsPbsDatablock for them. (Ogre call PBR "PBS", more or less)
 
  At this point, the library will be able to load static geometry into Ogre.
 
