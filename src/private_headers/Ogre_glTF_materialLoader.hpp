@@ -25,6 +25,7 @@ class Ogre_glTF_materialLoader
 	}
 
 	///Get the color data from a material field
+	/// \param content Any material field from a tinygltf::Model
 	template<typename T> Ogre::Vector3 getColorData(const T& content) const
 	{
 		return {
@@ -34,6 +35,7 @@ class Ogre_glTF_materialLoader
 		};
 	}
 
+	/// \param content Any material field from a tinygltf::Model
 	template<typename T> Ogre::Real getNumericData(const T& content) const
 	{
 		return Ogre::Real(content.second.number_array[0]);
