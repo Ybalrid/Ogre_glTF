@@ -1,5 +1,6 @@
 #pragma once
 #include "tiny_gltf.h"
+#include <OgreHlms.h>
 #include <OgreHlmsPbs.h>
 class Ogre_glTF_textureImporter;
 
