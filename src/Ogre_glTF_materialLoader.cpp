@@ -20,13 +20,13 @@ void Ogre_glTF_materialLoader::setBaseColorTexture(Ogre::HlmsPbsDatablock* block
 	}
 }
 
-void Ogre_glTF_materialLoader::setMetalRoughTexture(Ogre::HlmsPbsDatablock* block, int value) const
+void Ogre_glTF_materialLoader::setMetalRoughTexture(Ogre::HlmsPbsDatablock* block, int gltfTextureID) const
 {
 	//Ogre cannot use combined metal rough textures. Metal is in the R channel, and rough in the G channel. It seems that the images are loaded as BGR by the libarry
 	//R channel is channle 2 (from 0), G channel is 1.
 
-	auto metalTexure = textureImporter.generateGreyScaleFromChannel(value, 2);
-	auto roughTexure = textureImporter.generateGreyScaleFromChannel(value, 1);
+	auto metalTexure = textureImporter.generateGreyScaleFromChannel(gltfTextureID, 2);
+	auto roughTexure = textureImporter.generateGreyScaleFromChannel(gltfTextureID, 1);
 
 	if (metalTexure)
 	{
