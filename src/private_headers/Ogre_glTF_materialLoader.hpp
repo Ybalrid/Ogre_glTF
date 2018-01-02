@@ -12,6 +12,21 @@ class Ogre_glTF_materialLoader
 	///The model
 	tinygltf::Model& model;
 
+	///Get the texture index from a material field
+	/// \param content Any material field from a tinygltf::Model
+	template<typename T> int getTextureIndex(const T& content) const
+	{
+		const auto it = content.second.json_double_value.find("index");
+		if (it != std::end(content.second.json_double_value))
+		{
+			return int(it->second);
+		}
+		return -1;
+	}
+
+	///Return true if the texture index is valid
+	bool isTextureIndexValid(int textureIndex) const;
+
 	///Set the diffuse texture (baseColorTexture)
 	/// \param block datablock to set
 	/// \param value gltf texture index

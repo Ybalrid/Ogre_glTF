@@ -10,8 +10,14 @@ inline void OgreLog(const std::string& message)
 	Ogre::LogManager::getSingleton().logMessage(message);
 }
 
+bool Ogre_glTF_materialLoader::isTextureIndexValid(int value) const
+{
+	return !(value < 0);
+}
+
 void Ogre_glTF_materialLoader::setBaseColorTexture(Ogre::HlmsPbsDatablock* block, int value) const
 {
+	if (!isTextureIndexValid(value)) return;
 	auto texture = textureImporter.getTexture(value);
 	if (texture)
 	{
@@ -22,6 +28,7 @@ void Ogre_glTF_materialLoader::setBaseColorTexture(Ogre::HlmsPbsDatablock* block
 
 void Ogre_glTF_materialLoader::setMetalRoughTexture(Ogre::HlmsPbsDatablock* block, int gltfTextureID) const
 {
+	if (!isTextureIndexValid(gltfTextureID)) return;
 	//Ogre cannot use combined metal rough textures. Metal is in the R channel, and rough in the G channel. It seems that the images are loaded as BGR by the libarry
 	//R channel is channle 2 (from 0), G channel is 1.
 
@@ -43,6 +50,7 @@ void Ogre_glTF_materialLoader::setMetalRoughTexture(Ogre::HlmsPbsDatablock* bloc
 
 void Ogre_glTF_materialLoader::setNormalTexture(Ogre::HlmsPbsDatablock* block, int value) const
 {
+	if (!isTextureIndexValid(value)) return;
 	auto texture = textureImporter.getTexture(value);
 	if (texture)
 	{
@@ -53,6 +61,7 @@ void Ogre_glTF_materialLoader::setNormalTexture(Ogre::HlmsPbsDatablock* block, i
 
 void Ogre_glTF_materialLoader::setOcclusionTexture(Ogre::HlmsPbsDatablock* block, int value) const
 {
+	if (!isTextureIndexValid(value)) return;
 	auto texture = textureImporter.getTexture(value);
 	if (texture)
 	{
@@ -87,46 +96,21 @@ Ogre::HlmsDatablock* Ogre_glTF_materialLoader::getDatablock() const
 	{
 		OgreLog(content.first);
 		if (content.first == "baseColorTexture")
-		{
-			auto it = content.second.json_double_value.find("index");
-			if (it != std::end(content.second.json_double_value))
-			{
-				setBaseColorTexture(block, it->second);
-			}
-		}
+			setBaseColorTexture(block, getTextureIndex(content));
 
 		if (content.first == "metallicRoughnessTexture")
-		{
-			auto it = content.second.json_double_value.find("index");
-			if (it != std::end(content.second.json_double_value))
-			{
-				setMetalRoughTexture(block, it->second);
-			}
-		}
+			setMetalRoughTexture(block, getTextureIndex(content));
 	}
 
 	OgreLog("additionalValues");
 	for (const auto& content : material.additionalValues)
 	{
 		OgreLog(content.first);
-
 		if (content.first == "normalTexture")
-		{
-			auto it = content.second.json_double_value.find("index");
-			if (it != std::end(content.second.json_double_value))
-			{
-				setMetalRoughTexture(block, it->second);
-			}
-		}
+			setMetalRoughTexture(block, getTextureIndex(content));
 
 		if (content.first == "occlusionTexture")
-		{
-			auto it = content.second.json_double_value.find("index");
-			if (it != std::end(content.second.json_double_value))
-			{
-				setMetalRoughTexture(block, it->second);
-			}
-		}
+			setMetalRoughTexture(block, getTextureIndex(content));
 	}
 
 	OgreLog("extCommonValues");
