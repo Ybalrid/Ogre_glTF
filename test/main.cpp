@@ -176,12 +176,10 @@ int main(int argc, char* argv[])
 
 	while (!window->isClosed())
 	{
-		Ogre::WindowEventUtilities::messagePump();
 		ObjectNode->setOrientation(Ogre::Quaternion(Ogre::Degree(root->getTimer()->getMilliseconds() / 10), Ogre::Vector3::NEGATIVE_UNIT_Y));
 		root->renderOneFrame();
+		Ogre::WindowEventUtilities::messagePump();
 	}
-
-	//TODO FIX Looks like the program is haning somewher at this point. This doesn't make sense
 
 	return 0;
 }
