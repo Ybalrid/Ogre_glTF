@@ -22,9 +22,9 @@
 #include <Ogre_glTF.hpp>
 
 #ifdef _DEBUG
-const char RENDER_PLUGIN[] = "RenderSystem_GL3Plus_d";
+const char GL_RENDER_PLUGIN[] = "RenderSystem_GL3Plus_d";
 #else
-const char RENDER_PLUGIN[] = "RenderSystem_GL3Plus";
+const char GL_RENDER_PLUGIN[] = "RenderSystem_GL3Plus";
 #endif
 
 decltype(auto) loadV1mesh(Ogre::String meshName)
@@ -108,8 +108,9 @@ int main(int argc, char* argv[])
 	auto root = std::make_unique<Ogre::Root>();
 	Ogre::LogManager::getSingleton().setLogDetail(Ogre::LoggingLevel::LL_BOREME);
 
-	root->loadPlugin(RENDER_PLUGIN);
-	root->setRenderSystem(root->getAvailableRenderers().front());
+	root->loadPlugin(GL_RENDER_PLUGIN);
+	//root->setRenderSystem(root->getAvailableRenderers().front());
+    root->showConfigDialog();
 	root->getRenderSystem()->setConfigOption("FSAA", "16");
 	root->getRenderSystem()->setConfigOption("sRGB Gamma Conversion", "Yes");
 	root->initialise(false);
