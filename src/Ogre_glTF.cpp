@@ -17,14 +17,24 @@ inline void OgreLog(const std::string& message)
 ///Implementaiton of the adapter
 struct Ogre_glTF_adapter::impl
 {
+	///Constructor, initialize once all the objects inclosed in this class. They need a reference
+	///to a model object (and sometimes more) given at construct time
 	impl() : textureImporter(model), materialLoader(model, textureImporter), modelConverter(model) {}
 
+	///Vaiable to check if everything is allright with the adapter
 	bool valid = false;
+
+	///The model object that data will be loaded into and read from
 	tinygltf::Model model;
+	///Where tinygltf will write it's error status
 	std::string error = "";
 
+	///Texture importer object : go throught the texture array and load them into Ogre
 	Ogre_glTF_textureImporter textureImporter;
+	///Mateiral loader : get the data from the material section of the glTF file and create an HlmsDatablock to use
 	Ogre_glTF_materialLoader materialLoader;
+	///Model converter : load the actual mesh data from the glTF file, and convert them into index and vertex buffer that can
+	///Be used to create an Ogre VAO (Vertex Array Object), then create a mesh for it
 	Ogre_glTF_modelConverter modelConverter;
 };
 
@@ -67,15 +77,19 @@ std::string Ogre_glTF_adapter::getLastError() const
 	return pimpl->error;
 }
 
+///Implementation of the glTF loader. Exist as a pImpl inside the Ogre_glTF class
 struct Ogre_glTF::gltfLoader
 {
+	///The loader object from TinyGLTF
 	tinygltf::TinyGLTF loader;
 
+	///Construtor. the loader is on the stack, there isn't mutch state to set inside the object
 	gltfLoader()
 	{
 		OgreLog("initialized TinyGLTF loader");
 	}
 
+	///For file type detection. Ascii is plain old JSON text, Binary is .glc files.
 	enum class FileType
 	{
 		Ascii,
@@ -83,6 +97,7 @@ struct Ogre_glTF::gltfLoader
 		Unknown
 	};
 
+	///Probe inside the file, or check the extension to determine if we have to load a text file, or a binary file
 	FileType detectType(const std::string& path) const
 	{
 		//Quickly open the file as binary and chekc if there's the gltf binary magic number
@@ -112,6 +127,7 @@ struct Ogre_glTF::gltfLoader
 		return FileType::Unknown;
 	}
 
+	///Load the content of a file into an adapter object
 	bool loadInto(Ogre_glTF_adapter& adapter, const std::string& path)
 	{
 		switch (detectType(path))

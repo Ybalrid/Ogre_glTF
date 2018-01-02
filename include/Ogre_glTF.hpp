@@ -33,9 +33,11 @@ public:
 	Ogre_glTF_adapter& operator=(const Ogre_glTF_adapter&) = delete;
 
 	///Construct an item for this object
+	/// \param smgr pointer to the scene manager where we are creating the item
 	Ogre::Item* getItem(Ogre::SceneManager* smgr) const;
 
 	///Move constructor : object is movable
+	/// \param other object to move
 	Ogre_glTF_adapter(Ogre_glTF_adapter&& other) noexcept;
 
 	///Return the current state of the adapter
@@ -58,12 +60,14 @@ public:
 	Ogre_glTF();
 
 	///Move constructor
+	/// \param other object to move
 	Ogre_glTF(Ogre_glTF&& other) noexcept;
 
 	///Deinitialize the library at this object destruction
 	~Ogre_glTF();
 
 	///Load a glTF text or binary file. Give you an adapter to use this file with Ogre
+	/// \param path String containing the path to a file to load (either .glTF or .glc)
 	Ogre_glTF_adapter loadFile(const std::string& path) const;
 
 	///Deleted copy contructor

@@ -66,7 +66,7 @@ Ogre::VertexBufferPackedVec Ogre_glTF_modelConverter::constructVertexBuffer(cons
 	}
 
 	//OgreLog("Final content of the buffer:");
-	//finalBuffer.debugContentToLog();
+	//finalBuffer._debugContentToLog();
 
 	Ogre::VertexBufferPackedVec vec;
 	auto vertexBuffer = Ogre_glTF_modelConverter::getVaoManager()->
@@ -244,7 +244,7 @@ Ogre::IndexBufferPacked* Ogre_glTF_modelConverter::extractIndexBuffer(int access
 		}
 	}
 
-	//geometryBuffer->debugContentToLog();
+	//geometryBuffer->_debugContentToLog();
 	return getVaoManager()->createIndexBuffer(type, indexCount, Ogre::BT_IMMUTABLE, geometryBuffer->dataAddress(), false);
 }
 
@@ -323,7 +323,7 @@ Ogre_glTF_vertexBufferPart Ogre_glTF_modelConverter::extractVertexBuffer(const s
 			vertexElementLenghtInBytes);
 	}
 
-	//geometryBuffer->debugContentToLog();
+	//geometryBuffer->_debugContentToLog();
 
 	return {
 		std::move(geometryBuffer),

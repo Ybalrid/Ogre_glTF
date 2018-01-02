@@ -27,6 +27,14 @@ const char GL_RENDER_PLUGIN[] = "RenderSystem_GL3Plus_d";
 const char GL_RENDER_PLUGIN[] = "RenderSystem_GL3Plus";
 #endif
 
+#ifdef _WIN32
+#ifdef _DEBUG
+const char D3D11_RENDER_PLUGIN[] = "RenderSystem_Direct3D11_d";
+#else
+const char D3D11_RENDER_PLUGIN[] = "RenderSystem_Direct3D11";
+#endif
+#endif
+
 decltype(auto) loadV1mesh(Ogre::String meshName)
 {
 	return Ogre::v1::MeshManager::getSingleton().load(meshName, Ogre::ResourceGroupManager::AUTODETECT_RESOURCE_GROUP_NAME, Ogre::v1::HardwareBuffer::HBU_STATIC, Ogre::v1::HardwareBuffer::HBU_STATIC);
@@ -109,8 +117,11 @@ int main(int argc, char* argv[])
 	Ogre::LogManager::getSingleton().setLogDetail(Ogre::LoggingLevel::LL_BOREME);
 
 	root->loadPlugin(GL_RENDER_PLUGIN);
+#ifdef _WIN32
+	root->loadPlugin(D3D11_RENDER_PLUGIN);
+#endif
 	//root->setRenderSystem(root->getAvailableRenderers().front());
-    root->showConfigDialog();
+	root->showConfigDialog();
 	root->getRenderSystem()->setConfigOption("FSAA", "16");
 	root->getRenderSystem()->setConfigOption("sRGB Gamma Conversion", "Yes");
 	root->initialise(false);
