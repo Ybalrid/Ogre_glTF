@@ -1,10 +1,13 @@
 #include "Ogre_glTF.hpp"
 #include "Ogre_glTF_modelConverter.hpp"
 #include "Ogre_glTF_textureImporter.hpp"
+#include "Ogre_glTF_materialLoader.hpp"
 
 #define TINYGLTF_IMPLEMENTATION
 #define STB_IMAGE_IMPLEMENTATION
 #include "tiny_gltf.h"
+
+#include <OgreItem.h>
 
 inline void OgreLog(const std::string& message)
 {
@@ -14,13 +17,14 @@ inline void OgreLog(const std::string& message)
 ///Implementaiton of the adapter
 struct Ogre_glTF_adapter::impl
 {
-	impl() : textureImporter(model), modelConverter(model) {}
+	impl() : textureImporter(model), materialLoader(model, textureImporter), modelConverter(model) {}
 
 	bool valid = false;
 	tinygltf::Model model;
 	std::string error = "";
 
 	Ogre_glTF_textureImporter textureImporter;
+	Ogre_glTF_materialLoader materialLoader;
 	Ogre_glTF_modelConverter modelConverter;
 };
 
@@ -41,7 +45,9 @@ Ogre::Item* Ogre_glTF_adapter::getItem(Ogre::SceneManager* smgr) const
 	{
 		pimpl->textureImporter.loadTextures();
 		auto Mesh = pimpl->modelConverter.generateOgreMesh();
-		return smgr->createItem(Mesh);
+		auto Item = smgr->createItem(Mesh);
+		Item->setDatablock(pimpl->materialLoader.getDatablock());
+		return Item;
 	}
 	return nullptr;
 }

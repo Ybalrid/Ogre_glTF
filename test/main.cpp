@@ -110,10 +110,14 @@ int main(int argc, char* argv[])
 
 	root->loadPlugin(RENDER_PLUGIN);
 	root->setRenderSystem(root->getAvailableRenderers().front());
+	root->getRenderSystem()->setConfigOption("FSAA", "16");
+	root->getRenderSystem()->setConfigOption("sRGB Gamma Conversion", "Yes");
 	root->initialise(false);
 
 	//Create a window and a scene
-	auto window = root->createRenderWindow("glTF test!", 800, 600, false, nullptr);
+	Ogre::NameValuePairList params;
+	params["FSAA"] = "16";
+	auto window = root->createRenderWindow("glTF test!", 800, 600, false, &params);
 	auto smgr = root->createSceneManager(Ogre::ST_GENERIC, 2, Ogre::INSTANCING_CULLING_THREADED);
 	auto camera = smgr->createCamera("cam");
 
@@ -146,9 +150,9 @@ int main(int argc, char* argv[])
 
 	ObjectNode = smgr->getRootSceneNode()->createChildSceneNode();
 	ObjectNode->attachObject(ObjectItem);
-	camera->setNearClipDistance(0.1);
+	camera->setNearClipDistance(0.001);
 	camera->setFarClipDistance(100);
-	camera->setPosition({ 0.125, 0.125, 0.125 });
+	camera->setPosition(Ogre::Vector3::UNIT_SCALE * 0.0625);
 	camera->lookAt({ 0, 0.03125, 0 });
 	camera->setAutoAspectRatio(true);
 

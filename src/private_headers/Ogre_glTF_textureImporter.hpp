@@ -15,4 +15,5 @@ public:
 	Ogre_glTF_textureImporter(tinygltf::Model& input);
 	void loadTextures();
 	Ogre::TexturePtr getTexture(int glTFTextureSourceID);
+	Ogre::TexturePtr generateGreyScaleFromChannel(int gltfTextureSourceID, int channel);
 };
