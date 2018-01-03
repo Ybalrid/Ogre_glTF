@@ -5,8 +5,7 @@
 #include <OgreImage.h>
 #include <OgreHardwarePixelBuffer.h>
 #include <OgreRenderTexture.h>
-
-//#define DEBUG_TEXTURE_OUTPUT
+#include <OgreColourValue.h>
 
 size_t Ogre_glTF_textureImporter::id{ 0 };
 
@@ -58,17 +57,9 @@ void Ogre_glTF_textureImporter::loadTexture(const tinygltf::Texture& texture)
 		Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
 		Ogre::TextureType::TEX_TYPE_2D_ARRAY, image.width, image.height,
 		1, 1, pixelFormat, Ogre::TU_DEFAULT
-#ifdef DEBUG_TEXTURE_OUTPUT
-		| Ogre::TU_RENDERTARGET
-#endif
 	);
 
 	OgreTexture->loadImage(OgreImage);
-
-#ifdef DEBUG_TEXTURE_OUTPUT
-	//This was for debug, for that line to work you nee dthe texture to be declared with "texture usage render target"
-	OgreTexture->getBuffer()->getRenderTarget()->writeContentsToTimestampedFile(name, ".png");
-#endif
 
 	loadedTextures.insert({ texture.source, OgreTexture });
 }
@@ -156,22 +147,12 @@ Ogre::TexturePtr Ogre_glTF_textureImporter::generateGreyScaleFromChannel(int glt
 		Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
 		Ogre::TextureType::TEX_TYPE_2D_ARRAY, image.width, image.height,
 		1, 1, pixelFormat, Ogre::TU_DEFAULT
-#ifdef DEBUG_TEXTURE_OUTPUT
-		| Ogre::TU_RENDERTARGET
-#endif
 	);
-
 	OgreTexture->loadImage(OgreImage);
-
-#ifdef DEBUG_TEXTURE_OUTPUT
-	//This was for debug, for that line to work you nee dthe texture to be declared with "texture usage render target"
-	OgreTexture->getBuffer()->getRenderTarget()->writeContentsToTimestampedFile(name, ".png");
-#endif
-
 	return OgreTexture;
 }
 
-Ogre::TexturePtr Ogre_glTF_textureImporter::getNormalFlipped(int gltfTextureSourceID)
+Ogre::TexturePtr Ogre_glTF_textureImporter::getNormalSNORM(int gltfTextureSourceID)
 {
 	auto textureManager = Ogre::TextureManager::getSingletonPtr();
 	const auto& image = model.images[gltfTextureSourceID];
@@ -185,59 +166,43 @@ Ogre::TexturePtr Ogre_glTF_textureImporter::getNormalFlipped(int gltfTextureSour
 	const auto pixelFormat = [&]
 	{
 		if (image.component == 3)
-			return Ogre::PF_B8G8R8;
+			return Ogre::PF_R8G8B8;
 		if (image.component == 4)
-			return Ogre::PF_B8G8R8A8;
+			return Ogre::PF_R8G8B8A8;
 
 		//TODO do this properly. Right now it is guesswork
 
 		OgreLog("unrecognized pixel format from tinygltf image");
 	}();
 
-	if (image.image.size() / image.component == image.width*image.height)
+	const auto pixelFormatSnorm = [&]
 	{
-		OgreLog("It looks like the image.component field and the image size does match");
-	}
-	else
-	{
-		OgreLog("I have no idea what is going on with the image format");
-	}
+		if (image.component == 3)
+			return Ogre::PF_R8G8B8_SNORM;
+		if (image.component == 4)
+			return Ogre::PF_R8G8B8A8_SNORM;
+	}();
 
-	Ogre::Image OgreImage;
-	Ogre::TexturePtr OgreTexture;
-
-	//Greyscale the image by putting all channel to the same value, ignoring alpha
-	std::vector<Ogre::uchar> imageData(image.image.size());
-	const auto pixelCount{ imageData.size() / image.component };
-	for (size_t i{ 0 }; i < pixelCount; i++)//for each pixel
-	{
-		imageData[image.component * i + 0] = image.image[image.component * i + 0];
-		imageData[image.component * i + 1] = 255 - image.image[image.component * i + 1];
-		imageData[image.component * i + 2] = image.image[image.component * i + 2];
-		if (image.component > 3)
-		{
-			imageData[image.component * i + 3] = image.image[image.component * i + 3];
-		}
-	}
-
-	OgreImage.loadDynamicImage(imageData.data(),
-		image.width, image.height, 1, pixelFormat, false);
-
-	OgreTexture = textureManager->createManual(name,
+	Ogre::TexturePtr OgreTexture = textureManager->createManual(name,
 		Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
 		Ogre::TextureType::TEX_TYPE_2D_ARRAY, image.width, image.height,
-		1, 1, pixelFormat, Ogre::TU_DEFAULT
-#ifdef DEBUG_TEXTURE_OUTPUT
-		| Ogre::TU_RENDERTARGET
-#endif
+		1, 1, pixelFormatSnorm, Ogre::TU_DEFAULT
 	);
 
-	OgreTexture->loadImage(OgreImage);
+	auto pixels = OgreTexture->getBuffer()->lock(
+		{ 0, 0, unsigned(image.width), unsigned(image.height) }, //PixelBox that take the whole image
+		Ogre::v1::HardwareBuffer::LockOptions::HBL_NORMAL);
+	//This loop convert BGR to RGB image data while also putting the value in the SNORM range [-1.0; +1.0]
+	for (size_t y{ 0 }; y < image.height; y++)
+		for (size_t x{ 0 }; x < image.width; x++)
+			pixels.setColourAt(Ogre::ColourValue(
+				2.0f * (float(image.image[image.component * (y * image.width + x) + 2]) / 255.0f) - 1.0f, //R to B
+				2.0f * (float(image.image[image.component * (y * image.width + x) + 1]) / 255.0f) - 1.0f, //G to G
+				2.0f * (float(image.image[image.component * (y * image.width + x) + 0]) / 255.0f) - 1.0f, //B to R
+				1.0f
+			), x, y, 0);
 
-#ifdef DEBUG_TEXTURE_OUTPUT
-	//This was for debug, for that line to work you nee dthe texture to be declared with "texture usage render target"
-	OgreTexture->getBuffer()->getRenderTarget()->writeContentsToTimestampedFile(name, ".png");
-#endif
+	OgreTexture->getBuffer()->unlock();
 
 	return OgreTexture;
 }

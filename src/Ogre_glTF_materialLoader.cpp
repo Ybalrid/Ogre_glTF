@@ -71,7 +71,7 @@ void Ogre_glTF_materialLoader::setMetalRoughTexture(Ogre::HlmsPbsDatablock* bloc
 void Ogre_glTF_materialLoader::setNormalTexture(Ogre::HlmsPbsDatablock* block, int value) const
 {
 	if (!isTextureIndexValid(value)) return;
-	auto texture = textureImporter.getNormalFlipped(value);
+	auto texture = textureImporter.getNormalSNORM(value);
 	if (texture)
 	{
 		OgreLog("normal texture from textureImporter : " + texture->getName());

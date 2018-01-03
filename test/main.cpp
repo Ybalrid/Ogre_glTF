@@ -151,8 +151,8 @@ int main(int argc, char* argv[])
 	auto gltf = std::make_unique<Ogre_glTF>();
 	try
 	{
-		//auto adapter = gltf->loadFile("./damagedHelmet/damagedHelmet.gltf");
-		auto adapter = gltf->loadFile("./Corset.glb");
+		auto adapter = gltf->loadFile("./damagedHelmet/damagedHelmet.gltf");
+		//auto adapter = gltf->loadFile("./Corset.glb");
 		ObjectItem = adapter.getItem(smgr);
 	}
 	catch (std::exception& e)
