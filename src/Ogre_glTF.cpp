@@ -120,7 +120,7 @@ struct Ogre_glTF::gltfLoader
 
 		//If we don't have any better, check the file extension.
 		auto extension = path.substr(path.find_last_of('.') + 1);
-		std::transform(std::begin(extension), std::end(extension), std::begin(extension), ::tolower);
+		std::transform(std::begin(extension), std::end(extension), std::begin(extension), [](char c) {return char(::tolower(int(c))); });
 		if (extension == "gltf") return FileType::Ascii;
 		if (extension == "glb") return FileType::Binary;
 

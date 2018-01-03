@@ -33,5 +33,7 @@ public:
 	/// \param channel index of a channel. Starts from zero
 	Ogre::TexturePtr generateGreyScaleFromChannel(int gltfTextureSourceID, int channel);
 
+	///Get the normal texture in a compatible format
+	/// \param gltfTextureSourceID index of a texture in the gltf file
 	Ogre::TexturePtr getNormalSNORM(int gltfTextureSourceID);
 };

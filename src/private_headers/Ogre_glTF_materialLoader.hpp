@@ -56,7 +56,7 @@ class Ogre_glTF_materialLoader
 	void setRoughnesValue(Ogre::HlmsPbsDatablock* block, Ogre::Real value) const;
 	///Set the emissive of the material
 	/// \param block datablock to set
-	/// \param value floating point value that represent metalness of the surface
+	/// \param color floating point value that represent metalness of the surface
 	void setEmissiveColor(Ogre::HlmsPbsDatablock* block, Ogre::Vector3 color) const;
 
 	///Return true if the texture index is valid

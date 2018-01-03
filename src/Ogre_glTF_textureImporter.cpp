@@ -7,6 +7,12 @@
 #include <OgreRenderTexture.h>
 #include <OgreColourValue.h>
 
+//TODO pack the loaded textures in texture arrays (TEX_TYPE_2D_ARRAY) to optimize the way textures are binded to the slots of an HlmsPbsDatablock.
+//TODO rethink the oder of operations while loading texture. Some of them need to be interpreted differently for they usage (MetalRoughMap needs to be separated in two greyscale map, NormalMap need SNORM reformating). Knowing what the material is doing with them will help avoid uncessesary resource usage and load time.
+//TODO planned refactoring : pixel format selection code needs to be put into it's own method
+//TODO planned refactoring : Loading of texture via OgreImage needs to be put into it's own method
+//TODO investicate if HardwarePixelBuffer is going to be deprecated. Why is it in the Ogre::v1 namespace? What will happen in Ogre 2.2's "texture refactor"?
+
 size_t Ogre_glTF_textureImporter::id{ 0 };
 
 inline void OgreLog(const std::string& message)
@@ -28,6 +34,7 @@ void Ogre_glTF_textureImporter::loadTexture(const tinygltf::Texture& texture)
 		if (image.component == 4)
 			return Ogre::PF_B8G8R8A8;
 
+		throw std::runtime_error("Can get " + name + "pixel format");
 		//TODO do this properly. Right now it is guesswork
 
 		OgreLog("unrecognized pixel format from tinygltf image");
@@ -45,11 +52,11 @@ void Ogre_glTF_textureImporter::loadTexture(const tinygltf::Texture& texture)
 	Ogre::Image OgreImage;
 	Ogre::TexturePtr OgreTexture;
 
-	//The OgreImage class can take ownership of the pointer to the data and automatically delete it.
-	//We don't want that.
-	//The rest of the funciton is not modifying the model object. We get the image as a const ref.
+	//The OgreImage class *can* take ownership of the pointer to the data and automatically delete it.
+	//We *don't* want that. 6th argument needs to be set to false to prevent that.
+	//The rest of the funciton is not modifying the model.images[x].image object. We get the image as a const ref.
 	//In order to keep the rest of this code const correct, and knowing that the "autoDelete" is specifically
-	//set to `false`, we're casting away const on the pointer to the image data
+	//set to `false`, we're casting away const on the pointer to get the image data.
 	OgreImage.loadDynamicImage(const_cast<Ogre::uchar*>(image.image.data()),
 		image.width, image.height, 1, pixelFormat, false);
 
@@ -125,6 +132,7 @@ Ogre::TexturePtr Ogre_glTF_textureImporter::generateGreyScaleFromChannel(int glt
 		if (image.component == 4)
 			return Ogre::PF_B8G8R8A8;
 
+		throw std::runtime_error("Can get " + name + "pixel format");
 		//TODO do this properly. Right now it is guesswork
 
 		OgreLog("unrecognized pixel format from tinygltf image");
@@ -135,11 +143,11 @@ Ogre::TexturePtr Ogre_glTF_textureImporter::generateGreyScaleFromChannel(int glt
 
 	//TODO refactor this
 
-	//The OgreImage class can take ownership of the pointer to the data and automatically delete it.
-	//We don't want that.
-	//The rest of the funciton is not modifying the model object. We get the image as a const ref.
+	//The OgreImage class *can* take ownership of the pointer to the data and automatically delete it.
+	//We *don't* want that. 6th argument needs to be set to false to prevent that.
+	//The rest of the funciton is not modifying the model.images[x].image object. We get the image as a const ref.
 	//In order to keep the rest of this code const correct, and knowing that the "autoDelete" is specifically
-	//set to `false`, we're casting away const on the pointer to the image data
+	//set to `false`, we're casting away const on the pointer to get the image data.
 	OgreImage.loadDynamicImage(imageData.data(),
 		image.width, image.height, 1, pixelFormat, false);
 
@@ -173,6 +181,7 @@ Ogre::TexturePtr Ogre_glTF_textureImporter::getNormalSNORM(int gltfTextureSource
 		//TODO do this properly. Right now it is guesswork
 
 		OgreLog("unrecognized pixel format from tinygltf image");
+		throw std::runtime_error("Can get " + name + "pixel format");
 	}();
 
 	const auto pixelFormatSnorm = [&]
@@ -181,6 +190,7 @@ Ogre::TexturePtr Ogre_glTF_textureImporter::getNormalSNORM(int gltfTextureSource
 			return Ogre::PF_R8G8B8_SNORM;
 		if (image.component == 4)
 			return Ogre::PF_R8G8B8A8_SNORM;
+		throw std::runtime_error("Can get " + name + "pixel format");
 	}();
 
 	Ogre::TexturePtr OgreTexture = textureManager->createManual(name,

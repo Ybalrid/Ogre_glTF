@@ -208,7 +208,7 @@ Ogre::IndexBufferPacked* Ogre_glTF_modelConverter::extractIndexBuffer(int access
 		throw std::runtime_error("Unrecognized index data format");
 	}
 
-	const auto byteStride = [&]() -> size_t
+	const auto byteStride = /*[&]() -> size_t
 	{
 		if (bufferView.byteStride) return bufferView.byteStride;
 		OgreLog("Index buffer is 'tightly packed'");
@@ -223,10 +223,14 @@ Ogre::IndexBufferPacked* Ogre_glTF_modelConverter::extractIndexBuffer(int access
 			return 4;
 		default: throw std::runtime_error("Can't deduce byte stride");
 		}
-	}();
+	}();*/
+		accessor.ByteStride(bufferView);
+
+	if (byteStride < 0) throw std::runtime_error("Can't get valid bytestride from accessor and bufferview. Loading data not possible");
+
 	//End of block to refactor
 
-	//Make the calls to loadIndexBuffer less ugly if possible
+	//TODO Make the calls to loadIndexBuffer less ugly if possible
 	if (convertTo16Bit)
 	{
 		loadIndexBuffer<Ogre::uint16, Ogre::uint8>((Ogre::uint16*)geometryBuffer->dataAddress(), buffer.data.data(), indexCount, bufferView.byteOffset + accessor.byteOffset, byteStride);
@@ -307,7 +311,8 @@ Ogre_glTF_vertexBufferPart Ogre_glTF_modelConverter::extractVertexBuffer(const s
 	if (numberOfElementPerVertex == 4) elementType = Ogre::VET_FLOAT4;
 
 	if (bufferView.byteStride == 0) OgreLog("Vertex buffer is 'tightly packed'");
-	const auto byteStride = (bufferView.byteStride != 0 ? bufferView.byteStride : numberOfElementPerVertex * sizeof(float));
+	const auto byteStride = /*(bufferView.byteStride != 0 ? bufferView.byteStride : numberOfElementPerVertex * sizeof(float));*/ accessor.ByteStride(bufferView);
+	if (byteStride < 0) throw std::runtime_error("Can't get valid bytestride from accessor and bufferview. Loading data not possible");
 	const auto vertexCount = /*bufferLenghtInBufferBasicType / numberOfElementPerVertex;*/accessor.count;
 
 	const auto vertexElementLenghtInBytes = numberOfElementPerVertex * geometryBuffer->elementSize();
