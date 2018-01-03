@@ -175,91 +175,48 @@ Ogre::VaoManager* Ogre_glTF_modelConverter::getVaoManager()
 Ogre::IndexBufferPacked* Ogre_glTF_modelConverter::extractIndexBuffer(int accessorID) const
 {
 	OgreLog("Extracting index buffer");
-	auto& accessor = model.accessors[accessorID];
-	auto& bufferView = model.bufferViews[accessor.bufferView];
+	const auto& accessor = model.accessors[accessorID];
+	const auto& bufferView = model.bufferViews[accessor.bufferView];
 	auto& buffer = model.buffers[bufferView.buffer];
-	const auto indexBufferByteLen = bufferView.byteLength;
-	size_t indexCount;
-	// ReSharper disable once CppInitializedValueIsAlwaysRewritten
-	std::unique_ptr<Ogre_glTF_geometryBuffer_base> geometryBuffer{ nullptr };
+	const auto byteStride = accessor.ByteStride(bufferView);
+	const auto indexCount = accessor.count;
 	Ogre::IndexBufferPacked::IndexType type;
 
-	auto convertTo16Bit{ false };
+	if (byteStride < 0)
+		throw std::runtime_error("Can't get valid bytestride from accessor and bufferview. Loading data not possible");
 
-	//TODO refactor this block to use one IILE while setting these values as const
+	auto convertTo16Bit{ false };
 	switch (accessor.componentType)
 	{
+	default:
+		throw std::runtime_error("Unrecognized index data format");
 	case TINYGLTF_COMPONENT_TYPE_BYTE:
 	case TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE:
 		convertTo16Bit = true;
-	case TINYGLTF_COMPONENT_TYPE_SHORT:;
+	case TINYGLTF_COMPONENT_TYPE_SHORT:
 	case TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT:
-		indexCount = accessor.count;
-		geometryBuffer = std::make_unique<Ogre_glTF_geometryBuffer<Ogre::uint16>>(indexCount);
+	{
 		type = Ogre::IndexBufferPacked::IT_16BIT;
-		break;
+		auto geometryBuffer = Ogre_glTF_geometryBuffer<Ogre::uint16>(indexCount);
+		if (convertTo16Bit) loadIndexBuffer(geometryBuffer.data(), buffer.data.data(), indexCount, bufferView.byteOffset + accessor.byteOffset, byteStride);
+		else loadIndexBuffer(geometryBuffer.data(), reinterpret_cast<Ogre::uint16*>(buffer.data.data()), indexCount, bufferView.byteOffset + accessor.byteOffset, byteStride);
+		return getVaoManager()->createIndexBuffer(type, indexCount, Ogre::BT_IMMUTABLE, geometryBuffer.dataAddress(), false);
+	}
 	case TINYGLTF_COMPONENT_TYPE_INT:;
 	case TINYGLTF_COMPONENT_TYPE_UNSIGNED_INT:
-		indexCount = indexBufferByteLen / sizeof(Ogre::uint32);
+	{
 		type = Ogre::IndexBufferPacked::IT_32BIT;
-		geometryBuffer = std::make_unique<Ogre_glTF_geometryBuffer<Ogre::uint32>>(indexCount);
-		break;
-	default:
-		throw std::runtime_error("Unrecognized index data format");
+		auto geometryBuffer = Ogre_glTF_geometryBuffer<Ogre::uint32>(indexCount);
+		loadIndexBuffer(geometryBuffer.data(), reinterpret_cast<Ogre::uint32*>(buffer.data.data()), indexCount, bufferView.byteOffset + accessor.byteOffset, byteStride);
+		return getVaoManager()->createIndexBuffer(type, indexCount, Ogre::BT_IMMUTABLE, geometryBuffer.dataAddress(), false);
 	}
-
-	const auto byteStride = /*[&]() -> size_t
-	{
-		if (bufferView.byteStride) return bufferView.byteStride;
-		OgreLog("Index buffer is 'tightly packed'");
-		if (convertTo16Bit) return sizeof(char);
-		switch (accessor.componentType)
-		{
-		case TINYGLTF_COMPONENT_TYPE_SHORT:;
-		case TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT:
-			return 2;
-		case TINYGLTF_COMPONENT_TYPE_INT:;
-		case TINYGLTF_COMPONENT_TYPE_UNSIGNED_INT:
-			return 4;
-		default: throw std::runtime_error("Can't deduce byte stride");
-		}
-	}();*/
-		accessor.ByteStride(bufferView);
-
-	if (byteStride < 0) throw std::runtime_error("Can't get valid bytestride from accessor and bufferview. Loading data not possible");
-
-	//End of block to refactor
-
-	//TODO Make the calls to loadIndexBuffer less ugly if possible
-	if (convertTo16Bit)
-	{
-		loadIndexBuffer<Ogre::uint16, Ogre::uint8>((Ogre::uint16*)geometryBuffer->dataAddress(), buffer.data.data(), indexCount, bufferView.byteOffset + accessor.byteOffset, byteStride);
 	}
-	else
-	{
-		if (type == Ogre::IndexBufferPacked::IT_16BIT)
-		{
-			loadIndexBuffer<Ogre::uint16, Ogre::uint16>((Ogre::uint16*)geometryBuffer->dataAddress(), (Ogre::uint16*)buffer.data.data(),
-				indexCount, bufferView.byteOffset + accessor.byteOffset, byteStride);
-		}
-		if (type == Ogre::IndexBufferPacked::IT_32BIT)
-		{
-			loadIndexBuffer<Ogre::uint32, Ogre::uint32>((Ogre::uint32*)geometryBuffer->dataAddress(), (Ogre::uint32*)buffer.data.data(),
-				indexCount, bufferView.byteOffset + accessor.byteOffset, byteStride);
-		}
-	}
-
-	//geometryBuffer->_debugContentToLog();
-	return getVaoManager()->createIndexBuffer(type, indexCount, Ogre::BT_IMMUTABLE, geometryBuffer->dataAddress(), false);
 }
 
 size_t Ogre_glTF_modelConverter::getVertexBufferElementsPerVertexCount(int type)
 {
 	switch (type)
 	{
-	case TINYGLTF_TYPE_MAT2: return 2 * 2;
-	case TINYGLTF_TYPE_MAT3: return 3 * 3;
-	case TINYGLTF_TYPE_MAT4: return 4 * 4;
 	case TINYGLTF_TYPE_VEC2: return 2;
 	case TINYGLTF_TYPE_VEC3: return 3;
 	case TINYGLTF_TYPE_VEC4: return 4;
@@ -289,7 +246,6 @@ Ogre_glTF_vertexBufferPart Ogre_glTF_modelConverter::extractVertexBuffer(const s
 	const auto elementOffsetInBuffer = bufferView.byteOffset + accessor.byteOffset;
 	size_t bufferLenghtInBufferBasicType;
 
-	// ReSharper disable once CppInitializedValueIsAlwaysRewritten
 	std::unique_ptr<Ogre_glTF_geometryBuffer_base> geometryBuffer{ nullptr };
 
 	switch (accessor.componentType)
@@ -311,9 +267,9 @@ Ogre_glTF_vertexBufferPart Ogre_glTF_modelConverter::extractVertexBuffer(const s
 	if (numberOfElementPerVertex == 4) elementType = Ogre::VET_FLOAT4;
 
 	if (bufferView.byteStride == 0) OgreLog("Vertex buffer is 'tightly packed'");
-	const auto byteStride = /*(bufferView.byteStride != 0 ? bufferView.byteStride : numberOfElementPerVertex * sizeof(float));*/ accessor.ByteStride(bufferView);
+	const auto byteStride = accessor.ByteStride(bufferView);
 	if (byteStride < 0) throw std::runtime_error("Can't get valid bytestride from accessor and bufferview. Loading data not possible");
-	const auto vertexCount = /*bufferLenghtInBufferBasicType / numberOfElementPerVertex;*/accessor.count;
+	const auto vertexCount = accessor.count;
 
 	const auto vertexElementLenghtInBytes = numberOfElementPerVertex * geometryBuffer->elementSize();
 	OgreLog("A vertex element on this buffer is " + std::to_string(vertexElementLenghtInBytes) + " bytes long");
@@ -322,8 +278,6 @@ Ogre_glTF_vertexBufferPart Ogre_glTF_modelConverter::extractVertexBuffer(const s
 		const size_t destOffset = vertexIndex * vertexElementLenghtInBytes;
 		const size_t sourceOffset = elementOffsetInBuffer + vertexIndex * byteStride;
 
-		//OgreLog("source byte + " + std::to_string(sourceOffset));
-		//OgreLog("desination byte + " + std::to_string(destOffset));
 		memcpy((geometryBuffer->dataAddress() + destOffset),
 			(buffer.data.data() + sourceOffset),
 			vertexElementLenghtInBytes);
