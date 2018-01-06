@@ -2,17 +2,13 @@
 #include "Ogre_glTF_modelConverter.hpp"
 #include "Ogre_glTF_textureImporter.hpp"
 #include "Ogre_glTF_materialLoader.hpp"
+#include "Ogre_glTF_common.hpp"
 
 #define TINYGLTF_IMPLEMENTATION
 #define STB_IMAGE_IMPLEMENTATION
 #include "tiny_gltf.h"
 
 #include <OgreItem.h>
-
-inline void OgreLog(const std::string& message)
-{
-	Ogre::LogManager::getSingleton().logMessage(message);
-}
 
 ///Implementaiton of the adapter
 struct Ogre_glTF_adapter::impl

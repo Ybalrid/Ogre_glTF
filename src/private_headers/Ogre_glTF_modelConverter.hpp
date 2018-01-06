@@ -132,7 +132,7 @@ template <typename bufferType, typename sourceType> void loadIndexBuffer(bufferT
 }
 
 ///Converter objet : take a tinygltf model and encapsulate all the code necessary to extract mesh information
-class Ogre_glTF_EXPORT Ogre_glTF_modelConverter
+class Ogre_glTF_modelConverter
 {
 public:
 	///Construct a modelConverter from a model

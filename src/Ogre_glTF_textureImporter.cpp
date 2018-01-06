@@ -1,4 +1,5 @@
 #include "Ogre_glTF_textureImporter.hpp"
+#include "Ogre_glTF_common.hpp"
 #include <OgreLogManager.h>
 #include <OgreTextureManager.h>
 #include <OgreTexture.h>
@@ -14,12 +15,6 @@
 //TODO investicate if HardwarePixelBuffer is going to be deprecated. Why is it in the Ogre::v1 namespace? What will happen in Ogre 2.2's "texture refactor"?
 
 size_t Ogre_glTF_textureImporter::id{ 0 };
-
-inline void OgreLog(const std::string& message)
-{
-	Ogre::LogManager::getSingleton().logMessage(message);
-}
-
 void Ogre_glTF_textureImporter::loadTexture(const tinygltf::Texture& texture)
 {
 	auto textureManager = Ogre::TextureManager::getSingletonPtr();

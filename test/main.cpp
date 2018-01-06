@@ -158,7 +158,7 @@ int main(int argc, char* argv[])
 	catch (std::exception& e)
 	{
 		Ogre::LogManager::getSingleton().logMessage(e.what());
-		throw e;
+		return -1;
 	}
 
 	ObjectNode = smgr->getRootSceneNode()->createChildSceneNode();

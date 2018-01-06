@@ -1,14 +1,10 @@
 #include "Ogre_glTF_materialLoader.hpp"
 #include "Ogre_glTF_textureImporter.hpp"
+#include "Ogre_glTF_common.hpp"
 #include <OgreHlmsPbsDatablock.h>
 #include <OgreHlms.h>
 #include <OgreHlmsManager.h>
 #include <OgreLogManager.h>
-
-inline void OgreLog(const std::string& message)
-{
-	Ogre::LogManager::getSingleton().logMessage(message);
-}
 
 void Ogre_glTF_materialLoader::setBaseColor(Ogre::HlmsPbsDatablock* block, Ogre::Vector3 color) const
 {

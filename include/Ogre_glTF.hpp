@@ -29,6 +29,7 @@ public:
 
 	///Deleted copy constructor : non copyable class
 	Ogre_glTF_adapter(const Ogre_glTF_adapter&) = delete;
+
 	///Deleted asignment constructor : non copyable class
 	Ogre_glTF_adapter& operator=(const Ogre_glTF_adapter&) = delete;
 

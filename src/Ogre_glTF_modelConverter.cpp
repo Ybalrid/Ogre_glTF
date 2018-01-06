@@ -1,12 +1,8 @@
 #include "Ogre_glTF_modelConverter.hpp"
-#include "OgreMesh2.h"
-#include "OgreMeshManager2.h"
-#include "OgreSubMesh2.h"
-
-inline void OgreLog(const std::string messages)
-{
-	Ogre::LogManager::getSingleton().logMessage(messages);
-}
+#include "Ogre_glTF_common.hpp"
+#include <OgreMesh2.h>
+#include <OgreMeshManager2.h>
+#include <OgreSubMesh2.h>
 
 size_t Ogre_glTF_vertexBufferPart::getPartStride() const
 {
