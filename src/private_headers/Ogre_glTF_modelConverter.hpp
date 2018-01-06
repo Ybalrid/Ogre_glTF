@@ -140,7 +140,7 @@ public:
 	Ogre_glTF_modelConverter(tinygltf::Model& input);
 
 	///Return a mesh generated from the data inside the gltf model. Currently look for the mesh attached on the first node of the default scene
-	Ogre::MeshPtr generateOgreMesh();
+	Ogre::MeshPtr getOgreMesh();
 
 	///Print out debug information on the model structure
 	void debugDump() const;

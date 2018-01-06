@@ -113,9 +113,15 @@ Ogre::HlmsDatablock* Ogre_glTF_materialLoader::getDatablock() const
 	const auto& mesh = model.meshes[mainMeshIndex];
 	const auto material = model.materials[mesh.primitives.front().material];
 
-	auto block = static_cast<Ogre::HlmsPbsDatablock*>(HlmsPbs->createDatablock(Ogre::IdString(material.name),
+	auto datablock = static_cast<Ogre::HlmsPbsDatablock*>(HlmsPbs->getDatablock(Ogre::IdString(material.name)));
+	if(datablock)
+	{
+		OgreLog("Found HlmsPbsDatablock " + material.name + " in Ogre::HlmsPbs");
+		return datablock;
+	}
+	datablock = static_cast<Ogre::HlmsPbsDatablock*>(HlmsPbs->createDatablock(Ogre::IdString(material.name),
 		material.name, Ogre::HlmsMacroblock{}, Ogre::HlmsBlendblock{}, Ogre::HlmsParamVec{}));
-	block->setWorkflow(Ogre::HlmsPbsDatablock::Workflows::MetallicWorkflow);
+	datablock->setWorkflow(Ogre::HlmsPbsDatablock::Workflows::MetallicWorkflow);
 
 	//TODO refactor these almost exact peices of code
 	OgreLog("values");
@@ -123,19 +129,19 @@ Ogre::HlmsDatablock* Ogre_glTF_materialLoader::getDatablock() const
 	{
 		OgreLog(content.first);
 		if (content.first == "baseColorTexture")
-			setBaseColorTexture(block, getTextureIndex(content));
+			setBaseColorTexture(datablock, getTextureIndex(content));
 
 		if (content.first == "metallicRoughnessTexture")
-			setMetalRoughTexture(block, getTextureIndex(content));
+			setMetalRoughTexture(datablock, getTextureIndex(content));
 
 		if (content.first == "baseColorFactor")
-			setBaseColor(block, getColorData(content));
+			setBaseColor(datablock, getColorData(content));
 
 		if (content.first == "metallicFactor")
-			setMetallicValue(block, getNumericData(content));
+			setMetallicValue(datablock, getNumericData(content));
 
 		if (content.first == "roughnessFactor")
-			setRoughnesValue(block, getNumericData(content));
+			setRoughnesValue(datablock, getNumericData(content));
 	}
 
 	OgreLog("additionalValues");
@@ -143,16 +149,16 @@ Ogre::HlmsDatablock* Ogre_glTF_materialLoader::getDatablock() const
 	{
 		OgreLog(content.first);
 		if (content.first == "normalTexture")
-			setNormalTexture(block, getTextureIndex(content));
+			setNormalTexture(datablock, getTextureIndex(content));
 
 		//if (content.first == "occlusionTexture")
-		//	setOcclusionTexture(block, getTextureIndex(content));
+		//	setOcclusionTexture(datablock, getTextureIndex(content));
 
 		if (content.first == "emissiveTexture")
-			setEmissiveTexture(block, getTextureIndex(content));
+			setEmissiveTexture(datablock, getTextureIndex(content));
 
 		if (content.first == "emissiveFactor")
-			setEmissiveColor(block, getColorData(content));
+			setEmissiveColor(datablock, getColorData(content));
 	}
 
 	OgreLog("extCommonValues");
@@ -163,5 +169,5 @@ Ogre::HlmsDatablock* Ogre_glTF_materialLoader::getDatablock() const
 	for (const auto& content : material.extPBRValues)
 		OgreLog(content.first);
 
-	return block;
+	return datablock;
 }

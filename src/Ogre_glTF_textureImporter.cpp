@@ -20,7 +20,16 @@ void Ogre_glTF_textureImporter::loadTexture(const tinygltf::Texture& texture)
 	auto textureManager = Ogre::TextureManager::getSingletonPtr();
 	const auto& image = model.images[texture.source];
 	const auto name = "glTF_texture_" + image.name + std::to_string(id) + std::to_string(texture.source);
-	OgreLog("Loading image " + name);
+
+	auto OgreTexture = textureManager->getByName(name);
+	if(OgreTexture)
+	{
+		OgreLog("Texture " + name + " already loaded in Ogre::TextureManager");
+		return;
+	}
+
+
+	OgreLog("Loading texture image " + name);
 
 	const auto pixelFormat = [&]
 	{
@@ -45,7 +54,6 @@ void Ogre_glTF_textureImporter::loadTexture(const tinygltf::Texture& texture)
 	}
 
 	Ogre::Image OgreImage;
-	Ogre::TexturePtr OgreTexture;
 
 	//The OgreImage class *can* take ownership of the pointer to the data and automatically delete it.
 	//We *don't* want that. 6th argument needs to be set to false to prevent that.
@@ -97,7 +105,11 @@ Ogre::TexturePtr Ogre_glTF_textureImporter::generateGreyScaleFromChannel(int glt
 	const auto name = "glTF_texture_" + image.name + std::to_string(id) + std::to_string(gltfTextureSourceID) + "_geyscale_channel" + std::to_string(channel);
 
 	auto texture = textureManager->getByName(name);
-	if (texture) return texture;
+	if (texture)
+	{
+		OgreLog("texture " + name + "Already loaded in Ogre::TextureManager");
+		return texture;
+	}
 
 	OgreLog("Can't find texure " + name + ". Generating it from glTF");
 
@@ -162,7 +174,12 @@ Ogre::TexturePtr Ogre_glTF_textureImporter::getNormalSNORM(int gltfTextureSource
 	const auto name = "glTF_texture_" + image.name + std::to_string(id) + std::to_string(gltfTextureSourceID) + "_NormalFixed";
 
 	auto texture = textureManager->getByName(name);
-	if (texture) return texture;
+	if (texture)
+	{
+		OgreLog("texture " + name + "Already loaded in Ogre::TextureManager");
+		return texture;
+	}
+	
 
 	OgreLog("Can't find texure " + name + ". Generating it from glTF");
 

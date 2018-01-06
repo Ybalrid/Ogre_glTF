@@ -50,7 +50,7 @@ Ogre::Item* Ogre_glTF_adapter::getItem(Ogre::SceneManager* smgr) const
 	if (isOk())
 	{
 		pimpl->textureImporter.loadTextures();
-		auto Mesh = pimpl->modelConverter.generateOgreMesh();
+		auto Mesh = pimpl->modelConverter.getOgreMesh();
 		auto Item = smgr->createItem(Mesh);
 		Item->setDatablock(pimpl->materialLoader.getDatablock());
 		return Item;

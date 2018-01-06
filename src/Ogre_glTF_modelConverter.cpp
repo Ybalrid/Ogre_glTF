@@ -76,15 +76,23 @@ Ogre::VertexBufferPackedVec Ogre_glTF_modelConverter::constructVertexBuffer(cons
 	return vec;
 }
 
-Ogre::MeshPtr Ogre_glTF_modelConverter::generateOgreMesh()
+//TODO make this method thake the mesh id. Enumerate the meshes in the filel before blindlessly loading the first one
+Ogre::MeshPtr Ogre_glTF_modelConverter::getOgreMesh()
 {
 	OgreLog("Default scene" + std::to_string(model.defaultScene));
 	const auto mainMeshIndex = (model.defaultScene != 0 ? model.nodes[model.scenes[model.defaultScene].nodes.front()].mesh : 0);
 	const auto& mesh = model.meshes[mainMeshIndex];
-	OgreLog("Found mesh " + mesh.name);
-	OgreLog("mesh has " + std::to_string(mesh.primitives.size()) + " primitives");
+	OgreLog("Found mesh " + mesh.name + " in glTF file");
 
-	auto OgreMesh = Ogre::MeshManager::getSingleton().createManual(mesh.name, Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+	auto OgreMesh = Ogre::MeshManager::getSingleton().getByName(mesh.name);
+	if(OgreMesh)
+	{
+		OgreLog("Found mesh " + mesh.name + " in Ogre::MeshManager(v2)");
+		return OgreMesh;
+	}
+	OgreLog("Loading mesh from glTF file");
+	OgreLog("mesh has " + std::to_string(mesh.primitives.size()) + " primitives");
+	OgreMesh = Ogre::MeshManager::getSingleton().createManual(mesh.name, Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 	OgreLog("Created mesh on v2 MeshManager");
 	for (const auto& primitive : mesh.primitives)
 	{
