@@ -9,12 +9,6 @@
 #include <OgreArchive.h>
 //To use objects
 #include <OgreItem.h>
-//To load Ogre v1 meshes
-#include <OgreMeshManager2.h>
-#include <OgreMesh2.h>
-#include <OgreMesh.h>
-#include <OgreMeshManager.h>
-
 //To use smart pointers
 #include <memory>
 
@@ -35,28 +29,15 @@ const char D3D11_RENDER_PLUGIN[] = "RenderSystem_Direct3D11";
 #endif
 #endif
 
-decltype(auto) loadV1mesh(Ogre::String meshName)
-{
-	return Ogre::v1::MeshManager::getSingleton().load(meshName, Ogre::ResourceGroupManager::AUTODETECT_RESOURCE_GROUP_NAME, Ogre::v1::HardwareBuffer::HBU_STATIC, Ogre::v1::HardwareBuffer::HBU_STATIC);
-}
+#ifdef _WIN32
+#define NOMINMAX
+#include <windows.h>
+#define main() WINAPI WinMain(HINSTANCE hInst, HINSTANCE, LPSTR strCmdLine, INT)
+#else
+#define main() main(int argc, char* argv[])
+#endif
 
-decltype(auto) asV2mesh(Ogre::String meshName, Ogre::String ResourceGroup = Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, Ogre::String sufix = " V2",
-	bool halfPos = true, bool halfTextCoords = true, bool qTangents = true)
-{
-	//Get the V1 mesh
-	auto v1mesh = loadV1mesh(meshName);
 
-	//Convert it as a V2 mesh
-	auto mesh = Ogre::MeshManager::getSingletonPtr()->createManual(meshName + sufix, ResourceGroup);
-	mesh->importV1(v1mesh.get(), halfPos, halfTextCoords, qTangents);
-
-	//Unload the useless V1 mesh
-	v1mesh->unload();
-	v1mesh.setNull();
-
-	//Return the shared pointer to the new mesh
-	return mesh;
-}
 
 void declareHlmsLibrary(Ogre::String dataFolder)
 {
@@ -105,12 +86,7 @@ void declareHlmsLibrary(Ogre::String dataFolder)
 	hlmsPbs->setDebugOutputPath(false, false);
 }
 
-#ifdef _WIN32
-#include <windows.h>
-INT WINAPI WinMain(HINSTANCE hInst, HINSTANCE, LPSTR strCmdLine, INT)
-#else
-int main(int argc, char* argv[])
-#endif
+int main()
 {
 	//Init Ogre
 	auto root = std::make_unique<Ogre::Root>();
@@ -120,7 +96,6 @@ int main(int argc, char* argv[])
 #ifdef _WIN32
 	root->loadPlugin(D3D11_RENDER_PLUGIN);
 #endif
-	//root->setRenderSystem(root->getAvailableRenderers().front());
 	root->showConfigDialog();
 	root->getRenderSystem()->setConfigOption("FSAA", "16");
 	root->getRenderSystem()->setConfigOption("sRGB Gamma Conversion", "Yes");

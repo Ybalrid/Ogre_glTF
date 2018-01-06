@@ -2,6 +2,8 @@
 #include "tiny_gltf.h"
 #include <OgreHlms.h>
 #include <OgreHlmsPbs.h>
+
+///Foward declare the textureImporter
 class Ogre_glTF_textureImporter;
 
 ///Load material information from a model inside Ogre, provide you a datablock to set to an Ogre::Item object
