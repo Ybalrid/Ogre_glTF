@@ -5,7 +5,7 @@ project(Ogre_glTF)
 #to build a library
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "" FORCE) 
+set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "" FORCE)
 
 #add a preprocessor definition for windows for selecting the export directive for DLL with a macro
 if(MSVC)
@@ -66,6 +66,7 @@ target_link_libraries(Ogre_glTF_TEST
 	${OGRE_LIBRARIES}
 	${OGRE_HlmsPbs_LIBRARIES}
 
+    #the library we just built
 	Ogre_glTF
 
 	)
