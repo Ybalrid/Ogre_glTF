@@ -24,18 +24,32 @@ file(GLOB librarySources ./src/*.cpp ./src/private_headers/*.hpp ./include/*.hpp
 file(GLOB testSources ./test/*.cpp ./test/*.hpp ./include/*.hpp)
 
 add_library(Ogre_glTF SHARED ${librarySources})
+add_library(Ogre_glTF_static STATIC ${librarySources})
 
 
 
 
 if(MSVC)
 add_executable(Ogre_glTF_TEST WIN32 ${testSources})
+add_executable(Ogre_glTF_TEST_static WIN32 ${testSources})
 else()
 add_executable(Ogre_glTF_TEST ${testSources})
+add_executable(Ogre_glTF_TEST_static ${testSources})
 endif(MSVC)
 
 
 target_include_directories( Ogre_glTF PUBLIC
+	#Ogre and the physics based high level material system
+	${OGRE_INCLUDE_DIRS}
+	${OGRE_HlmsPbs_INCLUDE_DIRS}
+
+	#local include directory
+	./include
+	./src/private_headers
+	./thirdParty/tinygltf/
+)
+
+target_include_directories( Ogre_glTF_static PUBLIC
 	#Ogre and the physics based high level material system
 	${OGRE_INCLUDE_DIRS}
 	${OGRE_HlmsPbs_INCLUDE_DIRS}
@@ -56,6 +70,14 @@ target_include_directories( Ogre_glTF_TEST PUBLIC
 )
 
 
+target_include_directories( Ogre_glTF_TEST_static PUBLIC
+	#Ogre and the physics based high level material system
+	${OGRE_INCLUDE_DIRS}
+	${OGRE_HlmsPbs_INCLUDE_DIRS}
+
+	#local include directory
+	./include
+)
 
 target_link_libraries(Ogre_glTF
 	${OGRE_LIBRARIES}
@@ -71,7 +93,12 @@ target_link_libraries(Ogre_glTF_TEST
 
 	)
 
-if(MSVC)
-	set_target_properties(Ogre_glTF_TEST PROPERTIES LINK_FLAG_RELEASE "/SUBSYSTEM:WINDOWS")
-	set_target_properties(Ogre_glTF_TEST PROPERTIES LINK_FLAG_DEBUG "/SUBSYSTEM:WINDOWS")
-endif(MSVC)
+target_link_libraries(Ogre_glTF_TEST_static
+	${OGRE_LIBRARIES}
+	${OGRE_HlmsPbs_LIBRARIES}
+
+    #the library we just built
+	Ogre_glTF_static
+
+	)
+
