@@ -9,6 +9,8 @@
 #include "tiny_gltf.h"
 
 #include <OgreItem.h>
+#include <OgreMesh2.h>
+#include <OgreSkeleton.h>
 
 ///Implementaiton of the adapter
 struct Ogre_glTF_adapter::impl
@@ -51,6 +53,14 @@ Ogre::Item* Ogre_glTF_adapter::getItem(Ogre::SceneManager* smgr) const
 	{
 		pimpl->textureImporter.loadTextures();
 		auto Mesh = pimpl->modelConverter.getOgreMesh();
+
+		if(pimpl->modelConverter.hasSkins())
+		{
+			//load skeleton information
+			OgreLog("The mesh has skins!!!");
+			
+		}
+
 		auto Item = smgr->createItem(Mesh);
 		Item->setDatablock(pimpl->materialLoader.getDatablock());
 		return Item;

@@ -105,7 +105,8 @@ Ogre::MeshPtr Ogre_glTF_modelConverter::getOgreMesh()
 		for (const auto& atribute : primitive.attributes)
 		{
 			OgreLog("\t " + atribute.first);
-			parts.push_back(std::move(extractVertexBuffer(atribute)));
+			if (atribute.first != "JOINTS_0") //Do not attempt to put joints information inside the vertex buffer
+				parts.push_back(std::move(extractVertexBuffer(atribute)));
 		}
 
 		auto vertexBuffers = constructVertexBuffer(parts);
@@ -168,6 +169,12 @@ void Ogre_glTF_modelConverter::debugDump() const
 		<< model.lights.size() << " lights\n";
 
 	OgreLog(ss.str());
+}
+
+bool Ogre_glTF_modelConverter::hasSkins() const
+{
+	if (model.skins.size() > 0) return true;
+	return false;
 }
 
 Ogre::VaoManager* Ogre_glTF_modelConverter::getVaoManager()

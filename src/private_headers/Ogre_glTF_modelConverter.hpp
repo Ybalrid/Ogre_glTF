@@ -144,6 +144,9 @@ public:
 
 	///Print out debug information on the model structure
 	void debugDump() const;
+
+	///Return true if the model defines skins. Skins are "vertex to bone" asignment for skeletal animation
+	bool hasSkins() const;
 private:
 	///Get a pointer to the Ogre::VaoManager
 	static Ogre::VaoManager* getVaoManager();

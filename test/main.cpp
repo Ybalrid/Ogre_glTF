@@ -122,15 +122,16 @@ int main()
 	Ogre::Item* ObjectItem = nullptr;
 	Ogre::SceneNode* ObjectNode = nullptr;
 
-	Ogre::Item* OtherItem;
+	//Ogre::Item* OtherItem;
 	//Initialize the library
 	auto gltf = std::make_unique<Ogre_glTF>();
 	try
 	{
-		auto adapter = gltf->loadFile("./damagedHelmet/damagedHelmet.gltf");
+		auto adapter = gltf->loadFile("RiggedSimple.glb");
+		//auto adapter = gltf->loadFile("./damagedHelmet/damagedHelmet.gltf");
 		//auto adapter = gltf->loadFile("./Corset.glb");
 		ObjectItem = adapter.getItem(smgr);
-		OtherItem = adapter.getItem(smgr);
+		//OtherItem = adapter.getItem(smgr);
 	}
 	catch (std::exception& e)
 	{
@@ -140,14 +141,14 @@ int main()
 
 	ObjectNode = smgr->getRootSceneNode()->createChildSceneNode();
 	ObjectNode->attachObject(ObjectItem);
-	auto OtherNode = smgr->getRootSceneNode()->createChildSceneNode();
-	OtherNode->attachObject(OtherItem);
-	OtherNode->setPosition(-2, 0, 0);
+	//auto OtherNode = smgr->getRootSceneNode()->createChildSceneNode();
+	//OtherNode->attachObject(OtherItem);
+	//OtherNode->setPosition(-2, 0, 0);
 	camera->setNearClipDistance(0.001);
 	camera->setFarClipDistance(100);
 	//camera->setPosition(Ogre::Vector3::UNIT_SCALE * 0.0625);
 	//camera->lookAt({ 0, 0.03125, 0 });
-	camera->setPosition(Ogre::Vector3::UNIT_SCALE * 2);
+	camera->setPosition(Ogre::Vector3::UNIT_SCALE * 5);
 	camera->lookAt({ 0, 0, 0 });
 	camera->setAutoAspectRatio(true);
 
@@ -159,8 +160,8 @@ int main()
 
 	while (!window->isClosed())
 	{
-		ObjectNode->setOrientation(Ogre::Quaternion(Ogre::Degree(float(root->getTimer()->getMilliseconds()) / 10.0f), Ogre::Vector3::NEGATIVE_UNIT_Y));
-		OtherNode->setOrientation(Ogre::Quaternion(Ogre::Degree(float(root->getTimer()->getMilliseconds()) / 10.0f), Ogre::Vector3::UNIT_Y));
+		//ObjectNode->setOrientation(Ogre::Quaternion(Ogre::Degree(float(root->getTimer()->getMilliseconds()) / 10.0f), Ogre::Vector3::NEGATIVE_UNIT_Y));
+		//OtherNode->setOrientation(Ogre::Quaternion(Ogre::Degree(float(root->getTimer()->getMilliseconds()) / 10.0f), Ogre::Vector3::UNIT_Y));
 		root->renderOneFrame();
 		Ogre::WindowEventUtilities::messagePump();
 	}
