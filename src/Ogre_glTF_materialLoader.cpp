@@ -114,7 +114,7 @@ Ogre::HlmsDatablock* Ogre_glTF_materialLoader::getDatablock() const
 	const auto material = model.materials[mesh.primitives.front().material];
 
 	auto datablock = static_cast<Ogre::HlmsPbsDatablock*>(HlmsPbs->getDatablock(Ogre::IdString(material.name)));
-	if(datablock)
+	if (datablock)
 	{
 		OgreLog("Found HlmsPbsDatablock " + material.name + " in Ogre::HlmsPbs");
 		return datablock;

@@ -37,8 +37,6 @@ const char D3D11_RENDER_PLUGIN[] = "RenderSystem_Direct3D11";
 #define main() main(int argc, char* argv[])
 #endif
 
-
-
 void declareHlmsLibrary(Ogre::String dataFolder)
 {
 	//Make sure the string we got is a valid path
