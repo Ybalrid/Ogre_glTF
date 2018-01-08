@@ -156,6 +156,12 @@ int main()
 	light->setDirection({ -1, -1, -0.5 });
 	light->setPowerScale(5);
 
+	auto skeleton = ObjectItem->getSkeletonInstance();
+	if (skeleton)
+	{
+		Ogre::LogManager::getSingleton().logMessage("skeleton instance? :O");
+	}
+
 	while (!window->isClosed())
 	{
 		//ObjectNode->setOrientation(Ogre::Quaternion(Ogre::Degree(float(root->getTimer()->getMilliseconds()) / 10.0f), Ogre::Vector3::NEGATIVE_UNIT_Y));
