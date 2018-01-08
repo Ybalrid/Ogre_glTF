@@ -129,19 +129,19 @@ Ogre::HlmsDatablock* Ogre_glTF_materialLoader::getDatablock() const
 	{
 		OgreLog(content.first);
 		if (content.first == "baseColorTexture")
-			setBaseColorTexture(datablock, getTextureIndex(content));
+			setBaseColorTexture(datablock, content.second.TextureIndex());
 
 		if (content.first == "metallicRoughnessTexture")
-			setMetalRoughTexture(datablock, getTextureIndex(content));
+			setMetalRoughTexture(datablock, content.second.TextureIndex());
 
 		if (content.first == "baseColorFactor")
 			setBaseColor(datablock, getColorData(content));
 
 		if (content.first == "metallicFactor")
-			setMetallicValue(datablock, getNumericData(content));
+			setMetallicValue(datablock, content.second.Factor());
 
 		if (content.first == "roughnessFactor")
-			setRoughnesValue(datablock, getNumericData(content));
+			setRoughnesValue(datablock, content.second.Factor());
 	}
 
 	OgreLog("additionalValues");
@@ -149,13 +149,13 @@ Ogre::HlmsDatablock* Ogre_glTF_materialLoader::getDatablock() const
 	{
 		OgreLog(content.first);
 		if (content.first == "normalTexture")
-			setNormalTexture(datablock, getTextureIndex(content));
+			setNormalTexture(datablock, content.second.TextureIndex());
 
 		//if (content.first == "occlusionTexture")
 		//	setOcclusionTexture(datablock, getTextureIndex(content));
 
 		if (content.first == "emissiveTexture")
-			setEmissiveTexture(datablock, getTextureIndex(content));
+			setEmissiveTexture(datablock, content.second.TextureIndex());
 
 		if (content.first == "emissiveFactor")
 			setEmissiveColor(datablock, getColorData(content));
