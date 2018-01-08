@@ -1,47 +1,30 @@
 # Ogre_glTF
-Library to use glTF resources with Ogre 2.1 licencied under the terms of the [MIT licence](https://opensource.org/licenses/MIT "MIT Licence on the OSI website")
+
+ - [Doxygen site](./doxygen)
+ - [Quickstart Guide](./guide)
+
+Welcome!
+
+This project is a small utility library to use glTF resources with Ogre 2.1 licencied under the terms of the [MIT licence](https://opensource.org/licenses/MIT "MIT Licence on the OSI website").
+
+The goal is to be able to load any valid glTF file into Ogre, and create Ogre meshes with the correct material and animations applied.
+
+This is currently under heavy developement, but as you can see, we are getting somewhere:
 
 ![DEMO](./demo.gif)
 
-Right now this is not intended to serve as a "plugin" for Ogre, but to be a little support library that permit you to use standard glTF files in an Ogre application.
-
-In the current state, it is not using Ogre's resource management in any way, but is accessing files directly. Once the code gets more stable, I'll work on hooking the loading from Ogre's resource group manager.
-
-The goal is to be able to load the geometry, the PBR material and the animations of an object from glTF and use Ogre's classes as if you just got the object as a .mesh from Ogre's resource manager.
-
-The curent code is limitted into loading the first declared mesh in a glTF file, or, if the glTF file has multiple "secenes", and has a "default scene" value, it will take the mesh attached to the fist node of the default scene.
-
-I'm wanting to get this functionality working inside my game engine (Annwvyn, a VR application developement framework that uses Ogre), and specifically I want to be able to use the glTF official Blender exporter.
-
-The user facing API hasn't been worked on quite well, the only thing that has been cared on is to follow a pImpl (compillation firewall) pattern to hide to your code the dependencies in this library.
-
-This library is based on tinygltf. https://github.com/syoyo/tinygltf. tinygltf itsefl vendor in some other opensource projects, like stb_image and a json loading library.
+This library is based on tinygltf. https://github.com/syoyo/tinygltf. tinygltf itself vendor-in some other opensource projects, like stb_image and a json loading library.
 
 
-## Current state
+## Feature list
 
-This is a projet under developement. Here's a short todolist beofre this thing will be in an "usable" state:
+ - Load the first declared mesh (or the first mesh of the default scene) of a glTF or glb (binary glTF) file into Ogre
+ - Load all the texture and a PBR material into Ogre's High Level Material System (PBS implementation)
+ - Create Ogre 2.x Item into your scene manager
+ 
+## Binary releases
 
- - [x] Load mesh infrmation (index and vertex buffer, including vertex coordinates, normal vectors, texture coordinates) and create an Ogre::Mesh out of it via Ogre::MeshManager and Ogre::VaoManager
- - [x] Load Image information from glTF into Ogre::TextureManager
- - [x] Load PBR material definition form glTF and create coresponding Ogre::HlmsPbsDatablock for them. (Ogre call PBR "PBS", more or less)
-
- At this point, the library will be able to load static geometry into Ogre.
-
- If this works, we can start tackeling animation data:
- - [ ] Load "skin" information from glTF and create corresponding Ogre::Skeleton for the mesh
- - [ ] Load mesh "target" information and create Ogre "morph" target from them
- - [ ] Load animation information and create animations from them
-
-In parallel, it could be interesting to use glTF as a "scene" loading format. glTF supports multiple scenes, with nodes having parent/child relations and that can have meshes attached to them
-
-## Known issues
-
- - There's a problem with loading normal map data with the Direct 3D 11 render system of Ogre [issue #2](https://github.com/Ybalrid/Ogre_glTF/issues/2)
- - There's several little issues with the texture loading. A small refactor would help. See the TODO comments.
- - Library is not "installable" from CMakeLists.txt yet. Users need to get the .dll / .so file accessible to their program, and point their compiler to look for headers the "include" directory
- - Can only load one mesh and it's associated material in a file. Will either load the first one, of the fist node of the default scene, depending if the default scene is set
- - Library only has been tested on an handfull of glTF files. 
+There isn't any binaries avaiable, if you want to use the library, you should get the lattest version of the source code and build it yourself (see below)
 
 ## Building
 
@@ -77,6 +60,13 @@ On a typical install from Ogre's source code on linux, theses path are `/usr/loc
  - To make the test program works, copy inside the "build" directory all the .dll files from Ogre's debug and release binary directories
  - Copy the HLMS libary to the "build" directory
 
+## Known issues
+
+ - There's a problem with loading normal map data with the Direct 3D 11 render system of Ogre [issue #2](https://github.com/Ybalrid/Ogre_glTF/issues/2)
+ - There's several little issues with the texture loading. A small refactor would help. See the TODO comments.
+ - Library is not "installable" from CMakeLists.txt yet. Users need to get the .dll / .so file accessible to their program, and point their compiler to look for headers the "include" directory
+ - Can only load one mesh and it's associated material in a file. Will either load the first one, of the fist node of the default scene, depending if the default scene is set
+ - Library only has been tested on an handfull of glTF files. 
 
 ## Notes on third party components
 
