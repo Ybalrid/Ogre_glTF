@@ -29,5 +29,11 @@ Ogre::v1::SkeletonPtr Ogre_glTF_skeletonImporter::getSkeleton()
 	skeleton = Ogre::v1::OldSkeletonManager::getSingleton().create(skin.name, 
 		Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, true);
 
+	if(!skeleton)
+	{
+		OgreLog("skeleton pointer is still not valid?");
+	}
+
+
 	return skeleton;
 }
