@@ -11,6 +11,7 @@
 
 #include <OgreItem.h>
 #include <OgreMesh2.h>
+#include <OgreSubMesh2.h>
 #include <OgreSkeleton.h>
 
 ///Implementaiton of the adapter
@@ -18,11 +19,11 @@ struct Ogre_glTF_adapter::impl
 {
 	///Constructor, initialize once all the objects inclosed in this class. They need a reference
 	///to a model object (and sometimes more) given at construct time
-	impl() : 
-	textureImporter(model), 
-	materialLoader(model, textureImporter), 
-	modelConverter(model), 
-	skeletonImporter(model) 
+	impl() :
+		textureImporter(model),
+		materialLoader(model, textureImporter),
+		modelConverter(model),
+		skeletonImporter(model)
 	{}
 
 	///Vaiable to check if everything is allright with the adapter
@@ -61,7 +62,6 @@ Ogre::Item* Ogre_glTF_adapter::getItem(Ogre::SceneManager* smgr) const
 	{
 		pimpl->textureImporter.loadTextures();
 		auto Mesh = pimpl->modelConverter.getOgreMesh();
-
 		if (pimpl->modelConverter.hasSkins())
 		{
 			//load skeleton information
