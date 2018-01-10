@@ -14,34 +14,7 @@ class Ogre_glTF_materialLoader
 	///The model
 	tinygltf::Model& model;
 
-	///Get the texture index from a material field
-	/// \param content Any material field from a tinygltf::Model
-	template<typename T> int getTextureIndex(const T& content) const
-	{
-		const auto it = content.second.json_double_value.find("index");
-		if (it != std::end(content.second.json_double_value))
-		{
-			return int(it->second);
-		}
-		return -1;
-	}
-
-	///Get the color data from a material field
-	/// \param content Any material field from a tinygltf::Model
-	template<typename T> Ogre::Vector3 getColorData(const T& content) const
-	{
-		return {
-			static_cast<float>(content.second.number_array[0]),
-			static_cast<float>(content.second.number_array[1]),
-			static_cast<float>(content.second.number_array[2])
-		};
-	}
-
-	/// \param content Any material field from a tinygltf::Model
-	template<typename T> Ogre::Real getNumericData(const T& content) const
-	{
-		return Ogre::Real(content.second.number_array[0]);
-	}
+	static Ogre::Vector3 convertColor(const tinygltf::ColorValue& color);
 
 	///Set the diffuse color of the material
 	/// \param block datablock to set

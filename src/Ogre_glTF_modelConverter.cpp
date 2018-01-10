@@ -1,4 +1,5 @@
 #include "Ogre_glTF_modelConverter.hpp"
+#include "Ogre_glTF_doubleConverter.hpp"
 #include "Ogre_glTF_common.hpp"
 #include <OgreMesh2.h>
 #include <OgreMeshManager2.h>
@@ -85,7 +86,7 @@ Ogre::MeshPtr Ogre_glTF_modelConverter::getOgreMesh()
 	OgreLog("Found mesh " + mesh.name + " in glTF file");
 
 	auto OgreMesh = Ogre::MeshManager::getSingleton().getByName(mesh.name);
-	if(OgreMesh)
+	if (OgreMesh)
 	{
 		OgreLog("Found mesh " + mesh.name + " in Ogre::MeshManager(v2)");
 		return OgreMesh;
