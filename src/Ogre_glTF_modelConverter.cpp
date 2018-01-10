@@ -1,4 +1,5 @@
 #include "Ogre_glTF_modelConverter.hpp"
+#include "Ogre_glTF_doubleConverter.hpp"
 #include "Ogre_glTF_common.hpp"
 #include <OgreMesh2.h>
 #include <OgreMeshManager2.h>
