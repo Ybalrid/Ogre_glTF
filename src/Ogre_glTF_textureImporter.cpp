@@ -101,7 +101,7 @@ Ogre::TexturePtr Ogre_glTF_textureImporter::generateGreyScaleFromChannel(int glt
 	const auto& image = model.images[gltfTextureSourceID];
 
 	assert(channel < 4 && channel >= 0 /*, "Channel needs to be between 0 and 3"*/);
-	const auto name = "glTF_texture_" + image.name + std::to_string(id) + std::to_string(gltfTextureSourceID) + "_geyscale_channel" + std::to_string(channel);
+	const auto name = "glTF_texture_" + image.name + std::to_string(id) + std::to_string(gltfTextureSourceID) + "_greyscale_channel" + std::to_string(channel);
 
 	auto texture = textureManager->getByName(name);
 	if (texture)
