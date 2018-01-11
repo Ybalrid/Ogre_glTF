@@ -22,21 +22,20 @@ void Ogre_glTF_textureImporter::loadTexture(const tinygltf::Texture& texture)
 	const auto name = "glTF_texture_" + image.name + std::to_string(id) + std::to_string(texture.source);
 
 	auto OgreTexture = textureManager->getByName(name);
-	if(OgreTexture)
+	if (OgreTexture)
 	{
 		OgreLog("Texture " + name + " already loaded in Ogre::TextureManager");
 		return;
 	}
-
 
 	OgreLog("Loading texture image " + name);
 
 	const auto pixelFormat = [&]
 	{
 		if (image.component == 3)
-			return Ogre::PF_B8G8R8;
+			return Ogre::PF_BYTE_RGB;
 		if (image.component == 4)
-			return Ogre::PF_B8G8R8A8;
+			return Ogre::PF_BYTE_RGBA;
 
 		throw std::runtime_error("Can get " + name + "pixel format");
 		//TODO do this properly. Right now it is guesswork
@@ -135,9 +134,9 @@ Ogre::TexturePtr Ogre_glTF_textureImporter::generateGreyScaleFromChannel(int glt
 	const auto pixelFormat = [&]
 	{
 		if (image.component == 3)
-			return Ogre::PF_B8G8R8;
+			return Ogre::PF_BYTE_RGB;
 		if (image.component == 4)
-			return Ogre::PF_B8G8R8A8;
+			return Ogre::PF_BYTE_RGBA;
 
 		throw std::runtime_error("Can get " + name + "pixel format");
 		//TODO do this properly. Right now it is guesswork
@@ -179,16 +178,15 @@ Ogre::TexturePtr Ogre_glTF_textureImporter::getNormalSNORM(int gltfTextureSource
 		OgreLog("texture " + name + "Already loaded in Ogre::TextureManager");
 		return texture;
 	}
-	
 
 	OgreLog("Can't find texure " + name + ". Generating it from glTF");
 
 	const auto pixelFormat = [&]
 	{
 		if (image.component == 3)
-			return Ogre::PF_R8G8B8;
+			return Ogre::PF_BYTE_RGB;
 		if (image.component == 4)
-			return Ogre::PF_R8G8B8A8;
+			return Ogre::PF_BYTE_RGBA;
 
 		//TODO do this properly. Right now it is guesswork
 
@@ -204,6 +202,8 @@ Ogre::TexturePtr Ogre_glTF_textureImporter::getNormalSNORM(int gltfTextureSource
 			return Ogre::PF_R8G8B8A8_SNORM;
 		throw std::runtime_error("Can get " + name + "pixel format");
 	}();
+
+	Ogre::PixelFormat;
 
 	Ogre::TexturePtr OgreTexture = textureManager->createManual(name,
 		Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
