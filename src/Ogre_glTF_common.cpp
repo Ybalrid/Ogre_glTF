@@ -6,4 +6,3 @@ void OgreLog(const std::string& message)
 {
 	Ogre::LogManager::getSingleton().logMessage(message);
 }
-
