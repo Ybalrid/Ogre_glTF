@@ -20,10 +20,10 @@ struct Ogre_glTF_adapter::impl
 	///Constructor, initialize once all the objects inclosed in this class. They need a reference
 	///to a model object (and sometimes more) given at construct time
 	impl() :
-		textureImporter(model),
-		materialLoader(model, textureImporter),
-		modelConverter(model),
-		skeletonImporter(model)
+	 textureImporter(model),
+	 materialLoader(model, textureImporter),
+	 modelConverter(model),
+	 skeletonImporter(model)
 	{}
 
 	///Vaiable to check if everything is allright with the adapter
@@ -46,7 +46,7 @@ struct Ogre_glTF_adapter::impl
 };
 
 Ogre_glTF_adapter::Ogre_glTF_adapter() :
-	pimpl{ std::make_unique<Ogre_glTF_adapter::impl>() }
+ pimpl{ std::make_unique<Ogre_glTF_adapter::impl>() }
 {
 	OgreLog("Created adapter object...");
 }
@@ -58,11 +58,11 @@ Ogre_glTF_adapter::~Ogre_glTF_adapter()
 
 Ogre::Item* Ogre_glTF_adapter::getItem(Ogre::SceneManager* smgr) const
 {
-	if (isOk())
+	if(isOk())
 	{
 		pimpl->textureImporter.loadTextures();
 		auto Mesh = pimpl->modelConverter.getOgreMesh();
-		if (pimpl->modelConverter.hasSkins())
+		if(pimpl->modelConverter.hasSkins())
 		{
 			//load skeleton information
 			OgreLog("The mesh has skins!!!");
@@ -76,7 +76,8 @@ Ogre::Item* Ogre_glTF_adapter::getItem(Ogre::SceneManager* smgr) const
 	return nullptr;
 }
 
-Ogre_glTF_adapter::Ogre_glTF_adapter(Ogre_glTF_adapter&& other) noexcept : pimpl{ std::move(other.pimpl) }
+Ogre_glTF_adapter::Ogre_glTF_adapter(Ogre_glTF_adapter&& other) noexcept :
+ pimpl{ std::move(other.pimpl) }
 {
 	OgreLog("Moved adapter object...");
 }
@@ -104,8 +105,7 @@ struct Ogre_glTF::gltfLoader
 	}
 
 	///For file type detection. Ascii is plain old JSON text, Binary is .glc files.
-	enum class FileType
-	{
+	enum class FileType {
 		Ascii,
 		Binary,
 		Unknown
@@ -117,15 +117,15 @@ struct Ogre_glTF::gltfLoader
 		//Quickly open the file as binary and chekc if there's the gltf binary magic number
 		{
 			auto probe = std::ifstream(path, std::ios_base::binary);
-			if (!probe)
+			if(!probe)
 				throw std::runtime_error("Could not open " + path);
 
 			std::array<char, 5> buffer;
-			for (size_t i{ 0 }; i < 4; ++i)
+			for(size_t i{ 0 }; i < 4; ++i)
 				probe >> buffer[i];
 			buffer[4] = 0;
 
-			if (std::string("glTF") == std::string(buffer.data()))
+			if(std::string("glTF") == std::string(buffer.data()))
 			{
 				OgreLog("Detected binary file thanks to the magic number at the start!");
 				return FileType::Binary;
@@ -134,9 +134,9 @@ struct Ogre_glTF::gltfLoader
 
 		//If we don't have any better, check the file extension.
 		auto extension = path.substr(path.find_last_of('.') + 1);
-		std::transform(std::begin(extension), std::end(extension), std::begin(extension), [](char c) {return char(::tolower(int(c))); });
-		if (extension == "gltf") return FileType::Ascii;
-		if (extension == "glb") return FileType::Binary;
+		std::transform(std::begin(extension), std::end(extension), std::begin(extension), [](char c) { return char(::tolower(int(c))); });
+		if(extension == "gltf") return FileType::Ascii;
+		if(extension == "glb") return FileType::Binary;
 
 		return FileType::Unknown;
 	}
@@ -144,24 +144,25 @@ struct Ogre_glTF::gltfLoader
 	///Load the content of a file into an adapter object
 	bool loadInto(Ogre_glTF_adapter& adapter, const std::string& path)
 	{
-		switch (detectType(path))
+		switch(detectType(path))
 		{
-		default:
-		case FileType::Unknown:
-			return false;
-		case FileType::Ascii:
-			OgreLog("Detected ascii file type");
-			return loader.LoadASCIIFromFile(&adapter.pimpl->model, &adapter.pimpl->error, path);
-		case FileType::Binary:
-			OgreLog("Deteted binary file type");
-			return loader.LoadBinaryFromFile(&adapter.pimpl->model, &adapter.pimpl->error, path);
+			default:
+			case FileType::Unknown:
+				return false;
+			case FileType::Ascii:
+				OgreLog("Detected ascii file type");
+				return loader.LoadASCIIFromFile(&adapter.pimpl->model, &adapter.pimpl->error, path);
+			case FileType::Binary:
+				OgreLog("Deteted binary file type");
+				return loader.LoadBinaryFromFile(&adapter.pimpl->model, &adapter.pimpl->error, path);
 		}
 	}
 };
 
-Ogre_glTF::Ogre_glTF() : loaderImpl{ std::make_unique<Ogre_glTF::gltfLoader>() }
+Ogre_glTF::Ogre_glTF() :
+ loaderImpl{ std::make_unique<Ogre_glTF::gltfLoader>() }
 {
-	if (Ogre::Root::getSingletonPtr() == nullptr)
+	if(Ogre::Root::getSingletonPtr() == nullptr)
 		throw std::runtime_error("Please create an Ogre::Root instance before initializing the glTF library!");
 
 	OgreLog("Ogre_glTF created!");
@@ -187,6 +188,6 @@ Ogre_glTF_adapter Ogre_glTF::loadFile(const std::string& path) const
 }
 
 Ogre_glTF::Ogre_glTF(Ogre_glTF&& other) noexcept :
-loaderImpl(std::move(other.loaderImpl))
+ loaderImpl(std::move(other.loaderImpl))
 {
 }

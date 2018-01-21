@@ -56,6 +56,7 @@ class Ogre_glTF_EXPORT Ogre_glTF
 
 	///Opaque pointer that handle the underlying glTF loading library (pimpl)
 	std::unique_ptr<Ogre_glTF::gltfLoader> loaderImpl;
+
 public:
 	///Initialize the library by creating this object.
 	Ogre_glTF();
