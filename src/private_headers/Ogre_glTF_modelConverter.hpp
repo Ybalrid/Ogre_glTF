@@ -68,8 +68,7 @@ public:
 	Ogre_glTF_geometryBuffer(size_t size) :
 	 buffer{ allocateSimdBuffer(size) },
 	 bufferSize{ size }
-	{
-	}
+	{}
 
 	///Call freeSimdBuffer on the enclosed buffer
 	~Ogre_glTF_geometryBuffer()

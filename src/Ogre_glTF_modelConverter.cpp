@@ -48,7 +48,7 @@ Ogre::VertexBufferPackedVec Ogre_glTF_modelConverter::constructVertexBuffer(cons
 	OgreLog("There will be " + std::to_string(vertexCount) + " vertices with a stride of " + std::to_string(stride) + " bytes");
 
 	Ogre_glTF_geometryBuffer<float> finalBuffer(vertexCount * strideInElements);
-	size_t bytesWrittenInCurrentStride;
+	size_t bytesWrittenInCurrentStride{ 0 };
 	for(size_t vertexIndex = 0; vertexIndex < vertexCount; ++vertexIndex)
 	{
 		bytesWrittenInCurrentStride = 0;
@@ -65,11 +65,11 @@ Ogre::VertexBufferPackedVec Ogre_glTF_modelConverter::constructVertexBuffer(cons
 	//finalBuffer._debugContentToLog();
 
 	Ogre::VertexBufferPackedVec vec;
-	auto vertexBuffer = Ogre_glTF_modelConverter::getVaoManager()->createVertexBuffer(vertexElements,
-																					  vertexCount,
-																					  Ogre::BT_IMMUTABLE,
-																					  finalBuffer.data(),
-																					  false);
+	auto vertexBuffer = getVaoManager()->createVertexBuffer(vertexElements,
+															vertexCount,
+															Ogre::BT_IMMUTABLE,
+															finalBuffer.data(),
+															false);
 
 	vec.push_back(vertexBuffer);
 	return vec;
@@ -248,7 +248,7 @@ Ogre_glTF_vertexBufferPart Ogre_glTF_modelConverter::extractVertexBuffer(const s
 	const auto vertexBufferByteLen		= bufferView.byteLength;
 	const auto numberOfElementPerVertex = getVertexBufferElementsPerVertexCount(accessor.type);
 	const auto elementOffsetInBuffer	= bufferView.byteOffset + accessor.byteOffset;
-	size_t bufferLenghtInBufferBasicType;
+	size_t bufferLenghtInBufferBasicType{ 0 };
 
 	std::unique_ptr<Ogre_glTF_geometryBuffer_base> geometryBuffer{ nullptr };
 
@@ -279,8 +279,8 @@ Ogre_glTF_vertexBufferPart Ogre_glTF_modelConverter::extractVertexBuffer(const s
 	OgreLog("A vertex element on this buffer is " + std::to_string(vertexElementLenghtInBytes) + " bytes long");
 	for(size_t vertexIndex = 0; vertexIndex < vertexCount; vertexIndex++)
 	{
-		const size_t destOffset   = vertexIndex * vertexElementLenghtInBytes;
-		const size_t sourceOffset = elementOffsetInBuffer + vertexIndex * byteStride;
+		const auto destOffset   = vertexIndex * vertexElementLenghtInBytes;
+		const auto sourceOffset = elementOffsetInBuffer + vertexIndex * byteStride;
 
 		memcpy((geometryBuffer->dataAddress() + destOffset),
 			   (buffer.data.data() + sourceOffset),
