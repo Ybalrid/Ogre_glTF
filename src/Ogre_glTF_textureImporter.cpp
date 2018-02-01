@@ -215,7 +215,6 @@ Ogre::TexturePtr Ogre_glTF_textureImporter::getNormalSNORM(int gltfTextureSource
 		throw std::runtime_error("Can get " + name + "pixel format");
 	}();
 
-	Ogre::PixelFormat;
 
 	Ogre::TexturePtr OgreTexture = textureManager->createManual(name,
 																Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
