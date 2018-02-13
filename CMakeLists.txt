@@ -90,8 +90,7 @@ target_link_libraries(Ogre_glTF_TEST
 
     #the library we just built
 	Ogre_glTF
-
-	)
+)
 
 target_link_libraries(Ogre_glTF_TEST_static
 	${OGRE_LIBRARIES}
@@ -99,6 +98,5 @@ target_link_libraries(Ogre_glTF_TEST_static
 
     #the library we just built
 	Ogre_glTF_static
-
-	)
+)
 

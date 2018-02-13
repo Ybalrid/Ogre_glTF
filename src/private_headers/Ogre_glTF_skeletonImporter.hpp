@@ -17,7 +17,8 @@ class Ogre_glTF_skeletonImporter
 	///Get the "skeleton node" from the skin object, call add children on it
 	/// \param skin tinigltf skin object we are loading
 	/// \param rootBone a freshly created bone object from an Ogre::SkeletonPtr
-	void loadBoneRierarchy(const tinygltf::Skin& skin, Ogre::v1::OldBone* rootBone);
+	void loadBoneHierarchy(const tinygltf::Skin& skin, Ogre::v1::OldBone* rootBone);
+
 public:
 	///Construct the skeleton importer
 	/// \param input model where the skeleton data is loaded from
