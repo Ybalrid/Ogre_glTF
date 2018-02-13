@@ -22,7 +22,7 @@ void Ogre_glTF_textureImporter::loadTexture(const tinygltf::Texture& texture)
 	const auto name		= "glTF_texture_" + image.name + std::to_string(id) + std::to_string(texture.source);
 
 	auto OgreTexture = textureManager->getByName(name);
-	if(OgreTexture)
+	if (OgreTexture)
 	{
 		OgreLog("Texture " + name + " already loaded in Ogre::TextureManager");
 		return;

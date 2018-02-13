@@ -2,6 +2,7 @@
 #include "Ogre_glTF_modelConverter.hpp"
 #include "Ogre_glTF_textureImporter.hpp"
 #include "Ogre_glTF_materialLoader.hpp"
+#include "Ogre_glTF_skeletonImporter.hpp"
 #include "Ogre_glTF_common.hpp"
 
 #define TINYGLTF_IMPLEMENTATION
@@ -9,6 +10,9 @@
 #include "tiny_gltf.h"
 
 #include <OgreItem.h>
+#include <OgreMesh2.h>
+#include <OgreSubMesh2.h>
+#include <OgreSkeleton.h>
 
 ///Implementaiton of the adapter
 struct Ogre_glTF_adapter::impl
@@ -16,7 +20,11 @@ struct Ogre_glTF_adapter::impl
 	///Constructor, initialize once all the objects inclosed in this class. They need a reference
 	///to a model object (and sometimes more) given at construct time
 	impl() :
-	 textureImporter(model), materialLoader(model, textureImporter), modelConverter(model) {}
+	 textureImporter(model),
+	 materialLoader(model, textureImporter),
+	 modelConverter(model),
+	 skeletonImporter(model)
+	{}
 
 	///Vaiable to check if everything is allright with the adapter
 	bool valid = false;
@@ -30,9 +38,11 @@ struct Ogre_glTF_adapter::impl
 	Ogre_glTF_textureImporter textureImporter;
 	///Mateiral loader : get the data from the material section of the glTF file and create an HlmsDatablock to use
 	Ogre_glTF_materialLoader materialLoader;
-	///Model converter : load the actual mesh data from the glTF file, and convert them into index and vertex buffer that can
-	///Be used to create an Ogre VAO (Vertex Array Object), then create a mesh for it
+	///Model converter : load all the actual mesh data from the glTF file, and convert them into index and vertex buffer that can
+	///be used to create an Ogre VAO (Vertex Array Object), then create a mesh for it
 	Ogre_glTF_modelConverter modelConverter;
+	///Skeleton importer : load skins from the glTF model, create equivalent OgreSkeleton objects
+	Ogre_glTF_skeletonImporter skeletonImporter;
 };
 
 Ogre_glTF_adapter::Ogre_glTF_adapter() :
@@ -52,6 +62,13 @@ Ogre::Item* Ogre_glTF_adapter::getItem(Ogre::SceneManager* smgr) const
 	{
 		pimpl->textureImporter.loadTextures();
 		auto Mesh = pimpl->modelConverter.getOgreMesh();
+		if(pimpl->modelConverter.hasSkins())
+		{
+			//load skeleton information
+			OgreLog("The mesh has skins!!!");
+			auto skeleton = pimpl->skeletonImporter.getSkeleton();
+		}
+
 		auto Item = smgr->createItem(Mesh);
 		Item->setDatablock(pimpl->materialLoader.getDatablock());
 		return Item;

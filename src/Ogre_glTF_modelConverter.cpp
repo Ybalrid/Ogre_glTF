@@ -168,6 +168,12 @@ void Ogre_glTF_modelConverter::debugDump() const
 	OgreLog(ss.str());
 }
 
+bool Ogre_glTF_modelConverter::hasSkins() const
+{
+	if(model.skins.size() > 0) return true;
+	return false;
+}
+
 Ogre::VaoManager* Ogre_glTF_modelConverter::getVaoManager()
 {
 	//Our class shouldn't be able to exist if Ogre hasn't been initalized with a valid render system. This call should allways succeed.
@@ -236,6 +242,8 @@ Ogre::VertexElementSemantic Ogre_glTF_modelConverter::getVertexElementScemantic(
 	if(type == "TEXCOORD_0") return Ogre::VES_TEXTURE_COORDINATES;
 	if(type == "TEXCOORD_1") return Ogre::VES_TEXTURE_COORDINATES;
 	if(type == "COLOR_0") return Ogre::VES_DIFFUSE;
+	if(type == "JOINTS_0") return Ogre::VES_BLEND_INDICES;
+	if(type == "WEIGHTS_0") return Ogre::VES_BLEND_WEIGHTS;
 	return Ogre::VES_COUNT; //Returning this means returning "invalid" here
 }
 
@@ -251,6 +259,7 @@ Ogre_glTF_vertexBufferPart Ogre_glTF_modelConverter::extractVertexBuffer(const s
 	size_t bufferLenghtInBufferBasicType{ 0 };
 
 	std::unique_ptr<Ogre_glTF_geometryBuffer_base> geometryBuffer{ nullptr };
+	Ogre::VertexElementType elementType{};
 
 	switch(accessor.componentType)
 	{
@@ -259,16 +268,19 @@ Ogre_glTF_vertexBufferPart Ogre_glTF_modelConverter::extractVertexBuffer(const s
 		case TINYGLTF_COMPONENT_TYPE_FLOAT:
 			bufferLenghtInBufferBasicType = (vertexBufferByteLen / sizeof(float));
 			geometryBuffer				  = std::make_unique<Ogre_glTF_geometryBuffer<float>>(bufferLenghtInBufferBasicType);
+			if(numberOfElementPerVertex == 2) elementType = Ogre::VET_FLOAT2;
+			if(numberOfElementPerVertex == 3) elementType = Ogre::VET_FLOAT3;
+			if(numberOfElementPerVertex == 4) elementType = Ogre::VET_FLOAT4;
 			break;
-
+		case TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT:
+			bufferLenghtInBufferBasicType = (vertexBufferByteLen / sizeof(unsigned short));
+			geometryBuffer				  = std::make_unique<Ogre_glTF_geometryBuffer<unsigned short>>(bufferLenghtInBufferBasicType);
+			if(numberOfElementPerVertex == 2) elementType = Ogre::VET_USHORT2;
+			if(numberOfElementPerVertex == 4) elementType = Ogre::VET_USHORT4;
+			break;
 		default:
 			throw std::runtime_error("Unrecognized vertex buffer coponent type");
 	}
-
-	Ogre::VertexElementType elementType{};
-	if(numberOfElementPerVertex == 2) elementType = Ogre::VET_FLOAT2;
-	if(numberOfElementPerVertex == 3) elementType = Ogre::VET_FLOAT3;
-	if(numberOfElementPerVertex == 4) elementType = Ogre::VET_FLOAT4;
 
 	if(bufferView.byteStride == 0) OgreLog("Vertex buffer is 'tightly packed'");
 	const auto byteStride = accessor.ByteStride(bufferView);
