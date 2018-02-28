@@ -29,9 +29,10 @@ This is a projet under developement. Here's a short todolist beofre this thing w
  At this point, the library will be able to load static geometry into Ogre.
 
  If this works, we can start tackeling animation data:
- - [ ] Load "skin" information from glTF and create corresponding Ogre::Skeleton for the mesh
- - [ ] Load mesh "target" information and create Ogre "morph" target from them
+ - [x] Load "skin" information from glTF and create corresponding Ogre::Skeleton for the mesh
+ - [ ] Loop through all the vertex <-> bone assignement to get a valid skeleton configuration
  - [ ] Load animation information and create animations from them
+ - [ ] ~~Load mesh "target" information and create Ogre "morph" target from them~~ (Ogre 2.1 doesn't support them yet)
 
 In parallel, it could be interesting to use glTF as a "scene" loading format. glTF supports multiple scenes, with nodes having parent/child relations and that can have meshes attached to them
 
@@ -41,7 +42,7 @@ In parallel, it could be interesting to use glTF as a "scene" loading format. gl
  - There's several little issues with the texture loading. A small refactor would help. See the TODO comments.
  - Library is not "installable" from CMakeLists.txt yet. Users need to get the .dll / .so file accessible to their program, and point their compiler to look for headers the "include" directory
  - Can only load one mesh and it's associated material in a file. Will either load the first one, of the fist node of the default scene, depending if the default scene is set
- - Library only has been tested on an handfull of glTF files. 
+ - Library only has been tested on an handfull of glTF files, so some corner cases may make it not work.
 
 ## Building
 
@@ -83,6 +84,6 @@ On a typical install from Ogre's source code on linux, theses path are `/usr/loc
 tinygltf is an header only library. It is included in this very repository via git submodules.
 If you are about to clone this repository, you should use `git clone --recursive`
 
-The library define inside one of it's files the implementation of `tinygltf` and `stb_image`. This shouldn't be an issue and your program using ogre_glTF shouldn't be affected by them in any way.
+The library define inside one of it's files the implementation of `tinygltf` and `stb_image`. This shouldn't be an issue and your program using ogre_glTF shouldn't be affected by them in any way. Everything is hidden inside a [pimpl](http://en.cppreference.com/w/cpp/language/pimpl)
 
 If you have issues related with them, please open an issue :)
