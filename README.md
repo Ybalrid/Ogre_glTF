@@ -1,5 +1,5 @@
 # Ogre_glTF
-Library to use glTF resources with Ogre 2.1 licencied under the terms of the [MIT licence](https://opensource.org/licenses/MIT "MIT Licence on the OSI website")
+Library to use glTF 2.0 resources with Ogre 2.1 licencied under the terms of the [MIT licence](https://opensource.org/licenses/MIT "MIT Licence on the OSI website")
 
 ![DEMO](./demo.gif)
 
