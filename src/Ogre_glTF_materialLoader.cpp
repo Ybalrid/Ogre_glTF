@@ -172,13 +172,13 @@ Ogre::HlmsDatablock* Ogre_glTF_materialLoader::getDatablock() const
 			setEmissiveColor(datablock, convertColor(content.second.ColorFactor()));
 	}
 
-	OgreLog("extCommonValues");
-	for(const auto& content : material.extCommonValues)
-		OgreLog(content.first);
+//	OgreLog("extCommonValues");
+//	for(const auto& content : material.extCommonValues)
+//		OgreLog(content.first);
 
-	OgreLog("extPBRValues");
-	for(const auto& content : material.extPBRValues)
-		OgreLog(content.first);
+//	OgreLog("extPBRValues");
+//	for(const auto& content : material.extPBRValues)
+//		OgreLog(content.first);
 
 	return datablock;
 }
