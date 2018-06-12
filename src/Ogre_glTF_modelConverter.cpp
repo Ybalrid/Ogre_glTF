@@ -89,10 +89,12 @@ Ogre::MeshPtr Ogre_glTF_modelConverter::getOgreMesh()
 		OgreLog("Found mesh " + mesh.name + " in Ogre::MeshManager(v2)");
 		return OgreMesh;
 	}
+
 	OgreLog("Loading mesh from glTF file");
 	OgreLog("mesh has " + std::to_string(mesh.primitives.size()) + " primitives");
 	OgreMesh = Ogre::MeshManager::getSingleton().createManual(mesh.name, Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 	OgreLog("Created mesh on v2 MeshManager");
+
 	for(const auto& primitive : mesh.primitives)
 	{
 		auto subMesh = OgreMesh->createSubMesh();
@@ -106,6 +108,54 @@ Ogre::MeshPtr Ogre_glTF_modelConverter::getOgreMesh()
 			OgreLog("\t " + atribute.first);
 			parts.push_back(std::move(extractVertexBuffer(atribute)));
 		}
+
+		//Get (if they exists) the blend weights and bone index parts of our vertex array object content
+		auto blendIndicesIt = std::find_if(std::begin(parts), std::end(parts), [](const Ogre_glTF_vertexBufferPart& vertexBufferPart){
+			return (vertexBufferPart.semantic == Ogre::VertexElementSemantic::VES_BLEND_INDICES);
+		});
+
+		auto blendWeightsIt = std::find_if(std::begin(parts), std::end(parts), [](const Ogre_glTF_vertexBufferPart& vertexBufferPart){
+			return (vertexBufferPart.semantic == Ogre::VertexElementSemantic::VES_BLEND_WEIGHTS);
+		});
+
+		if(blendIndicesIt != std::end(parts) && blendWeightsIt != std::end(parts))
+		{
+			//Get the vertexBufferParts from the two iterators
+			OgreLog("The vertex buffer contains blend weights and indices information!");
+			Ogre_glTF_vertexBufferPart& blendIndices = *blendIndicesIt;
+			Ogre_glTF_vertexBufferPart& blendWeights = *blendWeightsIt;
+
+			//Debug sanity check, both should be equals
+			OgreLog("Vertex count blendIndex : " + std::to_string(blendIndices.vertexCount));
+			OgreLog("Vertex count blendWeight: " + std::to_string(blendWeights.vertexCount));
+			OgreLog("Vertex element count blendIndex : " + std::to_string(blendIndices.perVertex));
+			OgreLog("Vertex element count blendWeight: " + std::to_string(blendWeights.perVertex));
+
+			//Allocate 2 small arrays to store the bone idexes. (They should be of lenght "4")
+			std::vector<Ogre::ushort> vertexBoneIndex(blendIndices.perVertex);
+			std::vector<Ogre::Real> vertexBlend(blendWeights.perVertex);
+
+			//Add the attahcments for each bones
+			for(size_t vertexIndex = 0; vertexIndex < blendIndices.vertexCount; ++vertexIndex)
+			{
+				//Fetch the for bone indexes from the buffer
+				memcpy(vertexBoneIndex.data(),
+					   blendIndices.buffer->dataAddress() + (blendIndices.getPartStride() * vertexIndex),
+					   blendIndices.perVertex * sizeof(Ogre::ushort));
+
+				//Fetch the for weights from the buffer
+				memcpy(vertexBlend.data(),
+					   blendWeights.buffer->dataAddress() + (blendWeights.getPartStride() * vertexIndex),
+					   blendWeights.perVertex * sizeof(Ogre::ushort));
+
+				//Add the bone assignments to the submesh
+				for(size_t i = 0; i < blendIndices.perVertex; ++i)
+					subMesh->addBoneAssignment(Ogre::VertexBoneAssignment(vertexIndex,
+																		  vertexBoneIndex[i],
+																		  vertexBlend[i]));
+			}
+		}
+
 
 		auto vertexBuffers = constructVertexBuffer(parts);
 		auto vao		   = getVaoManager()->createVertexArrayObject(vertexBuffers, indexBuffer, [&] {
