@@ -9,7 +9,10 @@ class Ogre_glTF_skeletonImporter
 	///Const reference to the model
 	tinygltf::Model& model;
 
+	int offset = 0;
+
 	///Recurisve fucntion : Create a bone for each children, and each children's children...
+	/// \param skinName name of the skin
 	/// \param childs array contaning the indices of the childrens
 	/// \param parent a pointer to a bone that is part of the skeleton we are creating
 	void addChidren(const std::string& skinName, const std::vector<int>& childs, Ogre::v1::OldBone* parent);

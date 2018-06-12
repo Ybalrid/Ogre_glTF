@@ -157,13 +157,28 @@ int main()
 	light->setPowerScale(5);
 
 	auto skeleton = ObjectItem->getSkeletonInstance();
+
+	Ogre::Bone* bone = nullptr;
 	if (skeleton)
 	{
 		Ogre::LogManager::getSingleton().logMessage("skeleton instance? :O");
-	}
+		if(skeleton->getBone(0))
+			bone = skeleton->getBone(0)->getChild(0);
 
+	}
+	if(bone)
+		skeleton->setManualBone(bone, true);
+
+
+	Ogre::LogManager::getSingleton().logMessage("Bone pointer value : " + std::to_string(std::size_t(bone)));
 	while (!window->isClosed())
 	{
+		if(bone)
+		{
+			//bone->setOrientation(Ogre::Quaternion(Ogre::Degree(float(root->getTimer()->getMilliseconds()) / 10.0), Ogre::Vector3::NEGATIVE_UNIT_Y));
+			bone->setPosition({0,2.0f*sin((float)root->getTimer()->getMilliseconds()/1000.f),0});
+		}
+
 		//ObjectNode->setOrientation(Ogre::Quaternion(Ogre::Degree(float(root->getTimer()->getMilliseconds()) / 10.0f), Ogre::Vector3::NEGATIVE_UNIT_Y));
 		//OtherNode->setOrientation(Ogre::Quaternion(Ogre::Degree(float(root->getTimer()->getMilliseconds()) / 10.0f), Ogre::Vector3::UNIT_Y));
 		root->renderOneFrame();

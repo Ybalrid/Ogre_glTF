@@ -4,27 +4,27 @@
 #include <OgreOldSkeletonManager.h>
 #include <OgreSkeleton.h>
 #include <OgreOldBone.h>
+#include <OgreLogManager.h>
 
 void Ogre_glTF_skeletonImporter::addChidren(const std::string& skinName, const std::vector<int>& childs, Ogre::v1::OldBone* parent)
 {
 	OgreLog("Bone " + std::to_string(parent->getHandle()) + " has " + std::to_string(childs.size()) + " children");
 	for(auto child : childs)
 	{
-		auto bone		 = parent->createChild(child);
 		const auto& node = model.nodes[child];
 
 		auto toFloat = [](double n) { return static_cast<float>(n); };
 
-		std::array<float, 3> translation;
-		std::array<float, 4> rotation;
+		std::array<float, 3> translation{};
+		std::array<float, 4> rotation{};
 
-		internal_utils::container_to_float(node.translation, translation);
-		internal_utils::container_to_float(node.rotation, rotation);
+		internal_utils::container_double_to_float(node.translation, translation);
+		internal_utils::container_double_to_float(node.rotation, rotation);
 
-		bone->setPosition(Ogre::Vector3{ translation.data() });
-		bone->setOrientation(Ogre::Quaternion{ rotation.data() });
+		auto bone = parent->createChild(child - offset, Ogre::Vector3{ translation.data() }, Ogre::Quaternion{ rotation.data() });
+		Ogre::LogManager::getSingleton().logMessage("Bone pointer value : " + std::to_string(std::size_t(bone)));
 
-		addChidren(skinName, model.nodes[child].children, bone);
+		addChidren(skinName + std::to_string(child), model.nodes[child].children, bone);
 	}
 }
 
@@ -32,13 +32,12 @@ void Ogre_glTF_skeletonImporter::loadBoneHierarchy(const tinygltf::Skin& skin, O
 {
 	const auto& node = model.nodes[skin.skeleton];
 
-	auto toFloat = [](double n) { return static_cast<float>(n); };
 
-	std::array<float, 3> translation;
-	std::array<float, 4> rotation;
+	std::array<float, 3> translation{};
+	std::array<float, 4> rotation{};
 
-	internal_utils::container_to_float(node.translation, translation);
-	internal_utils::container_to_float(node.rotation, rotation);
+	internal_utils::container_double_to_float(node.translation, translation);
+	internal_utils::container_double_to_float(node.rotation, rotation);
 
 	rootBone->setPosition(Ogre::Vector3{ translation.data() });
 	rootBone->setOrientation(Ogre::Quaternion{ rotation.data() });
@@ -53,8 +52,6 @@ Ogre_glTF_skeletonImporter::Ogre_glTF_skeletonImporter(tinygltf::Model& input) :
 
 Ogre::v1::SkeletonPtr Ogre_glTF_skeletonImporter::getSkeleton()
 {
-	const auto mainMeshIndex = (model.defaultScene != 0 ? model.nodes[model.scenes[model.defaultScene].nodes.front()].mesh : 0);
-	const auto& mesh		 = model.meshes[mainMeshIndex];
 	const auto& skins		 = model.skins;
 
 	assert(skins.size() > 0);
@@ -75,14 +72,17 @@ Ogre::v1::SkeletonPtr Ogre_glTF_skeletonImporter::getSkeleton()
 
 	if(!skeleton)
 	{
-		OgreLog("skeleton pointer is still not valid?");
+		throw std::runtime_error("Coudn't create skeletion for skin" + skin.name);
 	}
 
 	OgreLog("skin.skeleton (root joint) = " + std::to_string(skin.skeleton));
 	for(auto joint : skin.joints)
 		OgreLog("joint " + std::to_string(joint));
 
-	auto rootBone = skeleton->createBone(skin.name + std::to_string(skin.skeleton), skin.skeleton);
+	//set offset
+	offset = skin.skeleton;
+
+	auto rootBone = skeleton->createBone(skin.name + std::to_string(skin.skeleton), skin.skeleton - offset);
 	loadBoneHierarchy(skin, rootBone);
 
 	return skeleton;

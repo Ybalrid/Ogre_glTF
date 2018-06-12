@@ -66,8 +66,8 @@ Ogre::Item* Ogre_glTF_adapter::getItem(Ogre::SceneManager* smgr) const
 		if(pimpl->modelConverter.hasSkins())
 		{
 			//load skeleton information
-			OgreLog("The mesh has skins!!!");
 			auto skeleton = pimpl->skeletonImporter.getSkeleton();
+			Mesh->_notifySkeleton(skeleton);
 		}
 
 		auto Item = smgr->createItem(Mesh);

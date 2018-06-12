@@ -5,7 +5,7 @@
 namespace internal_utils
 {
 	template <class inputContainer, class outputContainer>
-	void container_to_float(inputContainer& in, outputContainer& out)
+	void container_double_to_float(inputContainer& in, outputContainer& out)
 	{
 		std::transform(std::begin(in),
 					   std::end(in),
