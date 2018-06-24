@@ -81,6 +81,7 @@ Ogre::MeshPtr Ogre_glTF_modelConverter::getOgreMesh()
 	OgreLog("Default scene" + std::to_string(model.defaultScene));
 	const auto mainMeshIndex = (model.defaultScene != 0 ? model.nodes[model.scenes[model.defaultScene].nodes.front()].mesh : 0);
 	const auto& mesh		 = model.meshes[mainMeshIndex];
+	Ogre::Aabb boundingBox;
 	OgreLog("Found mesh " + mesh.name + " in glTF file");
 
 	auto OgreMesh = Ogre::MeshManager::getSingleton().getByName(mesh.name);
@@ -106,7 +107,7 @@ Ogre::MeshPtr Ogre_glTF_modelConverter::getOgreMesh()
 		for(const auto& atribute : primitive.attributes)
 		{
 			OgreLog("\t " + atribute.first);
-			parts.push_back(std::move(extractVertexBuffer(atribute)));
+			parts.push_back(std::move(extractVertexBuffer(atribute, boundingBox)));
 		}
 
 		//Get (if they exists) the blend weights and bone index parts of our vertex array object content
@@ -208,9 +209,9 @@ Ogre::MeshPtr Ogre_glTF_modelConverter::getOgreMesh()
 		}
 	}
 
-	//TODO use the min and max values of the mesh accessor to actually calculate AABB for this object
-	OgreMesh->_setBounds(Ogre::Aabb(Ogre::Vector3::ZERO, Ogre::Vector3::UNIT_SCALE), false);
-	OgreMesh->_setBoundingSphereRadius(1.732f);
+	OgreMesh->_setBounds(boundingBox, true);
+	OgreMesh->_setBoundingSphereRadius(boundingBox.getRadius());
+	OgreLog("Setting 'bounding sphere radius' from bounds : " + std::to_string(boundingBox.getRadius()));
 
 	return OgreMesh;
 }
@@ -316,7 +317,7 @@ Ogre::VertexElementSemantic Ogre_glTF_modelConverter::getVertexElementScemantic(
 	return Ogre::VES_COUNT; //Returning this means returning "invalid" here
 }
 
-Ogre_glTF_vertexBufferPart Ogre_glTF_modelConverter::extractVertexBuffer(const std::pair<std::string, int>& attribute) const
+Ogre_glTF_vertexBufferPart Ogre_glTF_modelConverter::extractVertexBuffer(const std::pair<std::string, int>& attribute, Ogre::Aabb& boundingBox) const
 {
 	const auto elementScemantic			= getVertexElementScemantic(attribute.first);
 	if(elementScemantic == Ogre::VES_BLEND_INDICES)
@@ -388,7 +389,28 @@ Ogre_glTF_vertexBufferPart Ogre_glTF_modelConverter::extractVertexBuffer(const s
 
 	}
 
+	/*
+		Update the bounding sizes once, when vertex positions has been read.
+	*/
+	if (elementScemantic == Ogre::VES_POSITION)
+	{
+		Ogre::Vector3 minBounds, maxBounds;
 
+		OgreLog("Updating bounding box size: ");
+
+		minBounds.x = accessor.minValues.at(0);
+		minBounds.y = accessor.minValues.at(1);
+		minBounds.z = accessor.minValues.at(2);
+		OgreLog("Setting Min size: " + std::to_string(minBounds.x) + " " + std::to_string(minBounds.y) + " " + std::to_string(minBounds.z));
+
+		maxBounds.x = accessor.maxValues.at(0);
+		maxBounds.y = accessor.maxValues.at(1);
+		maxBounds.z = accessor.maxValues.at(2);
+		OgreLog("Setting Max size: " + std::to_string(maxBounds.x) + " " + std::to_string(maxBounds.y) + " " + std::to_string(maxBounds.z));
+
+		boundingBox.setExtents(minBounds, maxBounds);
+	}
+	
 
 	//geometryBuffer->_debugContentToLog();
 

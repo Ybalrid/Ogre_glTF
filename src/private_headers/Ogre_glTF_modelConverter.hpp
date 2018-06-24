@@ -163,7 +163,7 @@ private:
 	Ogre::IndexBufferPacked* extractIndexBuffer(int accessor) const;
 	///Extract the buffer content from the attibute of a primitive of a mesh
 	/// \param attribute the attribue of the mesh primitive we are loading
-	Ogre_glTF_vertexBufferPart extractVertexBuffer(const std::pair<std::string, int>& attribute) const;
+	Ogre_glTF_vertexBufferPart extractVertexBuffer(const std::pair<std::string, int>& attribute, Ogre::Aabb& boundingBox) const;
 	///Construct an actual vertex bufffer from a list of vertex buffer parts
 	/// \param parts list of Ogre_glTF_vertexBufferPart to load into the vertex buffer
 	Ogre::VertexBufferPackedVec constructVertexBuffer(const std::vector<Ogre_glTF_vertexBufferPart>& parts) const;
