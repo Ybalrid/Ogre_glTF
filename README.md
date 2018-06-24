@@ -77,6 +77,14 @@ On a typical install from Ogre's source code on linux, theses path are `/usr/loc
  - Open the .sln (solution) file into Visual Studio. You'll get 2 projects : `Ogre_glTF` (the DLL) and `Ogre_glTF_TEST` (a test program)
  - To make the test program works, copy inside the "build" directory all the .dll files from Ogre's debug and release binary directories
  - Copy the HLMS libary to the "build" directory
+ 
+ ## Contributors
+ 
+ This project is Open Source. If you can improve it in any way, Pull Requests are welcommed!
+ 
+ Here's the list of the contributors that hepled out with this projet:
+ 
+  - Stig Atle @stig-atle
 
 
 ## Notes on third party components
