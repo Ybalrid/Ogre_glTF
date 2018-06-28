@@ -10,6 +10,9 @@ class Ogre_glTF_skeletonImporter
 	tinygltf::Model& model;
 
 	int offset = 0;
+	static int skeletonID;
+
+	Ogre::v1::SkeletonPtr skeleton;
 
 	///Recurisve fucntion : Create a bone for each children, and each children's children...
 	/// \param skinName name of the skin
@@ -20,7 +23,7 @@ class Ogre_glTF_skeletonImporter
 	///Get the "skeleton node" from the skin object, call add children on it
 	/// \param skin tinigltf skin object we are loading
 	/// \param rootBone a freshly created bone object from an Ogre::SkeletonPtr
-	void loadBoneHierarchy(const tinygltf::Skin& skin, Ogre::v1::OldBone* rootBone);
+	void loadBoneHierarchy(const tinygltf::Skin& skin, Ogre::v1::OldBone* rootBone, const std::string& name);
 
 public:
 	///Construct the skeleton importer
