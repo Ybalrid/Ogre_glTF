@@ -40,8 +40,10 @@ const char D3D11_RENDER_PLUGIN[] = "RenderSystem_Direct3D11";
 void declareHlmsLibrary(Ogre::String dataFolder)
 {
 	//Make sure the string we got is a valid path
-	if (dataFolder.empty()) dataFolder = "./";
-	else if (dataFolder[dataFolder.size() - 1] != '/') dataFolder += '/';
+	if(dataFolder.empty())
+		dataFolder = "./";
+	else if(dataFolder[dataFolder.size() - 1] != '/')
+		dataFolder += '/';
 
 	//For retrieval of the paths to the different folders needed
 	Ogre::String dataFolderPath;
@@ -54,7 +56,7 @@ void declareHlmsLibrary(Ogre::String dataFolder)
 	//Create the Ogre::Archive objects needed
 	Ogre::Archive* archiveUnlit = Ogre::ArchiveManager::getSingletonPtr()->load(dataFolder + dataFolderPath, "FileSystem", true);
 	Ogre::ArchiveVec archiveUnlitLibraryFolders;
-	for (const auto& libraryFolderPath : libraryFoldersPaths)
+	for(const auto& libraryFolderPath : libraryFoldersPaths)
 	{
 		Ogre::Archive* archiveLibrary = Ogre::ArchiveManager::getSingletonPtr()->load(dataFolder + libraryFolderPath, "FileSystem", true);
 		archiveUnlitLibraryFolders.push_back(archiveLibrary);
@@ -72,7 +74,7 @@ void declareHlmsLibrary(Ogre::String dataFolder)
 
 	//Get the library archive(s)
 	Ogre::ArchiveVec archivePbsLibraryFolders;
-	for (const auto& libraryFolderPath : libraryFoldersPaths)
+	for(const auto& libraryFolderPath : libraryFoldersPaths)
 	{
 		Ogre::Archive* archiveLibrary = Ogre::ArchiveManager::getSingletonPtr()->load(dataFolder + libraryFolderPath, "FileSystem", true);
 		archivePbsLibraryFolders.push_back(archiveLibrary);
@@ -102,12 +104,12 @@ int main()
 	//Create a window and a scene
 	Ogre::NameValuePairList params;
 	params["FSAA"] = "16";
-	auto window = root->createRenderWindow("glTF test!", 800, 600, false, &params);
-	auto smgr = root->createSceneManager(Ogre::ST_GENERIC, 2, Ogre::INSTANCING_CULLING_THREADED);
-	auto camera = smgr->createCamera("cam");
+	auto window	= root->createRenderWindow("glTF test!", 800, 600, false, &params);
+	auto smgr	  = root->createSceneManager(Ogre::ST_GENERIC, 2, Ogre::INSTANCING_CULLING_THREADED);
+	auto camera	= smgr->createCamera("cam");
 
 	//Setup rendering pipeline
-	auto compositor = root->getCompositorManager2();
+	auto compositor			   = root->getCompositorManager2();
 	const char workspaceName[] = "workspace0";
 	compositor->createBasicWorkspaceDef(workspaceName, Ogre::ColourValue{ 0.2f, 0.3f, 0.4f });
 	auto workspace = compositor->addWorkspace(smgr, window, camera, workspaceName, true);
@@ -117,7 +119,7 @@ int main()
 	//Ogre::ResourceGroupManager::getSingleton().addResourceLocation("./media", "FileSystem");
 	Ogre::ResourceGroupManager::getSingleton().initialiseAllResourceGroups(true);
 
-	Ogre::Item* ObjectItem = nullptr;
+	Ogre::Item* ObjectItem		= nullptr;
 	Ogre::SceneNode* ObjectNode = nullptr;
 
 	//Ogre::Item* OtherItem;
@@ -125,13 +127,15 @@ int main()
 	auto gltf = std::make_unique<Ogre_glTF>();
 	try
 	{
+		//auto adapter = gltf->loadFile("from_gltf_export_skinned_cylinder.glb");
 		auto adapter = gltf->loadFile("RiggedSimple.glb");
 		//auto adapter = gltf->loadFile("./damagedHelmet/damagedHelmet.gltf");
 		//auto adapter = gltf->loadFile("./Corset.glb");
-		ObjectItem = adapter.getItem(smgr);
+		ObjectItem
+			= adapter.getItem(smgr);
 		//OtherItem = adapter.getItem(smgr);
 	}
-	catch (std::exception& e)
+	catch(std::exception& e)
 	{
 		Ogre::LogManager::getSingleton().logMessage(e.what());
 		return -1;
@@ -159,24 +163,29 @@ int main()
 	auto skeleton = ObjectItem->getSkeletonInstance();
 
 	Ogre::Bone* bone = nullptr;
-	if (skeleton)
+	if(skeleton)
 	{
 		Ogre::LogManager::getSingleton().logMessage("skeleton instance? :O");
 		if(skeleton->getBone(0))
 			bone = skeleton->getBone(0)->getChild(0);
-
 	}
 	if(bone)
 		skeleton->setManualBone(bone, true);
 
-
 	Ogre::LogManager::getSingleton().logMessage("Bone pointer value : " + std::to_string(std::size_t(bone)));
-	while (!window->isClosed())
+	while(!window->isClosed())
 	{
+		for(auto i = 0; i < skeleton->getNumBones(); ++i)
+		{
+			auto a_bone = skeleton->getBone(i);
+			std::stringstream ss;
+			ss << "bone " << i << " position " << a_bone->getPosition() << " orientaiton " << a_bone->getOrientation();
+			Ogre::LogManager::getSingleton().logMessage(ss.str());
+		}
 		if(bone)
 		{
-			//bone->setOrientation(Ogre::Quaternion(Ogre::Degree(float(root->getTimer()->getMilliseconds()) / 10.0), Ogre::Vector3::NEGATIVE_UNIT_Y));
-			bone->setPosition({0,2.0f*sin((float)root->getTimer()->getMilliseconds()/1000.f),0});
+			bone->setOrientation(bone->getParent()->getOrientation() * Ogre::Quaternion(Ogre::Degree( 45.0f * float(sin((float)root->getTimer()->getMilliseconds() / 1000.0f))), Ogre::Vector3::UNIT_Z));
+			//bone->setPosition({ 0, 2.0f * sin((float)root->getTimer()->getMilliseconds() / 1000.f), 0 });
 		}
 
 		//ObjectNode->setOrientation(Ogre::Quaternion(Ogre::Degree(float(root->getTimer()->getMilliseconds()) / 10.0f), Ogre::Vector3::NEGATIVE_UNIT_Y));

@@ -97,10 +97,10 @@ Ogre::v1::SkeletonPtr Ogre_glTF_skeletonImporter::getSkeleton()
 		throw std::runtime_error("Coudn't create skeletion for skin" + skeletonName);
 	}
 
-	const auto firstJoint = skin.joints[0];
-	offset = firstJoint;
-	//auto rootBone = skeleton->createBone(skeletonName + std::to_string(firstJoint), firstJoint - offset);
-	OgreLog("skin.skeleton (root joint) = " + std::to_string(skin.skeleton));
+	offset = skin.joints[0];
+
+	OgreLog("skin.skeleton = " + std::to_string(skin.skeleton));
+	OgreLog("first joint : " + std::to_string(offset));
 	for(auto joint : skin.joints)
 	{
 		const auto name = model.nodes[joint].name;
@@ -109,9 +109,6 @@ Ogre::v1::SkeletonPtr Ogre_glTF_skeletonImporter::getSkeleton()
 	}
 
 	auto rootBone = skeleton->getBone(0);
-
-	//set offset
-
 	loadBoneHierarchy(skin, rootBone, skeletonName);
 
 	return skeleton;
