@@ -15,7 +15,7 @@ void Ogre_glTF_skeletonImporter::addChidren(const std::string& skinName, const s
 	for(auto child : childs)
 	{
 		const auto& node = model.nodes[child];
-
+		OgreLog("Node name is " + node.name + "!");
 		auto toFloat = [](double n) { return static_cast<float>(n); };
 
 		std::array<float, 3> translation{};
@@ -103,8 +103,9 @@ Ogre::v1::SkeletonPtr Ogre_glTF_skeletonImporter::getSkeleton()
 	OgreLog("skin.skeleton (root joint) = " + std::to_string(skin.skeleton));
 	for(auto joint : skin.joints)
 	{
-		OgreLog("joint " + std::to_string(joint));
-		skeleton->createBone(skeletonName + std::to_string(joint - offset), joint - offset);
+		const auto name = model.nodes[joint].name;
+		OgreLog("joint " + std::to_string(joint) + " name: " + name);
+		skeleton->createBone((!name.empty()) ? name : skeletonName + std::to_string(joint - offset), joint - offset);
 	}
 
 	auto rootBone = skeleton->getBone(0);
