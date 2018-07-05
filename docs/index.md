@@ -20,8 +20,29 @@ This library is based on tinygltf. https://github.com/syoyo/tinygltf. tinygltf i
 
  - Load the first declared mesh (or the first mesh of the default scene) of a glTF or glb (binary glTF) file into Ogre
  - Load all the texture and a PBR material into Ogre's High Level Material System (PBS implementation)
+ - Load glTF skins as ogre's skeleton
+ - Load glTF animation tracks as skeleton animations
  - Create Ogre 2.x Item into your scene manager
  
+## How to use
+
+ - Build the library with CMake
+ - Point your compiler to the built library, and the public headers (the /include directory of the repository)
+ - In your code:
+```cpp
+//Initialize the library. I recomend using a unique_ptr from #include <memory>
+auto gltf = std::make_unique<Ogre_glTF>();
+
+//Create an "adapter" object that permit to access the glb/gltf file
+auto adapter = gltf->loadFile("Path/To/GLTF/GLB/Resource");
+
+//Get an Ogre v2 "Item" from the adapter
+Ogre::Item* ObjectItem = adapter.getItem(smgr);
+
+//Now you can add this item to an node, and do everything you may want with it
+//to cleanup the library, you just let go of the "gltf" smart pointer
+```
+
 ## Binary releases
 
 There isn't any binaries avaiable, if you want to use the library, you should get the lattest version of the source code and build it yourself (see below)
