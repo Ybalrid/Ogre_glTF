@@ -49,7 +49,7 @@ public:
 	///Write the content of the buffer to the log. This is an expensinve operation only needed when debugging the loading code itself
 	void _debugContentToLog() const final
 	{
-		for(size_t i{ 0 }; i < bufferSize; ++i)
+		for(size_t i { 0 }; i < bufferSize; ++i)
 		{
 			Ogre::LogManager::getSingleton().logMessage("BufferContent[" + std::to_string(i) + "] = " + std::to_string(buffer[i]));
 		}
@@ -66,8 +66,8 @@ public:
 	///Construct a geometryBuffer. This is templated and you will need to provide the type between angle brackets.
 	/// \param size size of the buffer we are allocation (in nuber of elements, not bytes)
 	Ogre_glTF_geometryBuffer(size_t size) :
-	 buffer{ allocateSimdBuffer(size) },
-	 bufferSize{ size }
+	 buffer { allocateSimdBuffer(size) },
+	 bufferSize { size }
 	{}
 
 	///Call freeSimdBuffer on the enclosed buffer
@@ -90,7 +90,7 @@ public:
 	///Move constructor that move around the underlying pointer and size
 	/// \param other buffer we are moving into this one
 	Ogre_glTF_geometryBuffer(Ogre_glTF_geometryBuffer&& other) noexcept :
-	 buffer{ other.buffer }, bufferSize{ other.bufferSize } {}
+	 buffer { other.buffer }, bufferSize { other.bufferSize } {}
 };
 
 ///Part of the vertex buffer, containing a geometry buffer and the information about the type and number of vertex elements;

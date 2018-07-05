@@ -32,23 +32,21 @@ class Ogre_glTF_skeletonImporter
 	/// \param name Name of the skeleton we are loading
 	void loadBoneHierarchy(const tinygltf::Skin& skin, Ogre::v1::OldBone* rootBone, const std::string& name);
 
-
 	///Represent a keyframe as laded from tinygltf, but converted to Ogre objects
 	struct keyFrame
 	{
-		float timePoint{-1};
-		float weights{};
-		Ogre::Quaternion rotation{};
-		Ogre::Vector3 position, scale{};
+		float timePoint { -1 };
+		float weights {};
+		Ogre::Quaternion rotation {};
+		Ogre::Vector3 position, scale {};
 	};
 
 	///Vector of keyframes
-	using keyFrameList			 = std::vector<keyFrame>;
-	///Tinygltf 
+	using keyFrameList = std::vector<keyFrame>;
+	///Tinygltf
 	using tinygltfJointNodeIndex = int;
 	///Type for a list of animation channels
 	using channelList = std::vector<std::reference_wrapper<tinygltf::AnimationChannel>>;
-
 
 	///Load from an animation channel sampler the time data, and ore it inside the keyframe
 	void loadTimepointFromSamplerToKeyFrame(int bone, int frameID, int& count, keyFrame& animationFrame, tinygltf::AnimationSampler& sampler);

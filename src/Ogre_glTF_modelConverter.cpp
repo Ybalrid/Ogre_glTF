@@ -11,7 +11,7 @@ size_t Ogre_glTF_vertexBufferPart::getPartStride() const
 }
 
 Ogre_glTF_modelConverter::Ogre_glTF_modelConverter(tinygltf::Model& input) :
- model{ input }
+ model { input }
 {
 }
 
@@ -19,9 +19,9 @@ Ogre::VertexBufferPackedVec Ogre_glTF_modelConverter::constructVertexBuffer(cons
 {
 	Ogre::VertexElement2Vec vertexElements;
 
-	size_t stride{ 0 }, strideInElements{ 0 };
-	size_t vertexCount{ 0 }, previousVertexCount{ 0 };
-	
+	size_t stride { 0 }, strideInElements { 0 };
+	size_t vertexCount { 0 }, previousVertexCount { 0 };
+
 	for(const auto& part : parts)
 	{
 		vertexElements.emplace_back(part.type, part.semantic);
@@ -35,13 +35,14 @@ Ogre::VertexBufferPackedVec Ogre_glTF_modelConverter::constructVertexBuffer(cons
 			if(vertexCount != previousVertexCount)
 				throw std::runtime_error("Part of vertex buffer for the same primitive have different vertex counts!");
 		}
-		else previousVertexCount = vertexCount;
+		else
+			previousVertexCount = vertexCount;
 	}
 
 	OgreLog("There will be " + std::to_string(vertexCount) + " vertices with a stride of " + std::to_string(stride) + " bytes");
 
 	Ogre_glTF_geometryBuffer<float> finalBuffer(vertexCount * strideInElements);
-	size_t bytesWrittenInCurrentStride{ 0 };
+	size_t bytesWrittenInCurrentStride { 0 };
 	for(size_t vertexIndex = 0; vertexIndex < vertexCount; ++vertexIndex)
 	{
 		bytesWrittenInCurrentStride = 0;
@@ -244,7 +245,7 @@ Ogre::IndexBufferPacked* Ogre_glTF_modelConverter::extractIndexBuffer(int access
 	if(byteStride < 0)
 		throw std::runtime_error("Can't get valid bytestride from accessor and bufferview. Loading data not possible");
 
-	auto convertTo16Bit{ false };
+	auto convertTo16Bit { false };
 	switch(accessor.componentType)
 	{
 		default:
@@ -318,10 +319,10 @@ Ogre_glTF_vertexBufferPart Ogre_glTF_modelConverter::extractVertexBuffer(const s
 	const auto vertexBufferByteLen		= bufferView.byteLength;
 	const auto numberOfElementPerVertex = getVertexBufferElementsPerVertexCount(accessor.type);
 	const auto elementOffsetInBuffer	= bufferView.byteOffset + accessor.byteOffset;
-	size_t bufferLenghtInBufferBasicType{ 0 };
+	size_t bufferLenghtInBufferBasicType { 0 };
 
-	std::unique_ptr<Ogre_glTF_geometryBuffer_base> geometryBuffer{ nullptr };
-	Ogre::VertexElementType elementType{};
+	std::unique_ptr<Ogre_glTF_geometryBuffer_base> geometryBuffer { nullptr };
+	Ogre::VertexElementType elementType {};
 
 	switch(accessor.componentType)
 	{

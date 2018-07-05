@@ -49,7 +49,7 @@ struct Ogre_glTF_adapter::impl
 };
 
 Ogre_glTF_adapter::Ogre_glTF_adapter() :
- pimpl{ std::make_unique<Ogre_glTF_adapter::impl>() }
+ pimpl { std::make_unique<Ogre_glTF_adapter::impl>() }
 {
 	OgreLog("Created adapter object...");
 }
@@ -80,7 +80,7 @@ Ogre::Item* Ogre_glTF_adapter::getItem(Ogre::SceneManager* smgr) const
 }
 
 Ogre_glTF_adapter::Ogre_glTF_adapter(Ogre_glTF_adapter&& other) noexcept :
- pimpl{ std::move(other.pimpl) }
+ pimpl { std::move(other.pimpl) }
 {
 	OgreLog("Moved adapter object...");
 }
@@ -129,8 +129,8 @@ struct Ogre_glTF::gltfLoader
 			if(!probe)
 				throw std::runtime_error("Could not open " + path);
 
-			std::array<char, 5> buffer{};
-			for(size_t i{ 0 }; i < 4; ++i)
+			std::array<char, 5> buffer {};
+			for(size_t i { 0 }; i < 4; ++i)
 				probe >> buffer[i];
 			buffer[4] = 0;
 
@@ -169,7 +169,7 @@ struct Ogre_glTF::gltfLoader
 };
 
 Ogre_glTF::Ogre_glTF() :
- loaderImpl{ std::make_unique<Ogre_glTF::gltfLoader>() }
+ loaderImpl { std::make_unique<Ogre_glTF::gltfLoader>() }
 {
 	if(Ogre::Root::getSingletonPtr() == nullptr)
 		throw std::runtime_error("Please create an Ogre::Root instance before initializing the glTF library!");
@@ -178,7 +178,7 @@ Ogre_glTF::Ogre_glTF() :
 }
 
 Ogre_glTF::~Ogre_glTF()
-= default;
+	= default;
 
 Ogre_glTF_adapter Ogre_glTF::loadFile(const std::string& path) const
 {

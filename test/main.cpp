@@ -76,7 +76,8 @@ void declareHlmsLibrary(Ogre::String dataFolder)
 
 	//Get the library archive(s)
 	Ogre::ArchiveVec archivePbsLibraryFolders;
-	for(const auto& libraryFolderPath : libraryFoldersPaths) {
+	for(const auto& libraryFolderPath : libraryFoldersPaths)
+	{
 		Ogre::Archive* archiveLibrary = Ogre::ArchiveManager::getSingletonPtr()->load(dataFolder + libraryFolderPath, "FileSystem", true);
 		archivePbsLibraryFolders.push_back(archiveLibrary);
 	}
@@ -112,7 +113,7 @@ int main()
 	//Setup rendering pipeline
 	auto compositor			   = root->getCompositorManager2();
 	const char workspaceName[] = "workspace0";
-	compositor->createBasicWorkspaceDef(workspaceName, Ogre::ColourValue{ 0.2f, 0.3f, 0.4f });
+	compositor->createBasicWorkspaceDef(workspaceName, Ogre::ColourValue { 0.2f, 0.3f, 0.4f });
 	auto workspace = compositor->addWorkspace(smgr, window, camera, workspaceName, true);
 
 	declareHlmsLibrary("./");
@@ -178,7 +179,7 @@ int main()
 	Ogre::SkeletonAnimation* anim = nullptr;
 	if(skeleton)
 	{
-		auto& animationList			  = skeleton->getAnimations();
+		auto& animationList = skeleton->getAnimations();
 		if(!animationList.empty())
 		{
 			auto name = animationList[0].getName();
@@ -194,15 +195,16 @@ int main()
 
 	auto last = root->getTimer()->getMilliseconds();
 	auto now  = last;
-	while(!window->isClosed()) {
+	while(!window->isClosed())
+	{
 		if(skeleton)
-		for(auto i = 0; i < skeleton->getNumBones(); ++i)
-		{
-			auto a_bone = skeleton->getBone(i);
-			std::stringstream ss;
-			ss << "bone " << i << " position " << a_bone->getPosition() << " orientaiton " << a_bone->getOrientation();
-			Ogre::LogManager::getSingleton().logMessage(ss.str());
-		}
+			for(auto i = 0; i < skeleton->getNumBones(); ++i)
+			{
+				auto a_bone = skeleton->getBone(i);
+				std::stringstream ss;
+				ss << "bone " << i << " position " << a_bone->getPosition() << " orientaiton " << a_bone->getOrientation();
+				Ogre::LogManager::getSingleton().logMessage(ss.str());
+			}
 
 		//if(bone)
 		//{
