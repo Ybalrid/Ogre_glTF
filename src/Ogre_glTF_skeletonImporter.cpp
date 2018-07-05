@@ -33,7 +33,7 @@ void Ogre_glTF_skeletonImporter::addChidren(const std::string& skinName, const s
 		parent->addChild(bone);
 
 		bone->setPosition(Ogre::Vector3{ translation.data() });
-		bone->setOrientation(Ogre::Quaternion{ rotation.data() });
+		bone->setOrientation(Ogre::Quaternion{ rotation[3], rotation[0], rotation[1], rotation[2] });
 
 		//auto bone = parent->createChild(child - offset, Ogre::Vector3{ translation.data() }, Ogre::Quaternion{ rotation.data() });
 		Ogre::LogManager::getSingleton().logMessage("Bone pointer value : " + std::to_string(std::size_t(bone)));
@@ -54,7 +54,7 @@ void Ogre_glTF_skeletonImporter::loadBoneHierarchy(const tinygltf::Skin& skin, O
 	internal_utils::container_double_to_float(skeleton.rotation, rotation);
 
 	rootBone->setPosition(Ogre::Vector3{ translation.data() });
-	rootBone->setOrientation(Ogre::Quaternion{ rotation.data() });
+	rootBone->setOrientation(Ogre::Quaternion{ rotation[3], rotation[0], rotation[1], rotation[2] });
 
 	addChidren(name, node.children, rootBone);
 }
@@ -66,10 +66,10 @@ Ogre_glTF_skeletonImporter::Ogre_glTF_skeletonImporter(tinygltf::Model& input) :
 
 void Ogre_glTF_skeletonImporter::loadTimepointFromSamplerToKeyFrame(int bone, int frameID, int& count, keyFrame& animationFrame, tinygltf::AnimationSampler& sampler)
 {
-	auto& input              = model.accessors[sampler.input];
-	count                    = input.count;
-	auto& bufferView         = model.bufferViews[input.bufferView];
-	auto& buffer             = model.buffers[bufferView.buffer];
+	auto& input				 = model.accessors[sampler.input];
+	count					 = input.count;
+	auto& bufferView		 = model.bufferViews[input.bufferView];
+	auto& buffer			 = model.buffers[bufferView.buffer];
 	unsigned char* dataStart = buffer.data.data() + bufferView.byteOffset + input.byteOffset;
 	const size_t byteStride  = input.ByteStride(bufferView);
 
@@ -89,17 +89,17 @@ void Ogre_glTF_skeletonImporter::loadTimepointFromSamplerToKeyFrame(int bone, in
 	else if(animationFrame.timePoint != data)
 	{
 		throw std::runtime_error("Missmatch of timecode while loading an animation keyframe for bone joint " + std::to_string(bone) + "\n"
-			"read from file : "
-			+ std::to_string(data) + " while animationFrame recorded " + std::to_string(animationFrame.timePoint));
+																																	  "read from file : "
+								 + std::to_string(data) + " while animationFrame recorded " + std::to_string(animationFrame.timePoint));
 	}
 }
 
 void Ogre_glTF_skeletonImporter::loadVector3FromSampler(int frameID, int& count, tinygltf::AnimationSampler& sampler, Ogre::Vector3& vector)
 {
-	auto& output             = model.accessors[sampler.output];
-	count                    = output.count;
-	auto& bufferView         = model.bufferViews[output.bufferView];
-	auto& buffer             = model.buffers[bufferView.buffer];
+	auto& output			 = model.accessors[sampler.output];
+	count					 = output.count;
+	auto& bufferView		 = model.bufferViews[output.bufferView];
+	auto& buffer			 = model.buffers[bufferView.buffer];
 	unsigned char* dataStart = buffer.data.data() + bufferView.byteOffset + output.byteOffset;
 	const size_t byteStride  = output.ByteStride(bufferView);
 
@@ -118,7 +118,6 @@ void Ogre_glTF_skeletonImporter::loadVector3FromSampler(int frameID, int& count,
 		internal_utils::container_double_to_float(vectDouble, vectFloat);
 
 		vector = Ogre::Vector3(vectFloat.data());
-
 	}
 }
 
@@ -135,7 +134,13 @@ void Ogre_glTF_skeletonImporter::loadQuatFromSampler(int frameID, int& count, ti
 
 	if(output.componentType == TINYGLTF_COMPONENT_TYPE_FLOAT)
 	{
-		quat = Ogre::Quaternion((reinterpret_cast<float*>(dataStart + (frameID * byteStride))));
+		float* quat_data = (reinterpret_cast<float*>(dataStart + (frameID * byteStride)));
+		quat			 = Ogre::Quaternion(
+			quat_data[3],
+			quat_data[0],
+			quat_data[1],
+			quat_data[2]
+		);
 	}
 	else if(output.componentType == TINYGLTF_COMPONENT_TYPE_DOUBLE) //need double to float conversion
 	{
@@ -145,7 +150,7 @@ void Ogre_glTF_skeletonImporter::loadQuatFromSampler(int frameID, int& count, ti
 		memcpy(vectDouble.data(), (reinterpret_cast<double*>(dataStart + (frameID * byteStride))), 3 * sizeof(double));
 		internal_utils::container_double_to_float(vectDouble, vectFloat);
 
-		quat = Ogre::Quaternion(vectFloat.data());
+		quat = Ogre::Quaternion(vectFloat[3], vectFloat[0], vectFloat[1], vectFloat[2]);
 	}
 }
 
@@ -210,7 +215,6 @@ Ogre::v1::SkeletonPtr Ogre_glTF_skeletonImporter::getSkeleton()
 			}
 		}
 	}
-
 
 	std::unordered_map<tinygltfJointNodeIndex, keyFrameList> boneIndexedKeyFrames;
 	auto getAnimationLenght = [](const keyFrameList& l) {
@@ -302,14 +306,12 @@ Ogre::v1::SkeletonPtr Ogre_glTF_skeletonImporter::getSkeleton()
 						auto sampler = animation.samplers[rotation->sampler];
 						loadTimepointFromSamplerToKeyFrame(bone, frameID, count, animationFrame, sampler);
 						loadQuatFromSampler(frameID, count, sampler, animationFrame.rotation);
-
 					}
 					if(scale)
 					{
 						auto sampler = animation.samplers[scale->sampler];
 						loadTimepointFromSamplerToKeyFrame(bone, frameID, count, animationFrame, sampler);
 						loadVector3FromSampler(frameID, count, sampler, animationFrame.scale);
-
 					}
 					if(weights)
 					{
@@ -326,18 +328,18 @@ Ogre::v1::SkeletonPtr Ogre_glTF_skeletonImporter::getSkeleton()
 
 				//here, we have a list of all key frames for one bone
 				boneIndexedKeyFrames[bone] = keyFrames;
-				maxLen = getAnimationLenght(keyFrames);
+				maxLen					   = getAnimationLenght(keyFrames);
 			}
 
 			//Create animation
 			auto ogreAnimation = skeleton->createAnimation(animationName, maxLen);
-			ogreAnimation->setInterpolationMode(Ogre::v1::Animation::InterpolationMode::IM_SPLINE);
+			ogreAnimation->setInterpolationMode(Ogre::v1::Animation::InterpolationMode::IM_LINEAR);
 
 			//For each bone's list of keyframes
 			for(auto& keyFrameForBone : boneIndexedKeyFrames)
 			{
 				//Get the bone index
-				const auto bone = keyFrameForBone.first;
+				const auto bone			 = keyFrameForBone.first;
 				const auto ogreBoneIndex = bone - offset;
 
 				//Add a node to the animation track
@@ -355,8 +357,6 @@ Ogre::v1::SkeletonPtr Ogre_glTF_skeletonImporter::getSkeleton()
 					transformKeyFrame->setScale(keyFrame.scale);
 				}
 			}
-
-
 		}
 	}
 

@@ -9,6 +9,8 @@
 #include <OgreArchive.h>
 //To use objects
 #include <OgreItem.h>
+//To play animations
+#include <Animation/OgreSkeletonAnimation.h>
 //To use smart pointers
 #include <memory>
 
@@ -103,14 +105,14 @@ int main()
 	//Create a window and a scene
 	Ogre::NameValuePairList params;
 	params["FSAA"] = "16";
-	auto window    = root->createRenderWindow("glTF test!", 800, 600, false, &params);
-	auto smgr      = root->createSceneManager(Ogre::ST_GENERIC, 2, Ogre::INSTANCING_CULLING_THREADED);
-	auto camera    = smgr->createCamera("cam");
+	auto window	= root->createRenderWindow("glTF test!", 800, 600, false, &params);
+	auto smgr	  = root->createSceneManager(Ogre::ST_GENERIC, 2, Ogre::INSTANCING_CULLING_THREADED);
+	auto camera	= smgr->createCamera("cam");
 
 	//Setup rendering pipeline
-	auto compositor            = root->getCompositorManager2();
+	auto compositor			   = root->getCompositorManager2();
 	const char workspaceName[] = "workspace0";
-	compositor->createBasicWorkspaceDef(workspaceName, Ogre::ColourValue{0.2f, 0.3f, 0.4f});
+	compositor->createBasicWorkspaceDef(workspaceName, Ogre::ColourValue{ 0.2f, 0.3f, 0.4f });
 	auto workspace = compositor->addWorkspace(smgr, window, camera, workspaceName, true);
 
 	declareHlmsLibrary("./");
@@ -118,13 +120,14 @@ int main()
 	//Ogre::ResourceGroupManager::getSingleton().addResourceLocation("./media", "FileSystem");
 	Ogre::ResourceGroupManager::getSingleton().initialiseAllResourceGroups(true);
 
-	Ogre::Item* ObjectItem      = nullptr;
+	Ogre::Item* ObjectItem		= nullptr;
 	Ogre::SceneNode* ObjectNode = nullptr;
 
 	//Ogre::Item* OtherItem;
 	//Initialize the library
 	auto gltf = std::make_unique<Ogre_glTF>();
-	try {
+	try
+	{
 		//auto adapter = gltf->loadFile("from_gltf_export_skinned_cylinder.glb");
 		auto adapter = gltf->loadFile("RiggedSimple.glb");
 		//auto adapter = gltf->loadFile("./damagedHelmet/damagedHelmet.gltf");
@@ -132,7 +135,9 @@ int main()
 		ObjectItem
 			= adapter.getItem(smgr);
 		//OtherItem = adapter.getItem(smgr);
-	} catch(std::exception& e) {
+	}
+	catch(std::exception& e)
+	{
 		Ogre::LogManager::getSingleton().logMessage(e.what());
 		return -1;
 	}
@@ -147,13 +152,13 @@ int main()
 	//camera->setPosition(Ogre::Vector3::UNIT_SCALE * 0.0625);
 	//camera->lookAt({ 0, 0.03125, 0 });
 	camera->setPosition(Ogre::Vector3::UNIT_SCALE * 5);
-	camera->lookAt({0, 0, 0});
+	camera->lookAt({ 0, 0, 0 });
 	camera->setAutoAspectRatio(true);
 
 	auto light = smgr->createLight();
 	smgr->getRootSceneNode()->createChildSceneNode()->attachObject(light);
 	light->setType(Ogre::Light::LT_DIRECTIONAL);
-	light->setDirection({-1, -1, -0.5});
+	light->setDirection({ -1, -1, -0.5 });
 	light->setPowerScale(5);
 
 	auto skeleton = ObjectItem->getSkeletonInstance();
@@ -170,33 +175,47 @@ int main()
 
 	//Ogre::LogManager::getSingleton().logMessage("Bone pointer value : " + std::to_string(std::size_t(bone)));
 
-	if(skeleton) 
+	Ogre::SkeletonAnimation* anim = nullptr;
+	if(skeleton)
 	{
-		auto& animationList = skeleton->getAnimations();
-		if(!animationList.empty()) 
+		auto& animationList			  = skeleton->getAnimations();
+		if(!animationList.empty())
 		{
-			auto firstAnimation = animationList.front();
-			firstAnimation.setEnabled(true);
-			firstAnimation.setLoop(true);
+			auto name = animationList[0].getName();
+			anim	  = skeleton->getAnimation(name);
+		}
+
+		if(anim)
+		{
+			anim->setEnabled(true);
+			anim->setLoop(true);
 		}
 	}
 
+	auto last = root->getTimer()->getMilliseconds();
+	auto now  = last;
 	while(!window->isClosed()) {
-		//for(auto i = 0; i < skeleton->getNumBones(); ++i)
-		//{
-		//	auto a_bone = skeleton->getBone(i);
-		//	std::stringstream ss;
-		//	ss << "bone " << i << " position " << a_bone->getPosition() << " orientaiton " << a_bone->getOrientation();
-		//	Ogre::LogManager::getSingleton().logMessage(ss.str());
-		//}
+		for(auto i = 0; i < skeleton->getNumBones(); ++i)
+		{
+			auto a_bone = skeleton->getBone(i);
+			std::stringstream ss;
+			ss << "bone " << i << " position " << a_bone->getPosition() << " orientaiton " << a_bone->getOrientation();
+			Ogre::LogManager::getSingleton().logMessage(ss.str());
+		}
+
 		//if(bone)
 		//{
 		//	bone->setOrientation(bone->getParent()->getOrientation() * Ogre::Quaternion(Ogre::Degree( 45.0f * float(sin((float)root->getTimer()->getMilliseconds() / 1000.0f))), Ogre::Vector3::UNIT_Z));
-		//	//bone->setPosition({ 0, 2.0f * sin((float)root->getTimer()->getMilliseconds() / 1000.f), 0 });
+		//	bone->setPosition({ 0, 2.0f * sin((float)root->getTimer()->getMilliseconds() / 1000.f), 0 });
 		//}
 
 		//ObjectNode->setOrientation(Ogre::Quaternion(Ogre::Degree(float(root->getTimer()->getMilliseconds()) / 10.0f), Ogre::Vector3::NEGATIVE_UNIT_Y));
 		//OtherNode->setOrientation(Ogre::Quaternion(Ogre::Degree(float(root->getTimer()->getMilliseconds()) / 10.0f), Ogre::Vector3::UNIT_Y));
+
+		now = root->getTimer()->getMilliseconds();
+		if(anim)
+			anim->addTime(float(now - last) / 1000.0f);
+		last = now;
 
 		root->renderOneFrame();
 		Ogre::WindowEventUtilities::messagePump();
