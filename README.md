@@ -17,8 +17,30 @@ The user facing API hasn't been worked on quite well, the only thing that has be
 
 This library is based on tinygltf. https://github.com/syoyo/tinygltf. tinygltf itsefl vendor in some other opensource projects, like stb_image and a json loading library.
 
+## How to use
+
+ - Build the library with CMake
+ - Point your compiler to the built library, and the public headers (the /include directory of the repository)
+ - In your code:
+```cpp
+//Initialize the library. I recomend using a unique_ptr from #include <memory>
+auto gltf = std::make_unique<Ogre_glTF>();
+
+//Create an "adapter" object that permit to access the glb/gltf file
+auto adapter = gltf->loadFile("Path/To/GLTF/GLB/Resource");
+
+//Get an Ogre v2 "Item" from the adapter
+Ogre::Item* ObjectItem = adapter.getItem(smgr);
+
+//Now you can add this item to an node, and do everything you may want with it
+//to cleanup the library, you just let go of the "gltf" smart pointer
+```
+ 
+ 
 
 ## Current state
+
+**At the moment, the code assume that you are using one gltf file to represent one "mesh". This is not a scene loader and doesn't support multiple objects per file**
 
 This is a projet under developement. Here's a short todolist beofre this thing will be in an "usable" state:
 
@@ -34,7 +56,6 @@ This is a projet under developement. Here's a short todolist beofre this thing w
  - [x] Load animation information and create animations from them
  - [ ] ~~Load mesh "target" information and create Ogre "morph" target from them~~ (Ogre 2.1 doesn't support them yet)
 
-In parallel, it could be interesting to use glTF as a "scene" loading format. glTF supports multiple scenes, with nodes having parent/child relations and that can have meshes attached to them
 
 ## Known issues
 
@@ -75,8 +96,10 @@ On a typical install from Ogre's source code on linux, theses path are `/usr/loc
 
  - Use cmake-gui to generate a Visual Studio solutution inside the `build` using the same version that you built Ogre with. You probably need to set the `OGRE_HOME` variable.
  - Open the .sln (solution) file into Visual Studio. You'll get 2 projects : `Ogre_glTF` (the DLL) and `Ogre_glTF_TEST` (a test program)
- - To make the test program works, copy inside the "build" directory all the .dll files from Ogre's debug and release binary directories
+ - To make the test program works, copy inside the "build" directory all the .dll (and .pdb if you want to debug) files from Ogre's debug and release binary directories
  - Copy the HLMS libary to the "build" directory
+ 
+ The "test" program is really crude and badly written, it was to validate taht some of the feautres where workign during developement.
  
  ## Contributors
  
