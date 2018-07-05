@@ -29,6 +29,7 @@ This library is based on tinygltf. https://github.com/syoyo/tinygltf. tinygltf i
  - Build the library with CMake
  - Point your compiler to the built library, and the public headers (the /include directory of the repository)
  - In your code:
+ 
 ```cpp
 //Initialize the library. I recomend using a unique_ptr from #include <memory>
 auto gltf = std::make_unique<Ogre_glTF>();
@@ -61,7 +62,7 @@ You should get and install Ogre 2.1 from source on your system,
 
 To build the project, you need to have Ogre 2.1 build and "installed" somewhere. Windows users may need to set the `OGRE_HOME` variable.
 
-then, do the folliwng (linux) :
+### Linux
 
 ```bash
 cd build
@@ -69,12 +70,14 @@ cmake ..                        #execute CMake while pointing at the parent dire
 make                            #build the library and the demo program
 
 #to be able to run the demo program as-is, do the following:
+
 cp -r <path to HLMS> .          #add the Hlms shader code that comes with Ogre
 cp <path to ogre plugins>/* .   #add the necessary plugins (RenderSystem_GL3+)
 ```
+
 On a typical install from Ogre's source code on linux, theses path are `/usr/local/share/OGRE/Media/Hlms` and `/usr/local/lib/OGRE/*`
 
-(windows) :
+### Windows
 
  - Use cmake-gui to generate a Visual Studio solutution inside the `build` using the same version that you built Ogre with. You probably need to set the `OGRE_HOME` variable.
  - Open the .sln (solution) file into Visual Studio. You'll get 2 projects : `Ogre_glTF` (the DLL) and `Ogre_glTF_TEST` (a test program)
