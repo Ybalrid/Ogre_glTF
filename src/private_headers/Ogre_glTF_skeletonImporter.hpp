@@ -9,9 +9,9 @@ class Ogre_glTF_skeletonImporter
 	///Reference to the model
 	tinygltf::Model& model;
 
-	///Bone indexes starts from 0, but they are part of the whole scene hierarchy in glTF. We need to make them indexed from zero. 
+	///Bone indexes starts from 0, but they are part of the whole scene hierarchy in glTF. We need to make them indexed from zero.
 	///This is simply done by substracting the node number of the first joint to all of the "joint" from glTF when giving them to Ogre
-	///In the vertex data, the bone index where also indexed from 0, so everything matches up. 
+	///In the vertex data, the bone index where also indexed from 0, so everything matches up.
 	int offset = 0;
 
 	///number to increment when creating strings for skeleton with no names in glTF files
@@ -32,10 +32,27 @@ class Ogre_glTF_skeletonImporter
 	/// \param name Name of the skeleton we are loading
 	void loadBoneHierarchy(const tinygltf::Skin& skin, Ogre::v1::OldBone* rootBone, const std::string& name);
 
+
+		struct keyFrame
+	{
+		float timePoint{-1};
+		float weights{};
+		Ogre::Quaternion rotation{};
+		Ogre::Vector3 position, scale{};
+	};
+
+	using keyFrameList			 = std::vector<keyFrame>;
+	using tinygltfJointNodeIndex = int;
+
+	void loadTimepointFromSamplerToKeyFrame(int bone, int frameID, int& count, keyFrame& animationFrame, tinygltf::AnimationSampler& sampler);
+	void loadVector3FromSampler(int frameID, int& count, tinygltf::AnimationSampler& sampler, Ogre::Vector3& vector);
+	void loadQuatFromSampler(int frameID, int& count, tinygltf::AnimationSampler& sampler, Ogre::Quaternion& quat);
+
 public:
 	///Construct the skeleton importer
 	/// \param input model where the skeleton data is loaded from
 	Ogre_glTF_skeletonImporter(tinygltf::Model& input);
+
 	///Return the constructed skeleton pointer
 	Ogre::v1::SkeletonPtr getSkeleton();
 };
