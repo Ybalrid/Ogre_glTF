@@ -1,6 +1,7 @@
 var searchData=
 [
-  ['materialloader',['materialLoader',['../struct_ogre__gl_t_f__adapter_1_1impl.html#a9a002bf5535323a633bfc4157f09e96d',1,'Ogre_glTF_adapter::impl']]],
-  ['model',['model',['../struct_ogre__gl_t_f__adapter_1_1impl.html#af0ab307ee720800508ae00742bb87b5a',1,'Ogre_glTF_adapter::impl']]],
-  ['modelconverter',['modelConverter',['../struct_ogre__gl_t_f__adapter_1_1impl.html#a33c81da556dc87ecded03333b4cbf779',1,'Ogre_glTF_adapter::impl']]]
+  ['loader',['loader',['../struct_ogre__gl_t_f_1_1gltf_loader.html#a31ea4f74c3cb89c3603fc5e2bfdd21ed',1,'Ogre_glTF::gltfLoader']]],
+  ['loadfile',['loadFile',['../class_ogre__gl_t_f.html#a9983321e5885da88a0ab4d407b536fb1',1,'Ogre_glTF']]],
+  ['loadinto',['loadInto',['../struct_ogre__gl_t_f_1_1gltf_loader.html#abaaff71450c74815e20ea82030da65b7',1,'Ogre_glTF::gltfLoader']]],
+  ['loadtextures',['loadTextures',['../class_ogre__gl_t_f__texture_importer.html#ab49a9ec1672fc078579edb40b4b941aa',1,'Ogre_glTF_textureImporter']]]
 ];

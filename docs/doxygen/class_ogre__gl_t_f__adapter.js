@@ -8,5 +8,6 @@ var class_ogre__gl_t_f__adapter =
     [ "getLastError", "class_ogre__gl_t_f__adapter.html#af115910e8dd062b37c35f41fef1b5726", null ],
     [ "isOk", "class_ogre__gl_t_f__adapter.html#ab333ca4ac686f198544964782dc2677f", null ],
     [ "operator=", "class_ogre__gl_t_f__adapter.html#a6c3174aa22496b9a232b6e32911c7280", null ],
+    [ "operator=", "class_ogre__gl_t_f__adapter.html#ad8a6eb933d430b2e1e6c46f7bf05d954", null ],
     [ "Ogre_glTF", "class_ogre__gl_t_f__adapter.html#a69944d03de13f5b6e2d01e1ef8d64952", null ]
 ];

@@ -7,6 +7,7 @@ var searchData=
   ['getnormalsnorm',['getNormalSNORM',['../class_ogre__gl_t_f__texture_importer.html#a0ca58efac193deca21e1b3af74a18b65',1,'Ogre_glTF_textureImporter']]],
   ['getogremesh',['getOgreMesh',['../class_ogre__gl_t_f__model_converter.html#a7fca0f94ff4891bfe5d468eb8f443b68',1,'Ogre_glTF_modelConverter']]],
   ['getpartstride',['getPartStride',['../struct_ogre__gl_t_f__vertex_buffer_part.html#a001473df3ab344ebe835a6962ba174d1',1,'Ogre_glTF_vertexBufferPart']]],
+  ['getskeleton',['getSkeleton',['../class_ogre__gl_t_f__skeleton_importer.html#ad6c3717f14fc4edc630f90f7f8a9d05e',1,'Ogre_glTF_skeletonImporter']]],
   ['gettexture',['getTexture',['../class_ogre__gl_t_f__texture_importer.html#ac8b41dd0788117dd34d8d7ff98b4709c',1,'Ogre_glTF_textureImporter']]],
   ['gltfloader',['gltfLoader',['../struct_ogre__gl_t_f_1_1gltf_loader.html#ad60dbf1b871988c58714b021c5a04ee6',1,'Ogre_glTF::gltfLoader']]]
 ];

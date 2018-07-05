@@ -9,6 +9,7 @@ var hierarchy =
     ] ],
     [ "Ogre_glTF_materialLoader", "class_ogre__gl_t_f__material_loader.html", null ],
     [ "Ogre_glTF_modelConverter", "class_ogre__gl_t_f__model_converter.html", null ],
+    [ "Ogre_glTF_skeletonImporter", "class_ogre__gl_t_f__skeleton_importer.html", null ],
     [ "Ogre_glTF_textureImporter", "class_ogre__gl_t_f__texture_importer.html", null ],
     [ "Ogre_glTF_vertexBufferPart", "struct_ogre__gl_t_f__vertex_buffer_part.html", null ]
 ];
