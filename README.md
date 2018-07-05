@@ -30,8 +30,8 @@ This is a projet under developement. Here's a short todolist beofre this thing w
 
  If this works, we can start tackeling animation data:
  - [x] Load "skin" information from glTF and create corresponding Ogre::Skeleton for the mesh
- - [ ] Loop through all the vertex <-> bone assignement to get a valid skeleton configuration
- - [ ] Load animation information and create animations from them
+ - [x] Loop through all the vertex <-> bone assignement to get a valid skeleton configuration
+ - [x] Load animation information and create animations from them
  - [ ] ~~Load mesh "target" information and create Ogre "morph" target from them~~ (Ogre 2.1 doesn't support them yet)
 
 In parallel, it could be interesting to use glTF as a "scene" loading format. glTF supports multiple scenes, with nodes having parent/child relations and that can have meshes attached to them

@@ -9,6 +9,8 @@
 #include <OgreArchive.h>
 //To use objects
 #include <OgreItem.h>
+//To play animations
+#include <Animation/OgreSkeletonAnimation.h>
 //To use smart pointers
 #include <memory>
 
@@ -111,7 +113,7 @@ int main()
 	//Setup rendering pipeline
 	auto compositor			   = root->getCompositorManager2();
 	const char workspaceName[] = "workspace0";
-	compositor->createBasicWorkspaceDef(workspaceName, Ogre::ColourValue{ 0.2f, 0.3f, 0.4f });
+	compositor->createBasicWorkspaceDef(workspaceName, Ogre::ColourValue { 0.2f, 0.3f, 0.4f });
 	auto workspace = compositor->addWorkspace(smgr, window, camera, workspaceName, true);
 
 	declareHlmsLibrary("./");
@@ -162,34 +164,62 @@ int main()
 
 	auto skeleton = ObjectItem->getSkeletonInstance();
 
-	Ogre::Bone* bone = nullptr;
+	//Ogre::Bone* bone = nullptr;
+	//if(skeleton)
+	//{
+	//	Ogre::LogManager::getSingleton().logMessage("skeleton instance? :O");
+	//	if(skeleton->getBone(0))
+	//		bone = skeleton->getBone(0)->getChild(0);
+	//}
+	//if(bone)
+	//	skeleton->setManualBone(bone, true);
+
+	//Ogre::LogManager::getSingleton().logMessage("Bone pointer value : " + std::to_string(std::size_t(bone)));
+
+	Ogre::SkeletonAnimation* anim = nullptr;
 	if(skeleton)
 	{
-		Ogre::LogManager::getSingleton().logMessage("skeleton instance? :O");
-		if(skeleton->getBone(0))
-			bone = skeleton->getBone(0)->getChild(0);
-	}
-	if(bone)
-		skeleton->setManualBone(bone, true);
+		auto& animationList = skeleton->getAnimations();
+		if(!animationList.empty())
+		{
+			auto name = animationList[0].getName();
+			anim	  = skeleton->getAnimation(name);
+		}
 
-	Ogre::LogManager::getSingleton().logMessage("Bone pointer value : " + std::to_string(std::size_t(bone)));
+		if(anim)
+		{
+			anim->setEnabled(true);
+			anim->setLoop(true);
+		}
+	}
+
+	auto last = root->getTimer()->getMilliseconds();
+	auto now  = last;
 	while(!window->isClosed())
 	{
-		for(auto i = 0; i < skeleton->getNumBones(); ++i)
-		{
-			auto a_bone = skeleton->getBone(i);
-			std::stringstream ss;
-			ss << "bone " << i << " position " << a_bone->getPosition() << " orientaiton " << a_bone->getOrientation();
-			Ogre::LogManager::getSingleton().logMessage(ss.str());
-		}
-		if(bone)
-		{
-			bone->setOrientation(bone->getParent()->getOrientation() * Ogre::Quaternion(Ogre::Degree( 45.0f * float(sin((float)root->getTimer()->getMilliseconds() / 1000.0f))), Ogre::Vector3::UNIT_Z));
-			//bone->setPosition({ 0, 2.0f * sin((float)root->getTimer()->getMilliseconds() / 1000.f), 0 });
-		}
+		if(skeleton)
+			for(auto i = 0; i < skeleton->getNumBones(); ++i)
+			{
+				auto a_bone = skeleton->getBone(i);
+				std::stringstream ss;
+				ss << "bone " << i << " position " << a_bone->getPosition() << " orientaiton " << a_bone->getOrientation();
+				Ogre::LogManager::getSingleton().logMessage(ss.str());
+			}
+
+		//if(bone)
+		//{
+		//	bone->setOrientation(bone->getParent()->getOrientation() * Ogre::Quaternion(Ogre::Degree( 45.0f * float(sin((float)root->getTimer()->getMilliseconds() / 1000.0f))), Ogre::Vector3::UNIT_Z));
+		//	bone->setPosition({ 0, 2.0f * sin((float)root->getTimer()->getMilliseconds() / 1000.f), 0 });
+		//}
 
 		//ObjectNode->setOrientation(Ogre::Quaternion(Ogre::Degree(float(root->getTimer()->getMilliseconds()) / 10.0f), Ogre::Vector3::NEGATIVE_UNIT_Y));
 		//OtherNode->setOrientation(Ogre::Quaternion(Ogre::Degree(float(root->getTimer()->getMilliseconds()) / 10.0f), Ogre::Vector3::UNIT_Y));
+
+		now = root->getTimer()->getMilliseconds();
+		if(anim)
+			anim->addTime(float(now - last) / 1000.0f);
+		last = now;
+
 		root->renderOneFrame();
 		Ogre::WindowEventUtilities::messagePump();
 	}

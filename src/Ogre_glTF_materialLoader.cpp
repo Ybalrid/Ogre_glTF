@@ -11,7 +11,7 @@ Ogre::Vector3 Ogre_glTF_materialLoader::convertColor(const tinygltf::ColorValue&
 {
 	std::array<float, 4> colorBuffer;
 	doubleToFloat(color, colorBuffer);
-	return Ogre::Vector3{ colorBuffer.data() };
+	return Ogre::Vector3 { colorBuffer.data() };
 }
 
 void Ogre_glTF_materialLoader::setBaseColor(Ogre::HlmsPbsDatablock* block, Ogre::Vector3 color) const
@@ -107,8 +107,8 @@ void Ogre_glTF_materialLoader::setEmissiveTexture(Ogre::HlmsPbsDatablock* block,
 }
 
 Ogre_glTF_materialLoader::Ogre_glTF_materialLoader(tinygltf::Model& input, Ogre_glTF_textureImporter& textureInterface) :
- textureImporter{ textureInterface },
- model{ input }
+ textureImporter { textureInterface },
+ model { input }
 {
 }
 
@@ -129,9 +129,9 @@ Ogre::HlmsDatablock* Ogre_glTF_materialLoader::getDatablock() const
 	}
 	datablock = static_cast<Ogre::HlmsPbsDatablock*>(HlmsPbs->createDatablock(Ogre::IdString(material.name),
 																			  material.name,
-																			  Ogre::HlmsMacroblock{},
-																			  Ogre::HlmsBlendblock{},
-																			  Ogre::HlmsParamVec{}));
+																			  Ogre::HlmsMacroblock {},
+																			  Ogre::HlmsBlendblock {},
+																			  Ogre::HlmsParamVec {}));
 	datablock->setWorkflow(Ogre::HlmsPbsDatablock::Workflows::MetallicWorkflow);
 
 	//TODO refactor these almost exact peices of code
@@ -172,13 +172,13 @@ Ogre::HlmsDatablock* Ogre_glTF_materialLoader::getDatablock() const
 			setEmissiveColor(datablock, convertColor(content.second.ColorFactor()));
 	}
 
-//	OgreLog("extCommonValues");
-//	for(const auto& content : material.extCommonValues)
-//		OgreLog(content.first);
+	//	OgreLog("extCommonValues");
+	//	for(const auto& content : material.extCommonValues)
+	//		OgreLog(content.first);
 
-//	OgreLog("extPBRValues");
-//	for(const auto& content : material.extPBRValues)
-//		OgreLog(content.first);
+	//	OgreLog("extPBRValues");
+	//	for(const auto& content : material.extPBRValues)
+	//		OgreLog(content.first);
 
 	return datablock;
 }
