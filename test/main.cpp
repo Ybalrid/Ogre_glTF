@@ -145,6 +145,8 @@ int main()
 
 	ObjectNode = smgr->getRootSceneNode()->createChildSceneNode();
 	ObjectNode->attachObject(ObjectItem);
+	ObjectNode->setOrientation(Ogre::Quaternion(Ogre::Degree(180), Ogre::Vector3::UNIT_Z));
+	ObjectNode->setPosition(0, -4,+8);
 	//auto OtherNode = smgr->getRootSceneNode()->createChildSceneNode();
 	//OtherNode->attachObject(OtherItem);
 	//OtherNode->setPosition(-2, 0, 0);
@@ -152,14 +154,14 @@ int main()
 	camera->setFarClipDistance(100);
 	//camera->setPosition(Ogre::Vector3::UNIT_SCALE * 0.0625);
 	//camera->lookAt({ 0, 0.03125, 0 });
-	camera->setPosition(Ogre::Vector3::UNIT_SCALE * 5);
-	camera->lookAt({ 0, 0, 0 });
+	camera->setPosition(20, 20, 0);
+	camera->lookAt({ 0, 1, 0 });
 	camera->setAutoAspectRatio(true);
 
 	auto light = smgr->createLight();
 	smgr->getRootSceneNode()->createChildSceneNode()->attachObject(light);
 	light->setType(Ogre::Light::LT_DIRECTIONAL);
-	light->setDirection({ -1, -1, -0.5 });
+	light->setDirection(Ogre::Vector3{ -1, -1, -0.5 });
 	light->setPowerScale(5);
 
 	auto skeleton = ObjectItem->getSkeletonInstance();
