@@ -41,6 +41,9 @@ public:
 	/// \param other object to move
 	Ogre_glTF_adapter(Ogre_glTF_adapter&& other) noexcept;
 
+	///Move assignemnt operator
+	Ogre_glTF_adapter& operator=(Ogre_glTF_adapter&& other) noexcept;
+
 	///Return the current state of the adapter
 	bool isOk() const;
 

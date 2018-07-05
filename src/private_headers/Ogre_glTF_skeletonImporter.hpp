@@ -33,7 +33,8 @@ class Ogre_glTF_skeletonImporter
 	void loadBoneHierarchy(const tinygltf::Skin& skin, Ogre::v1::OldBone* rootBone, const std::string& name);
 
 
-		struct keyFrame
+	///Represent a keyframe as laded from tinygltf, but converted to Ogre objects
+	struct keyFrame
 	{
 		float timePoint{-1};
 		float weights{};
@@ -41,12 +42,34 @@ class Ogre_glTF_skeletonImporter
 		Ogre::Vector3 position, scale{};
 	};
 
+	///Vector of keyframes
 	using keyFrameList			 = std::vector<keyFrame>;
+	///Tinygltf 
 	using tinygltfJointNodeIndex = int;
+	///Type for a list of animation channels
+	using channelList = std::vector<std::reference_wrapper<tinygltf::AnimationChannel>>;
 
+
+	///Load from an animation channel sampler the time data, and ore it inside the keyframe
 	void loadTimepointFromSamplerToKeyFrame(int bone, int frameID, int& count, keyFrame& animationFrame, tinygltf::AnimationSampler& sampler);
+
+	///Load vector of 3 doubles or 3 floats from the animation sampler, and store them into a vector
 	void loadVector3FromSampler(int frameID, int& count, tinygltf::AnimationSampler& sampler, Ogre::Vector3& vector);
+
+	///Load vector of 4 doubles or 4 floats from the animation sampler, and store them into a quaternion
 	void loadQuatFromSampler(int frameID, int& count, tinygltf::AnimationSampler& sampler, Ogre::Quaternion& quat);
+
+	///Goes throught the list of animation channel, and assign the 4 given pointers to the one that correspond to it
+	void detectAnimationChannel(const channelList& channels, tinygltf::AnimationChannel*& translation, tinygltf::AnimationChannel*& rotation, tinygltf::AnimationChannel*& scale, tinygltf::AnimationChannel*& weights);
+
+	///Load keyframe data from the samplers of each AnimationChannel into a KeyFrame object
+	void loadKeyFrameDataFromSampler(const tinygltf::Animation& animation, int bone, tinygltf::AnimationChannel* translation, tinygltf::AnimationChannel* rotation, tinygltf::AnimationChannel* scale, tinygltf::AnimationChannel* weights, int frameID, int& count, keyFrame& animationFrame);
+
+	///Load all keyframes for the animation
+	void loadKeyFrames(const tinygltf::Animation& animation, int bone, keyFrameList& keyFrames, tinygltf::AnimationChannel* translation, tinygltf::AnimationChannel* rotation, tinygltf::AnimationChannel* scale, tinygltf::AnimationChannel* weights);
+
+	///All all animation for the skeleton
+	void loadSkeletonAnimations(tinygltf::Skin skin, std::string skeletonName);
 
 public:
 	///Construct the skeleton importer

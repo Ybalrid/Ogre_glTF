@@ -18,8 +18,10 @@ Ogre_glTF_modelConverter::Ogre_glTF_modelConverter(tinygltf::Model& input) :
 Ogre::VertexBufferPackedVec Ogre_glTF_modelConverter::constructVertexBuffer(const std::vector<Ogre_glTF_vertexBufferPart>& parts) const
 {
 	Ogre::VertexElement2Vec vertexElements;
+
 	size_t stride{ 0 }, strideInElements{ 0 };
 	size_t vertexCount{ 0 }, previousVertexCount{ 0 };
+	
 	for(const auto& part : parts)
 	{
 		vertexElements.emplace_back(part.type, part.semantic);
@@ -30,19 +32,10 @@ Ogre::VertexBufferPackedVec Ogre_glTF_modelConverter::constructVertexBuffer(cons
 		//Sanity check
 		if(previousVertexCount != 0)
 		{
-			if(vertexCount == previousVertexCount)
-			{
-				previousVertexCount = vertexCount;
-			}
-			else
-			{
+			if(vertexCount != previousVertexCount)
 				throw std::runtime_error("Part of vertex buffer for the same primitive have different vertex counts!");
-			}
 		}
-		else
-		{
-			previousVertexCount = vertexCount;
-		}
+		else previousVertexCount = vertexCount;
 	}
 
 	OgreLog("There will be " + std::to_string(vertexCount) + " vertices with a stride of " + std::to_string(stride) + " bytes");
@@ -61,9 +54,6 @@ Ogre::VertexBufferPackedVec Ogre_glTF_modelConverter::constructVertexBuffer(cons
 		}
 	}
 
-	//OgreLog("Final content of the buffer:");
-	//finalBuffer._debugContentToLog();
-
 	Ogre::VertexBufferPackedVec vec;
 	auto vertexBuffer = getVaoManager()->createVertexBuffer(vertexElements,
 															vertexCount,
@@ -75,7 +65,7 @@ Ogre::VertexBufferPackedVec Ogre_glTF_modelConverter::constructVertexBuffer(cons
 	return vec;
 }
 
-//TODO make this method thake the mesh id. Enumerate the meshes in the filel before blindlessly loading the first one
+//TODO make this method thake the mesh id. Enumerate the meshes in the file before blindlessly loading the first one
 Ogre::MeshPtr Ogre_glTF_modelConverter::getOgreMesh()
 {
 	OgreLog("Default scene" + std::to_string(model.defaultScene));
@@ -111,52 +101,44 @@ Ogre::MeshPtr Ogre_glTF_modelConverter::getOgreMesh()
 		}
 
 		//Get (if they exists) the blend weights and bone index parts of our vertex array object content
-		auto blendIndicesIt = std::find_if(std::begin(parts), std::end(parts), [](const Ogre_glTF_vertexBufferPart& vertexBufferPart){
+		const auto blendIndicesIt = std::find_if(std::begin(parts), std::end(parts), [](const Ogre_glTF_vertexBufferPart& vertexBufferPart) {
 			return (vertexBufferPart.semantic == Ogre::VertexElementSemantic::VES_BLEND_INDICES);
 		});
 
-		auto blendWeightsIt = std::find_if(std::begin(parts), std::end(parts), [](const Ogre_glTF_vertexBufferPart& vertexBufferPart){
+		const auto blendWeightsIt = std::find_if(std::begin(parts), std::end(parts), [](const Ogre_glTF_vertexBufferPart& vertexBufferPart) {
 			return (vertexBufferPart.semantic == Ogre::VertexElementSemantic::VES_BLEND_WEIGHTS);
 		});
 
-		{
-
-
-
-		}
-
-
-		auto vertexBuffers = constructVertexBuffer(parts);
-		auto vao		   = getVaoManager()->createVertexArrayObject(vertexBuffers, indexBuffer, [&]() -> Ogre::OperationType {
-			  switch(primitive.mode)
-			  {
-				  case TINYGLTF_MODE_LINE:
-					  OgreLog("Line List");
-					  return Ogre::OT_LINE_LIST;
-				  case TINYGLTF_MODE_LINE_LOOP:
-					  OgreLog("Line Loop");
-					  return Ogre::OT_LINE_STRIP;
-				  case TINYGLTF_MODE_POINTS:
-					  OgreLog("Points");
-					  return Ogre::OT_POINT_LIST;
-				  case TINYGLTF_MODE_TRIANGLES:
-					  OgreLog("Triangle List");
-					  return Ogre::OT_TRIANGLE_LIST;
-				  case TINYGLTF_MODE_TRIANGLE_FAN:
-					  OgreLog("Trinagle Fan");
-					  return Ogre::OT_TRIANGLE_FAN;
-				  case TINYGLTF_MODE_TRIANGLE_STRIP:
-					  OgreLog("Triangle Strip");
-					  return Ogre::OT_TRIANGLE_STRIP;
-				  default:
-					  OgreLog("Unknown");
-					  throw std::runtime_error("Can't understand primitive mode!");
-			  };
-		  }());
+		const auto vertexBuffers = constructVertexBuffer(parts);
+		auto vao				 = getVaoManager()->createVertexArrayObject(vertexBuffers, indexBuffer, [&]() -> Ogre::OperationType {
+			switch(primitive.mode)
+			{
+				case TINYGLTF_MODE_LINE:
+					OgreLog("Line List");
+					return Ogre::OT_LINE_LIST;
+				case TINYGLTF_MODE_LINE_LOOP:
+					OgreLog("Line Loop");
+					return Ogre::OT_LINE_STRIP;
+				case TINYGLTF_MODE_POINTS:
+					OgreLog("Points");
+					return Ogre::OT_POINT_LIST;
+				case TINYGLTF_MODE_TRIANGLES:
+					OgreLog("Triangle List");
+					return Ogre::OT_TRIANGLE_LIST;
+				case TINYGLTF_MODE_TRIANGLE_FAN:
+					OgreLog("Trinagle Fan");
+					return Ogre::OT_TRIANGLE_FAN;
+				case TINYGLTF_MODE_TRIANGLE_STRIP:
+					OgreLog("Triangle Strip");
+					return Ogre::OT_TRIANGLE_STRIP;
+				default:
+					OgreLog("Unknown");
+					throw std::runtime_error("Can't understand primitive mode!");
+			};
+		}());
 
 		subMesh->mVao[Ogre::VpNormal].push_back(vao);
 		subMesh->mVao[Ogre::VpShadow].push_back(vao);
-
 
 		if(blendIndicesIt != std::end(parts) && blendWeightsIt != std::end(parts))
 		{
@@ -240,8 +222,7 @@ void Ogre_glTF_modelConverter::debugDump() const
 
 bool Ogre_glTF_modelConverter::hasSkins() const
 {
-	if(model.skins.size() > 0) return true;
-	return false;
+	return model.skins.size() > 0;
 }
 
 Ogre::VaoManager* Ogre_glTF_modelConverter::getVaoManager()
@@ -319,7 +300,8 @@ Ogre::VertexElementSemantic Ogre_glTF_modelConverter::getVertexElementScemantic(
 
 Ogre_glTF_vertexBufferPart Ogre_glTF_modelConverter::extractVertexBuffer(const std::pair<std::string, int>& attribute, Ogre::Aabb& boundingBox) const
 {
-	const auto elementScemantic			= getVertexElementScemantic(attribute.first);
+	const auto elementScemantic = getVertexElementScemantic(attribute.first);
+
 	if(elementScemantic == Ogre::VES_BLEND_INDICES)
 	{
 		OgreLog("Blend Indices...");
@@ -329,6 +311,7 @@ Ogre_glTF_vertexBufferPart Ogre_glTF_modelConverter::extractVertexBuffer(const s
 	{
 		OgreLog("Blend weights");
 	}
+
 	const auto& accessor				= model.accessors[attribute.second];
 	const auto& bufferView				= model.bufferViews[accessor.bufferView];
 	const auto& buffer					= model.buffers[bufferView.buffer];
@@ -376,23 +359,20 @@ Ogre_glTF_vertexBufferPart Ogre_glTF_modelConverter::extractVertexBuffer(const s
 		memcpy((geometryBuffer->dataAddress() + destOffset),
 			   (buffer.data.data() + sourceOffset),
 			   vertexElementLenghtInBytes);
-
-
 	}
 
 	if(elementScemantic == Ogre::VES_BLEND_INDICES)
 	{
-		volatile unsigned short* debugbuffer = (unsigned short*)(geometryBuffer->dataAddress());
-		for(size_t i = 0; i < (vertexElementLenghtInBytes * vertexCount)/sizeof(unsigned short); ++i)
+		volatile unsigned short* debugbuffer = reinterpret_cast<unsigned short*>(geometryBuffer->dataAddress());
+		for(size_t i = 0; i < (vertexElementLenghtInBytes * vertexCount) / sizeof(unsigned short); ++i)
 			OgreLog(std::to_string(debugbuffer[i]));
 		OgreLog("Done");
-
 	}
 
 	/*
 		Update the bounding sizes once, when vertex positions has been read.
 	*/
-	if (elementScemantic == Ogre::VES_POSITION)
+	if(elementScemantic == Ogre::VES_POSITION)
 	{
 		Ogre::Vector3 minBounds, maxBounds;
 
@@ -410,7 +390,6 @@ Ogre_glTF_vertexBufferPart Ogre_glTF_modelConverter::extractVertexBuffer(const s
 
 		boundingBox.setExtents(minBounds, maxBounds);
 	}
-	
 
 	//geometryBuffer->_debugContentToLog();
 

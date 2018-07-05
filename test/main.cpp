@@ -195,6 +195,7 @@ int main()
 	auto last = root->getTimer()->getMilliseconds();
 	auto now  = last;
 	while(!window->isClosed()) {
+		if(skeleton)
 		for(auto i = 0; i < skeleton->getNumBones(); ++i)
 		{
 			auto a_bone = skeleton->getBone(i);

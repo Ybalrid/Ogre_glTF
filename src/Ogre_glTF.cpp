@@ -1,3 +1,5 @@
+#include <utility>
+
 #include "Ogre_glTF.hpp"
 #include "Ogre_glTF_modelConverter.hpp"
 #include "Ogre_glTF_textureImporter.hpp"
@@ -83,6 +85,12 @@ Ogre_glTF_adapter::Ogre_glTF_adapter(Ogre_glTF_adapter&& other) noexcept :
 	OgreLog("Moved adapter object...");
 }
 
+Ogre_glTF_adapter& Ogre_glTF_adapter::operator=(Ogre_glTF_adapter&& other) noexcept
+{
+	pimpl = std::move(other.pimpl);
+	return *this;
+}
+
 bool Ogre_glTF_adapter::isOk() const
 {
 	return pimpl->valid;
@@ -121,7 +129,7 @@ struct Ogre_glTF::gltfLoader
 			if(!probe)
 				throw std::runtime_error("Could not open " + path);
 
-			std::array<char, 5> buffer;
+			std::array<char, 5> buffer{};
 			for(size_t i{ 0 }; i < 4; ++i)
 				probe >> buffer[i];
 			buffer[4] = 0;
@@ -170,8 +178,7 @@ Ogre_glTF::Ogre_glTF() :
 }
 
 Ogre_glTF::~Ogre_glTF()
-{
-}
+= default;
 
 Ogre_glTF_adapter Ogre_glTF::loadFile(const std::string& path) const
 {
