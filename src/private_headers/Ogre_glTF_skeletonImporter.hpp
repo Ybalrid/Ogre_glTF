@@ -6,6 +6,8 @@
 
 class Ogre_glTF_skeletonImporter
 {
+
+
 	///Reference to the model
 	tinygltf::Model& model;
 
@@ -24,7 +26,7 @@ class Ogre_glTF_skeletonImporter
 	/// \param skinName name of the skin
 	/// \param childs array contaning the indices of the childrens
 	/// \param parent a pointer to a bone that is part of the skeleton we are creating
-	void addChidren(const std::string& skinName, const std::vector<int>& childs, Ogre::v1::OldBone* parent);
+	void addChidren(const std::string& skinName, const std::vector<int>& childs, Ogre::v1::OldBone* parent, const std::vector<int>& joints);
 
 	///Get the "skeleton node" from the skin object, call add children on it
 	/// \param skin tinigltf skin object we are loading
@@ -47,6 +49,10 @@ class Ogre_glTF_skeletonImporter
 	using tinygltfJointNodeIndex = int;
 	///Type for a list of animation channels
 	using channelList = std::vector<std::reference_wrapper<tinygltf::AnimationChannel>>;
+	using jointListToFlatBoneMap = std::unordered_map<tinygltfJointNodeIndex, tinygltfJointNodeIndex>;
+
+	jointListToFlatBoneMap boneAssignationMap;
+	jointListToFlatBoneMap nodeToJointMap;
 
 	///Load from an animation channel sampler the time data, and ore it inside the keyframe
 	void loadTimepointFromSamplerToKeyFrame(int bone, int frameID, int& count, keyFrame& animationFrame, tinygltf::AnimationSampler& sampler);
@@ -68,6 +74,8 @@ class Ogre_glTF_skeletonImporter
 
 	///All all animation for the skeleton
 	void loadSkeletonAnimations(tinygltf::Skin skin, std::string skeletonName);
+
+
 
 public:
 	///Construct the skeleton importer

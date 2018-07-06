@@ -147,6 +147,7 @@ int main()
 	ObjectNode->attachObject(ObjectItem);
 	ObjectNode->setOrientation(Ogre::Quaternion(Ogre::Degree(180), Ogre::Vector3::UNIT_Z));
 	ObjectNode->setPosition(0, -4,+8);
+	ObjectNode->setScale(2,2,2);
 	//auto OtherNode = smgr->getRootSceneNode()->createChildSceneNode();
 	//OtherNode->attachObject(OtherItem);
 	//OtherNode->setPosition(-2, 0, 0);
@@ -193,6 +194,8 @@ int main()
 			anim->setEnabled(true);
 			anim->setLoop(true);
 		}
+
+		//camera->lookAt(skeleton->getBone(0)->getPosition());
 	}
 
 	auto last = root->getTimer()->getMilliseconds();

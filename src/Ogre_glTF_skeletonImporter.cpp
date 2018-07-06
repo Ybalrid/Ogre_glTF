@@ -9,9 +9,11 @@
 
 int Ogre_glTF_skeletonImporter::skeletonID = 0;
 
-void Ogre_glTF_skeletonImporter::addChidren(const std::string& skinName, const std::vector<int>& childs, Ogre::v1::OldBone* parent)
+void Ogre_glTF_skeletonImporter::addChidren(const std::string& skinName, const std::vector<int>& childs, Ogre::v1::OldBone* parent, const std::vector<int>& joints)
 {
 	OgreLog("Bone " + std::to_string(parent->getHandle()) + " has " + std::to_string(childs.size()) + " children");
+
+
 	for(auto child : childs)
 	{
 		const auto& node = model.nodes[child];
@@ -24,10 +26,10 @@ void Ogre_glTF_skeletonImporter::addChidren(const std::string& skinName, const s
 		internal_utils::container_double_to_float(node.translation, translation);
 		internal_utils::container_double_to_float(node.rotation, rotation);
 
-		auto bone = skeleton->getBone(child - offset);
+		auto bone = skeleton->getBone(nodeToJointMap[child]);
 		if(!bone)
 		{
-			throw std::runtime_error("could not get bone " + std::to_string(child - offset));
+			throw std::runtime_error("could not get bone " + std::to_string(bone->getHandle()));
 		}
 
 		parent->addChild(bone);
@@ -37,7 +39,7 @@ void Ogre_glTF_skeletonImporter::addChidren(const std::string& skinName, const s
 
 		Ogre::LogManager::getSingleton().logMessage("Bone pointer value : " + std::to_string(std::size_t(bone)));
 
-		addChidren(skinName + std::to_string(child), model.nodes[child].children, bone);
+		addChidren(skinName + std::to_string(child), model.nodes[child].children, bone, joints);
 	}
 }
 
@@ -55,7 +57,7 @@ void Ogre_glTF_skeletonImporter::loadBoneHierarchy(const tinygltf::Skin& skin, O
 	rootBone->setPosition(Ogre::Vector3 { translation.data() });
 	rootBone->setOrientation(Ogre::Quaternion { rotation[3], rotation[0], rotation[1], rotation[2] });
 
-	addChidren(name, node.children, rootBone);
+	addChidren(name, node.children, rootBone, skin.joints);
 }
 
 Ogre_glTF_skeletonImporter::Ogre_glTF_skeletonImporter(tinygltf::Model& input) :
@@ -314,7 +316,7 @@ void Ogre_glTF_skeletonImporter::loadSkeletonAnimations(const tinygltf::Skin ski
 			{
 				//Get the bone index
 				const auto bone			 = keyFrameForBone.first;
-				const auto ogreBoneIndex = bone - offset;
+				const auto ogreBoneIndex = nodeToJointMap[bone];
 
 				//Add a node to the animation track
 				auto nodeAnimTrack = ogreAnimation->createOldNodeTrack(ogreBoneIndex);
@@ -333,6 +335,22 @@ void Ogre_glTF_skeletonImporter::loadSkeletonAnimations(const tinygltf::Skin ski
 			}
 		}
 	}
+}
+
+void recurse(const tinygltf::Model& m, int node, std::vector<int>& output)
+{
+	output.push_back(node);
+	for(auto child : m.nodes[node].children)
+	{
+		recurse(m, child, output);
+	}
+}
+
+std::vector<int> traversal(const tinygltf::Model& m, int node)
+{
+	std::vector<int> o;
+	recurse(m, node, o);
+	return o;
 }
 
 Ogre::v1::SkeletonPtr Ogre_glTF_skeletonImporter::getSkeleton()
@@ -365,14 +383,33 @@ Ogre::v1::SkeletonPtr Ogre_glTF_skeletonImporter::getSkeleton()
 	//Bones in the node hierarchy are a subtree of the nodes in the gltf scene. We need their index to start with zero, so we substract the index of the first joint
 	offset = firstSkin.joints[0];
 
+
+	auto flatList = traversal(model, firstSkin.skeleton);
+	for(auto joint : flatList)
+	{
+		OgreLog(std::to_string(joint));
+	}
+
+	for(auto i = 0; i < firstSkin.joints.size(); i++)
+	{
+		//boneAssignationMap[flatList[i]] = firstSkin.joints[i];
+		boneAssignationMap[firstSkin.joints[i]] = flatList[i];
+	}
+	
 	OgreLog("skin.skeleton = " + std::to_string(firstSkin.skeleton));
 	OgreLog("first joint : " + std::to_string(offset));
-	for(auto joint : firstSkin.joints)
+	for(int i = 0; i < firstSkin.joints.size(); ++i)
 	{
+		auto joint		= firstSkin.joints[i];
 		const auto name = model.nodes[joint].name;
 		OgreLog("joint " + std::to_string(joint) + " name: " + name);
-		skeleton->createBone(!name.empty() ? name : skeletonName + std::to_string(joint - offset), joint - offset);
+		skeleton->createBone(!name.empty() ? name : skeletonName + std::to_string(i), i);
+
+		nodeToJointMap[joint] = i;
+
 	}
+
+
 
 	const auto rootBone = skeleton->getBone(0);
 	loadBoneHierarchy(firstSkin, rootBone, skeletonName);
