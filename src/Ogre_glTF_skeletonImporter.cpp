@@ -37,7 +37,7 @@ void Ogre_glTF_skeletonImporter::addChidren(const std::string& skinName, const s
 
 		bone->setPosition(parent->convertWorldToLocalPosition(translation));
 		bone->setOrientation(parent->convertWorldToLocalOrientation(rotaiton));
-		bone->setScale(scale);
+		bone->setScale(parent->_getDerivedScale() / scale);
 
 		Ogre::LogManager::getSingleton().logMessage("Bone pointer value : " + std::to_string(std::size_t(bone)));
 
@@ -50,16 +50,23 @@ void Ogre_glTF_skeletonImporter::loadBoneHierarchy(const tinygltf::Skin& skin, O
 	const auto& node	 = model.nodes[skin.joints[0]];
 	const auto& skeleton = model.nodes[skin.skeleton];
 
-	std::array<float, 3> translation{};
-	std::array<float, 4> rotation{};
+	std::array<float, 3> translation{0}, scale{0};
+	std::array<float, 4> rotation{0};
 	internal_utils::container_double_to_float(skeleton.translation, translation);
+	if(skeleton.scale.size() == 3)
+		internal_utils::container_double_to_float(skeleton.scale, scale);
 	internal_utils::container_double_to_float(skeleton.rotation, rotation);
 
 	Ogre::Vector3 trans = Ogre::Vector3{ translation.data() };
 	Ogre::Quaternion rot = Ogre::Quaternion{ rotation[3], rotation[0], rotation[1], rotation[2] };
+	Ogre::Vector3 sc  = Ogre::Vector3{ scale.data() };
+
+	if(sc.isZeroLength()) sc = Ogre::Vector3::UNIT_SCALE;
+
 
 	rootBone->setPosition(trans);
 	rootBone->setOrientation(rot);
+	rootBone->setScale(sc);
 
 	std::stringstream rootBoneXformLog;
 	rootBoneXformLog << "rootBone " << trans << " " << rot;
@@ -339,7 +346,7 @@ void Ogre_glTF_skeletonImporter::loadSkeletonAnimations(const tinygltf::Skin ski
 					//Set the data
 					transformKeyFrame->setRotation(bone->getOrientation().Inverse() * keyFrame.rotation);
 					transformKeyFrame->setTranslate(bone->getPosition() - keyFrame.position);
-					transformKeyFrame->setScale(keyFrame.scale);
+					transformKeyFrame->setScale(keyFrame.scale / bone->getScale());
 				}
 			}
 
