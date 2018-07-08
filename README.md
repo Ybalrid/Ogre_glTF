@@ -1,4 +1,7 @@
 # Ogre_glTF
+
+[![Build status](https://ci.appveyor.com/api/projects/status/72mtasrq1qv1uipm/branch/master?svg=true)](https://ci.appveyor.com/project/Ybalrid/ogre-gltf/branch/master)
+
 Library to use glTF 2.0 resources with Ogre 2.1 licencied under the terms of the [MIT licence](https://opensource.org/licenses/MIT "MIT Licence on the OSI website")
 
 ![DEMO](./demo.gif)
