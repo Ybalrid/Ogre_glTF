@@ -3,6 +3,9 @@ Library to use glTF 2.0 resources with Ogre 2.1 licencied under the terms of the
 
 ![DEMO](./demo.gif)
 
+![DEMO](./demo2.gif)
+
+
 Right now this is not intended to serve as a "plugin" for Ogre, but to be a little support library that permit you to use standard glTF files in an Ogre application.
 
 In the current state, it is not using Ogre's resource management in any way, but is accessing files directly. Once the code gets more stable, I'll work on hooking the loading from Ogre's resource group manager.
