@@ -137,10 +137,10 @@ Ogre::HlmsDatablock* materialLoader::getDatablock() const
 	datablock->setWorkflow(Ogre::HlmsPbsDatablock::Workflows::MetallicWorkflow);
 
 	//TODO refactor these almost exact peices of code
-	OgreLog("values");
+	//OgreLog("values");
 	for(const auto& content : material.values)
 	{
-		OgreLog(content.first);
+		//OgreLog(content.first);
 		if(content.first == "baseColorTexture")
 			setBaseColorTexture(datablock, content.second.TextureIndex());
 
@@ -157,10 +157,10 @@ Ogre::HlmsDatablock* materialLoader::getDatablock() const
 			setRoughnesValue(datablock, content.second.Factor());
 	}
 
-	OgreLog("additionalValues");
+	//OgreLog("additionalValues");
 	for(const auto& content : material.additionalValues)
 	{
-		OgreLog(content.first);
+		//OgreLog(content.first);
 		if(content.first == "normalTexture")
 			setNormalTexture(datablock, content.second.TextureIndex());
 

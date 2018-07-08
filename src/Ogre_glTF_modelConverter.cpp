@@ -92,13 +92,13 @@ Ogre::MeshPtr modelConverter::getOgreMesh()
 	{
 		auto subMesh = OgreMesh->createSubMesh();
 		OgreLog("Created one submesh");
-		auto indexBuffer = extractIndexBuffer(primitive.indices);
+		const auto indexBuffer = extractIndexBuffer(primitive.indices);
 
 		std::vector<vertexBufferPart> parts;
-		OgreLog("\tprimitive has : " + std::to_string(primitive.attributes.size()) + " atributes");
+		//OgreLog("\tprimitive has : " + std::to_string(primitive.attributes.size()) + " atributes");
 		for(const auto& atribute : primitive.attributes)
 		{
-			OgreLog("\t " + atribute.first);
+			//OgreLog("\t " + atribute.first);
 			parts.push_back(std::move(extractVertexBuffer(atribute, boundingBox)));
 		}
 

@@ -14,8 +14,6 @@
 
 #include <OgreItem.h>
 #include <OgreMesh2.h>
-#include <OgreSubMesh2.h>
-#include <OgreSkeleton.h>
 
 using namespace Ogre_glTF;
 
@@ -41,17 +39,20 @@ struct loaderAdapter::impl
 
 	///Texture importer object : go throught the texture array and load them into Ogre
 	textureImporter textureImporter;
+
 	///Mateiral loader : get the data from the material section of the glTF file and create an HlmsDatablock to use
 	materialLoader materialLoader;
+
 	///Model converter : load all the actual mesh data from the glTF file, and convert them into index and vertex buffer that can
 	///be used to create an Ogre VAO (Vertex Array Object), then create a mesh for it
 	modelConverter modelConverter;
+
 	///Skeleton importer : load skins from the glTF model, create equivalent OgreSkeleton objects
 	skeletonImporter skeletonImporter;
 };
 
 loaderAdapter::loaderAdapter() :
- pimpl { std::make_unique<loaderAdapter::impl>() }
+ pimpl { std::make_unique<impl>() }
 {
 	//OgreLog("Created adapter object...");
 }
@@ -70,7 +71,7 @@ Ogre::Item* loaderAdapter::getItem(Ogre::SceneManager* smgr) const
 		if(pimpl->modelConverter.hasSkins())
 		{
 			//load skeleton information
-			auto skeleton = pimpl->skeletonImporter.getSkeleton();
+			auto skeleton = pimpl->skeletonImporter.getSkeleton(adapterName);
 			Mesh->_notifySkeleton(skeleton);
 		}
 
@@ -103,14 +104,14 @@ std::string loaderAdapter::getLastError() const
 	return pimpl->error;
 }
 
-///Implementation of the glTF loader. Exist as a pImpl inside the fileLoader class
-struct ::Ogre_glTF::fileLoader::gltfLoader
+///Implementation of the glTF loader. Exist as a pImpl inside the glTFLoader class
+struct glTFLoader::glTFLoaderImpl
 {
 	///The loader object from TinyGLTF
 	tinygltf::TinyGLTF loader;
 
 	///Construtor. the loader is on the stack, there isn't mutch state to set inside the object
-	gltfLoader()
+	glTFLoaderImpl()
 	{
 		OgreLog("initialized TinyGLTF loader");
 	}
@@ -145,7 +146,7 @@ struct ::Ogre_glTF::fileLoader::gltfLoader
 
 		//If we don't have any better, check the file extension.
 		auto extension = path.substr(path.find_last_of('.') + 1);
-		std::transform(std::begin(extension), std::end(extension), std::begin(extension), [](char c) { return char(::tolower(int(c))); });
+		std::transform(std::begin(extension), std::end(extension), std::begin(extension), [](char c) { return char(tolower(int(c))); });
 		if(extension == "gltf") return FileType::Ascii;
 		if(extension == "glb") return FileType::Binary;
 
@@ -170,22 +171,20 @@ struct ::Ogre_glTF::fileLoader::gltfLoader
 	}
 };
 
-::Ogre_glTF::fileLoader::fileLoader() :
- loaderImpl { std::make_unique<fileLoader::gltfLoader>() }
+glTFLoader::glTFLoader() :
+ loaderImpl { std::make_unique<glTFLoaderImpl>() }
 {
 	if(Ogre::Root::getSingletonPtr() == nullptr)
 		throw std::runtime_error("Please create an Ogre::Root instance before initializing the glTF library!");
 
-	OgreLog("fileLoader created!");
+	OgreLog("glTFLoader created!");
 }
 
-::Ogre_glTF::fileLoader::~fileLoader()
-	= default;
-
-loaderAdapter fileLoader::loadFile(const std::string& path) const
+loaderAdapter glTFLoader::loadFile(const std::string& path) const
 {
 	OgreLog("loading file " + path);
 	loaderAdapter adapter;
+	adapter.adapterName = path;
 	loaderImpl->loadInto(adapter, path);
 	//if (adapter.getLastError().empty())
 	{
@@ -197,7 +196,11 @@ loaderAdapter fileLoader::loadFile(const std::string& path) const
 	return std::move(adapter);
 }
 
-::Ogre_glTF::fileLoader::fileLoader(fileLoader&& other) noexcept :
+glTFLoader::glTFLoader(glTFLoader&& other) noexcept :
  loaderImpl(std::move(other.loaderImpl))
+{
+}
+
+glTFLoader::~glTFLoader()
 {
 }

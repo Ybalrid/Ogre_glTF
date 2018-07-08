@@ -13,12 +13,12 @@ int skeletonImporter::skeletonID = 0;
 
 void skeletonImporter::addChidren(const std::string& skinName, const std::vector<int>& childs, Ogre::v1::OldBone* parent, const std::vector<int>& joints)
 {
-	OgreLog("Bone " + std::to_string(parent->getHandle()) + " has " + std::to_string(childs.size()) + " children");
+	//OgreLog("Bone " + std::to_string(parent->getHandle()) + " has " + std::to_string(childs.size()) + " children");
 
 	for(auto child : childs)
 	{
 		const auto& node = model.nodes[child];
-		OgreLog("Node name is " + node.name + "!");
+		//OgreLog("Node name is " + node.name + "!");
 
 		auto bone = skeleton->getBone(nodeToJointMap[child]);
 		if(!bone)
@@ -38,8 +38,6 @@ void skeletonImporter::addChidren(const std::string& skinName, const std::vector
 		bone->setPosition(parent->convertWorldToLocalPosition(translation));
 		bone->setOrientation(parent->convertWorldToLocalOrientation(rotaiton));
 		bone->setScale(parent->_getDerivedScale() / scale);
-
-		Ogre::LogManager::getSingleton().logMessage("Bone pointer value : " + std::to_string(std::size_t(bone)));
 
 		addChidren(skinName + std::to_string(child), model.nodes[child].children, bone, joints);
 	}
@@ -231,7 +229,7 @@ void skeletonImporter::loadKeyFrameDataFromSampler(const tinygltf::Animation& an
 	}
 }
 
-void skeletonImporter::loadKeyFrames(const tinygltf::Animation& animation, int bone, skeletonImporter::keyFrameList& keyFrames, tinygltf::AnimationChannel* translation, tinygltf::AnimationChannel* rotation, tinygltf::AnimationChannel* scale, tinygltf::AnimationChannel* weights)
+void skeletonImporter::loadKeyFrames(const tinygltf::Animation& animation, int bone, keyFrameList& keyFrames, tinygltf::AnimationChannel* translation, tinygltf::AnimationChannel* rotation, tinygltf::AnimationChannel* scale, tinygltf::AnimationChannel* weights)
 {
 	bool endOfTimeLine = false;
 	int frameID		   = 0;
@@ -370,7 +368,7 @@ std::vector<int> traversal(const tinygltf::Model& m, int node)
 	return o;
 }
 
-Ogre::v1::SkeletonPtr skeletonImporter::getSkeleton()
+Ogre::v1::SkeletonPtr skeletonImporter::getSkeleton(const std::string& name)
 {
 	const auto& skins = model.skins;
 	assert(!skins.empty());
@@ -378,8 +376,7 @@ Ogre::v1::SkeletonPtr skeletonImporter::getSkeleton()
 	//TODO, take the skin of a specific mesh...
 	const auto& firstSkin = skins.front();
 
-	const std::string skeletonName = !firstSkin.name.empty() ? firstSkin.name : "unnamedSkeleton" + std::to_string(skeletonID++);
-
+	const std::string skeletonName = name + (!firstSkin.name.empty() ? firstSkin.name : "unnamedSkeleton" + std::to_string(skeletonID++));
 	OgreLog("First skin name is " + skeletonName);
 
 	//Get skeleton
@@ -397,14 +394,8 @@ Ogre::v1::SkeletonPtr skeletonImporter::getSkeleton()
 
 	if(!skeleton) throw std::runtime_error("Coudn't create skeletion for skin" + skeletonName);
 
-	auto flatList = traversal(model, firstSkin.skeleton);
-	for(auto joint : flatList)
-	{
-		OgreLog(std::to_string(joint));
-	}
-
-	OgreLog("skin.skeleton = " + std::to_string(firstSkin.skeleton));
-	OgreLog("first joint : " + std::to_string(firstSkin.joints.front()));
+	//OgreLog("skin.skeleton = " + std::to_string(firstSkin.skeleton));
+	//OgreLog("first joint : " + std::to_string(firstSkin.joints.front()));
 	{
 		const auto inverseBindMatricesID		= firstSkin.inverseBindMatrices;
 		const auto& inverseBindMatricesAccessor = model.accessors[inverseBindMatricesID];

@@ -132,7 +132,7 @@ int main()
 
 	//Ogre::Item* OtherItem;
 	//Initialize the library
-	auto gltf = std::make_unique<Ogre_glTF::fileLoader>();
+	auto gltf = std::make_unique<Ogre_glTF::glTFLoader>();
 	try
 	{
 		//auto adapter = gltf->loadFile("from_gltf_export_skinned_cylinder.glb");

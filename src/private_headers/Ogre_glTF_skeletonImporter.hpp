@@ -83,6 +83,6 @@ namespace Ogre_glTF
 		skeletonImporter(tinygltf::Model& input);
 
 		///Return the constructed skeleton pointer
-		Ogre::v1::SkeletonPtr getSkeleton();
+		Ogre::v1::SkeletonPtr getSkeleton(const std::string& adapterName);
 	};
 }

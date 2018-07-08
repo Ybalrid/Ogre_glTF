@@ -9,14 +9,14 @@ namespace Ogre_glTF
 {
 
 	//Forward declare main class
-	class fileLoader;
+	class glTFLoader;
 
 	///Class that hold the loaded content of a glTF file and that can create Ogre objects from it
 	class Ogre_glTF_EXPORT loaderAdapter
 	{
-		friend class fileLoader;
+		friend class glTFLoader;
 
-		///Private constructor. fileLoader act as a factory for theses object.
+		///Private constructor. glTFLoader act as a factory for theses object.
 		///This will aslo initialize the "pimpl" structure
 		loaderAdapter();
 
@@ -24,7 +24,9 @@ namespace Ogre_glTF
 		struct impl;
 
 		///pointer to implementation
-		std::unique_ptr<loaderAdapter::impl> pimpl;
+		std::unique_ptr<impl> pimpl;
+
+		std::string adapterName;
 
 	public:
 		///This clear the pimpl structure
@@ -55,33 +57,33 @@ namespace Ogre_glTF
 	};
 
 	///Class that is responsible for initializing the library with the loader, and giving out
-	class Ogre_glTF_EXPORT fileLoader
+	class Ogre_glTF_EXPORT glTFLoader
 	{
 		///object that acutally communicate with the underlying glTF loading library
-		struct gltfLoader;
+		struct glTFLoaderImpl;
 
 		///Opaque pointer that handle the underlying glTF loading library (pimpl)
-		std::unique_ptr<fileLoader::gltfLoader> loaderImpl;
+		std::unique_ptr<glTFLoaderImpl> loaderImpl;
 
 	public:
 		///Initialize the library by creating this object.
-		fileLoader();
+		glTFLoader();
 
 		///Move constructor
 		/// \param other object to move
-		fileLoader(fileLoader&& other) noexcept;
+		glTFLoader(glTFLoader&& other) noexcept;
 
 		///Deinitialize the library at this object destruction
-		~fileLoader();
+		~glTFLoader();
 
 		///Load a glTF text or binary file. Give you an adapter to use this file with Ogre
 		/// \param path String containing the path to a file to load (either .glTF or .glc)
 		loaderAdapter loadFile(const std::string& path) const;
 
 		///Deleted copy contructor
-		fileLoader(const fileLoader&) = delete;
+		glTFLoader(const glTFLoader&) = delete;
 
 		///Deleted asignment operator
-		fileLoader& operator=(const fileLoader&) = delete;
+		glTFLoader& operator=(const glTFLoader&) = delete;
 	};
 }
