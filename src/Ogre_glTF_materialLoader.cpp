@@ -7,42 +7,44 @@
 #include <OgreLogManager.h>
 #include "Ogre_glTF_internal_utils.hpp"
 
-Ogre::Vector3 Ogre_glTF_materialLoader::convertColor(const tinygltf::ColorValue& color)
+using namespace Ogre_glTF;
+
+Ogre::Vector3 materialLoader::convertColor(const tinygltf::ColorValue& color)
 {
 	std::array<float, 4> colorBuffer{};
 	internal_utils::container_double_to_float(color, colorBuffer);
 	return Ogre::Vector3 { colorBuffer.data() };
 }
 
-void Ogre_glTF_materialLoader::setBaseColor(Ogre::HlmsPbsDatablock* block, Ogre::Vector3 color) const
+void materialLoader::setBaseColor(Ogre::HlmsPbsDatablock* block, Ogre::Vector3 color) const
 {
 	block->setDiffuse(color);
 }
 
-void Ogre_glTF_materialLoader::setMetallicValue(Ogre::HlmsPbsDatablock* block, Ogre::Real value) const
+void materialLoader::setMetallicValue(Ogre::HlmsPbsDatablock* block, Ogre::Real value) const
 {
 	block->setMetalness(value);
 }
 
-void Ogre_glTF_materialLoader::setRoughnesValue(Ogre::HlmsPbsDatablock* block, Ogre::Real value) const
+void materialLoader::setRoughnesValue(Ogre::HlmsPbsDatablock* block, Ogre::Real value) const
 {
 	block->setRoughness(value);
 }
 
-void Ogre_glTF_materialLoader::setEmissiveColor(Ogre::HlmsPbsDatablock* block, Ogre::Vector3 color) const
+void materialLoader::setEmissiveColor(Ogre::HlmsPbsDatablock* block, Ogre::Vector3 color) const
 {
 	block->setEmissive(color);
 }
 
-bool Ogre_glTF_materialLoader::isTextureIndexValid(int value) const
+bool materialLoader::isTextureIndexValid(int value) const
 {
 	return !(value < 0);
 }
 
-void Ogre_glTF_materialLoader::setBaseColorTexture(Ogre::HlmsPbsDatablock* block, int value) const
+void materialLoader::setBaseColorTexture(Ogre::HlmsPbsDatablock* block, int value) const
 {
 	if(!isTextureIndexValid(value)) return;
-	auto texture = textureImporter.getTexture(value);
+	auto texture = textureImporterRef.getTexture(value);
 	if(texture)
 	{
 		//OgreLog("diffuse texture from textureImporter : " + texture->getName());
@@ -50,14 +52,14 @@ void Ogre_glTF_materialLoader::setBaseColorTexture(Ogre::HlmsPbsDatablock* block
 	}
 }
 
-void Ogre_glTF_materialLoader::setMetalRoughTexture(Ogre::HlmsPbsDatablock* block, int gltfTextureID) const
+void materialLoader::setMetalRoughTexture(Ogre::HlmsPbsDatablock* block, int gltfTextureID) const
 {
 	if(!isTextureIndexValid(gltfTextureID)) return;
 	//Ogre cannot use combined metal rough textures. Metal is in the R channel, and rough in the G channel. It seems that the images are loaded as BGR by the libarry
 	//R channel is channle 2 (from 0), G channel is 1.
 
-	auto metalTexure = textureImporter.generateGreyScaleFromChannel(gltfTextureID, 2);
-	auto roughTexure = textureImporter.generateGreyScaleFromChannel(gltfTextureID, 1);
+	auto metalTexure = textureImporterRef.generateGreyScaleFromChannel(gltfTextureID, 2);
+	auto roughTexure = textureImporterRef.generateGreyScaleFromChannel(gltfTextureID, 1);
 
 	if(metalTexure)
 	{
@@ -72,10 +74,10 @@ void Ogre_glTF_materialLoader::setMetalRoughTexture(Ogre::HlmsPbsDatablock* bloc
 	}
 }
 
-void Ogre_glTF_materialLoader::setNormalTexture(Ogre::HlmsPbsDatablock* block, int value) const
+void materialLoader::setNormalTexture(Ogre::HlmsPbsDatablock* block, int value) const
 {
 	if(!isTextureIndexValid(value)) return;
-	auto texture = textureImporter.getNormalSNORM(value);
+	auto texture = textureImporterRef.getNormalSNORM(value);
 	if(texture)
 	{
 		//OgreLog("normal texture from textureImporter : " + texture->getName());
@@ -83,10 +85,10 @@ void Ogre_glTF_materialLoader::setNormalTexture(Ogre::HlmsPbsDatablock* block, i
 	}
 }
 
-void Ogre_glTF_materialLoader::setOcclusionTexture(Ogre::HlmsPbsDatablock* block, int value) const
+void materialLoader::setOcclusionTexture(Ogre::HlmsPbsDatablock* block, int value) const
 {
 	if(!isTextureIndexValid(value)) return;
-	auto texture = textureImporter.getTexture(value);
+	auto texture = textureImporterRef.getTexture(value);
 	if(texture)
 	{
 		//OgreLog("occlusion texture from textureImporter : " + texture->getName());
@@ -95,10 +97,10 @@ void Ogre_glTF_materialLoader::setOcclusionTexture(Ogre::HlmsPbsDatablock* block
 	}
 }
 
-void Ogre_glTF_materialLoader::setEmissiveTexture(Ogre::HlmsPbsDatablock* block, int value) const
+void materialLoader::setEmissiveTexture(Ogre::HlmsPbsDatablock* block, int value) const
 {
 	if(!isTextureIndexValid(value)) return;
-	auto texture = textureImporter.getTexture(value);
+	auto texture = textureImporterRef.getTexture(value);
 	if(texture)
 	{
 		//OgreLog("emissive texture from textureImporter : " + texture->getName());
@@ -106,13 +108,13 @@ void Ogre_glTF_materialLoader::setEmissiveTexture(Ogre::HlmsPbsDatablock* block,
 	}
 }
 
-Ogre_glTF_materialLoader::Ogre_glTF_materialLoader(tinygltf::Model& input, Ogre_glTF_textureImporter& textureInterface) :
- textureImporter { textureInterface },
+materialLoader::materialLoader(tinygltf::Model& input, textureImporter& textureInterface) :
+ textureImporterRef { textureInterface },
  model { input }
 {
 }
 
-Ogre::HlmsDatablock* Ogre_glTF_materialLoader::getDatablock() const
+Ogre::HlmsDatablock* materialLoader::getDatablock() const
 {
 	OgreLog("Loading material...");
 	//TODO this will need some modification if we support multiple meshes by glTF file

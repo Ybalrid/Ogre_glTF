@@ -17,8 +17,10 @@
 #include <OgreSubMesh2.h>
 #include <OgreSkeleton.h>
 
+using namespace Ogre_glTF;
+
 ///Implementaiton of the adapter
-struct Ogre_glTF_adapter::impl
+struct loaderAdapter::impl
 {
 	///Constructor, initialize once all the objects inclosed in this class. They need a reference
 	///to a model object (and sometimes more) given at construct time
@@ -38,28 +40,28 @@ struct Ogre_glTF_adapter::impl
 	std::string error = "";
 
 	///Texture importer object : go throught the texture array and load them into Ogre
-	Ogre_glTF_textureImporter textureImporter;
+	textureImporter textureImporter;
 	///Mateiral loader : get the data from the material section of the glTF file and create an HlmsDatablock to use
-	Ogre_glTF_materialLoader materialLoader;
+	materialLoader materialLoader;
 	///Model converter : load all the actual mesh data from the glTF file, and convert them into index and vertex buffer that can
 	///be used to create an Ogre VAO (Vertex Array Object), then create a mesh for it
-	Ogre_glTF_modelConverter modelConverter;
+	modelConverter modelConverter;
 	///Skeleton importer : load skins from the glTF model, create equivalent OgreSkeleton objects
-	Ogre_glTF_skeletonImporter skeletonImporter;
+	skeletonImporter skeletonImporter;
 };
 
-Ogre_glTF_adapter::Ogre_glTF_adapter() :
- pimpl { std::make_unique<Ogre_glTF_adapter::impl>() }
+loaderAdapter::loaderAdapter() :
+ pimpl { std::make_unique<loaderAdapter::impl>() }
 {
 	//OgreLog("Created adapter object...");
 }
 
-Ogre_glTF_adapter::~Ogre_glTF_adapter()
+loaderAdapter::~loaderAdapter()
 {
 	//OgreLog("Destructed adapter object...");
 }
 
-Ogre::Item* Ogre_glTF_adapter::getItem(Ogre::SceneManager* smgr) const
+Ogre::Item* loaderAdapter::getItem(Ogre::SceneManager* smgr) const
 {
 	if(isOk())
 	{
@@ -79,30 +81,30 @@ Ogre::Item* Ogre_glTF_adapter::getItem(Ogre::SceneManager* smgr) const
 	return nullptr;
 }
 
-Ogre_glTF_adapter::Ogre_glTF_adapter(Ogre_glTF_adapter&& other) noexcept :
+loaderAdapter::loaderAdapter(loaderAdapter&& other) noexcept :
  pimpl { std::move(other.pimpl) }
 {
 	//OgreLog("Moved adapter object...");
 }
 
-Ogre_glTF_adapter& Ogre_glTF_adapter::operator=(Ogre_glTF_adapter&& other) noexcept
+loaderAdapter& loaderAdapter::operator=(loaderAdapter&& other) noexcept
 {
 	pimpl = std::move(other.pimpl);
 	return *this;
 }
 
-bool Ogre_glTF_adapter::isOk() const
+bool loaderAdapter::isOk() const
 {
 	return pimpl->valid;
 }
 
-std::string Ogre_glTF_adapter::getLastError() const
+std::string loaderAdapter::getLastError() const
 {
 	return pimpl->error;
 }
 
-///Implementation of the glTF loader. Exist as a pImpl inside the Ogre_glTF class
-struct Ogre_glTF::gltfLoader
+///Implementation of the glTF loader. Exist as a pImpl inside the fileLoader class
+struct ::Ogre_glTF::fileLoader::gltfLoader
 {
 	///The loader object from TinyGLTF
 	tinygltf::TinyGLTF loader;
@@ -151,7 +153,7 @@ struct Ogre_glTF::gltfLoader
 	}
 
 	///Load the content of a file into an adapter object
-	bool loadInto(Ogre_glTF_adapter& adapter, const std::string& path)
+	bool loadInto(loaderAdapter& adapter, const std::string& path)
 	{
 		switch(detectType(path))
 		{
@@ -168,22 +170,22 @@ struct Ogre_glTF::gltfLoader
 	}
 };
 
-Ogre_glTF::Ogre_glTF() :
- loaderImpl { std::make_unique<Ogre_glTF::gltfLoader>() }
+::Ogre_glTF::fileLoader::fileLoader() :
+ loaderImpl { std::make_unique<fileLoader::gltfLoader>() }
 {
 	if(Ogre::Root::getSingletonPtr() == nullptr)
 		throw std::runtime_error("Please create an Ogre::Root instance before initializing the glTF library!");
 
-	OgreLog("Ogre_glTF created!");
+	OgreLog("fileLoader created!");
 }
 
-Ogre_glTF::~Ogre_glTF()
+::Ogre_glTF::fileLoader::~fileLoader()
 	= default;
 
-Ogre_glTF_adapter Ogre_glTF::loadFile(const std::string& path) const
+loaderAdapter fileLoader::loadFile(const std::string& path) const
 {
 	OgreLog("loading file " + path);
-	Ogre_glTF_adapter adapter;
+	loaderAdapter adapter;
 	loaderImpl->loadInto(adapter, path);
 	//if (adapter.getLastError().empty())
 	{
@@ -195,7 +197,7 @@ Ogre_glTF_adapter Ogre_glTF::loadFile(const std::string& path) const
 	return std::move(adapter);
 }
 
-Ogre_glTF::Ogre_glTF(Ogre_glTF&& other) noexcept :
+::Ogre_glTF::fileLoader::fileLoader(fileLoader&& other) noexcept :
  loaderImpl(std::move(other.loaderImpl))
 {
 }

@@ -5,8 +5,9 @@
 #include <OgreTexture.h>
 #include <OgreImage.h>
 #include <OgreHardwarePixelBuffer.h>
-#include <OgreRenderTexture.h>
 #include <OgreColourValue.h>
+
+using namespace Ogre_glTF;
 
 //TODO pack the loaded textures in texture arrays (TEX_TYPE_2D_ARRAY) to optimize the way textures are binded to the slots of an HlmsPbsDatablock.
 //TODO rethink the oder of operations while loading texture. Some of them need to be interpreted differently for they usage (MetalRoughMap needs to be separated in two greyscale map, NormalMap need SNORM reformating). Knowing what the material is doing with them will help avoid uncessesary resource usage and load time.
@@ -14,8 +15,8 @@
 //TODO planned refactoring : Loading of texture via OgreImage needs to be put into it's own method
 //TODO investicate if HardwarePixelBuffer is going to be deprecated. Why is it in the Ogre::v1 namespace? What will happen in Ogre 2.2's "texture refactor"?
 
-size_t Ogre_glTF_textureImporter::id { 0 };
-void Ogre_glTF_textureImporter::loadTexture(const tinygltf::Texture& texture)
+size_t textureImporter::id { 0 };
+void textureImporter::loadTexture(const tinygltf::Texture& texture)
 {
 	auto textureManager = Ogre::TextureManager::getSingletonPtr();
 	const auto& image   = model.images[texture.source];
@@ -80,13 +81,13 @@ void Ogre_glTF_textureImporter::loadTexture(const tinygltf::Texture& texture)
 	loadedTextures.insert({ texture.source, OgreTexture });
 }
 
-Ogre_glTF_textureImporter::Ogre_glTF_textureImporter(tinygltf::Model& input) :
+textureImporter::textureImporter(tinygltf::Model& input) :
  model { input }
 {
 	id++;
 }
 
-void Ogre_glTF_textureImporter::loadTextures()
+void textureImporter::loadTextures()
 {
 	for(const auto& texture : model.textures)
 	{
@@ -94,7 +95,7 @@ void Ogre_glTF_textureImporter::loadTextures()
 	}
 }
 
-Ogre::TexturePtr Ogre_glTF_textureImporter::getTexture(int glTFTextureSourceID)
+Ogre::TexturePtr textureImporter::getTexture(int glTFTextureSourceID)
 {
 	auto texture = loadedTextures.find(glTFTextureSourceID);
 	if(texture == std::end(loadedTextures)) return {};
@@ -102,7 +103,7 @@ Ogre::TexturePtr Ogre_glTF_textureImporter::getTexture(int glTFTextureSourceID)
 	return texture->second;
 }
 
-Ogre::TexturePtr Ogre_glTF_textureImporter::generateGreyScaleFromChannel(int gltfTextureSourceID, int channel)
+Ogre::TexturePtr textureImporter::generateGreyScaleFromChannel(int gltfTextureSourceID, int channel)
 {
 	auto textureManager = Ogre::TextureManager::getSingletonPtr();
 	const auto& image   = model.images[gltfTextureSourceID];
@@ -180,7 +181,7 @@ Ogre::TexturePtr Ogre_glTF_textureImporter::generateGreyScaleFromChannel(int glt
 	return OgreTexture;
 }
 
-Ogre::TexturePtr Ogre_glTF_textureImporter::getNormalSNORM(int gltfTextureSourceID)
+Ogre::TexturePtr textureImporter::getNormalSNORM(int gltfTextureSourceID)
 {
 	auto textureManager = Ogre::TextureManager::getSingletonPtr();
 	const auto& image   = model.images[gltfTextureSourceID];

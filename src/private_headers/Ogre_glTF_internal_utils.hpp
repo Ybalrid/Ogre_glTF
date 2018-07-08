@@ -2,16 +2,19 @@
 
 #include <algorithm>
 
-namespace internal_utils
+namespace Ogre_glTF
 {
-	template <class inputContainer, class outputContainer>
-	void container_double_to_float(inputContainer& in, outputContainer& out)
+	namespace internal_utils
 	{
-		std::transform(std::begin(in),
-					   std::end(in),
-					   std::begin(out),
-					   [](double n) {
-						   return static_cast<float>(n);
-					   });
+		template <class inputContainer, class outputContainer>
+		void container_double_to_float(inputContainer& in, outputContainer& out)
+		{
+			std::transform(std::begin(in),
+						   std::end(in),
+						   std::begin(out),
+						   [](double n) {
+							   return static_cast<float>(n);
+						   });
+		}
 	}
 }

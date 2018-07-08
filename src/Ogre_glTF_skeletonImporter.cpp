@@ -7,9 +7,11 @@
 #include <OgreLogManager.h>
 #include <OgreKeyFrame.h>
 
-int Ogre_glTF_skeletonImporter::skeletonID = 0;
+using namespace Ogre_glTF;
 
-void Ogre_glTF_skeletonImporter::addChidren(const std::string& skinName, const std::vector<int>& childs, Ogre::v1::OldBone* parent, const std::vector<int>& joints)
+int skeletonImporter::skeletonID = 0;
+
+void skeletonImporter::addChidren(const std::string& skinName, const std::vector<int>& childs, Ogre::v1::OldBone* parent, const std::vector<int>& joints)
 {
 	OgreLog("Bone " + std::to_string(parent->getHandle()) + " has " + std::to_string(childs.size()) + " children");
 
@@ -17,7 +19,6 @@ void Ogre_glTF_skeletonImporter::addChidren(const std::string& skinName, const s
 	{
 		const auto& node = model.nodes[child];
 		OgreLog("Node name is " + node.name + "!");
-
 
 		auto bone = skeleton->getBone(nodeToJointMap[child]);
 		if(!bone)
@@ -34,7 +35,6 @@ void Ogre_glTF_skeletonImporter::addChidren(const std::string& skinName, const s
 
 		bindMatrix.decomposition(translation, scale, rotaiton);
 
-
 		bone->setPosition(parent->convertWorldToLocalPosition(translation));
 		bone->setOrientation(parent->convertWorldToLocalOrientation(rotaiton));
 		bone->setScale(parent->_getDerivedScale() / scale);
@@ -45,24 +45,23 @@ void Ogre_glTF_skeletonImporter::addChidren(const std::string& skinName, const s
 	}
 }
 
-void Ogre_glTF_skeletonImporter::loadBoneHierarchy(const tinygltf::Skin& skin, Ogre::v1::OldBone* rootBone, const std::string& name)
+void skeletonImporter::loadBoneHierarchy(const tinygltf::Skin& skin, Ogre::v1::OldBone* rootBone, const std::string& name)
 {
 	const auto& node	 = model.nodes[skin.joints[0]];
 	const auto& skeleton = model.nodes[skin.skeleton];
 
-	std::array<float, 3> translation{0}, scale{0};
-	std::array<float, 4> rotation{0};
+	std::array<float, 3> translation{ 0 }, scale{ 0 };
+	std::array<float, 4> rotation{ 0 };
 	internal_utils::container_double_to_float(skeleton.translation, translation);
 	if(skeleton.scale.size() == 3)
 		internal_utils::container_double_to_float(skeleton.scale, scale);
 	internal_utils::container_double_to_float(skeleton.rotation, rotation);
 
-	Ogre::Vector3 trans = Ogre::Vector3{ translation.data() };
+	Ogre::Vector3 trans  = Ogre::Vector3{ translation.data() };
 	Ogre::Quaternion rot = Ogre::Quaternion{ rotation[3], rotation[0], rotation[1], rotation[2] };
-	Ogre::Vector3 sc  = Ogre::Vector3{ scale.data() };
+	Ogre::Vector3 sc	 = Ogre::Vector3{ scale.data() };
 
 	if(sc.isZeroLength()) sc = Ogre::Vector3::UNIT_SCALE;
-
 
 	rootBone->setPosition(trans);
 	rootBone->setOrientation(rot);
@@ -75,12 +74,12 @@ void Ogre_glTF_skeletonImporter::loadBoneHierarchy(const tinygltf::Skin& skin, O
 	addChidren(name, node.children, rootBone, skin.joints);
 }
 
-Ogre_glTF_skeletonImporter::Ogre_glTF_skeletonImporter(tinygltf::Model& input) :
+skeletonImporter::skeletonImporter(tinygltf::Model& input) :
  model{ input }
 {
 }
 
-void Ogre_glTF_skeletonImporter::loadTimepointFromSamplerToKeyFrame(int bone, int frameID, int& count, keyFrame& animationFrame, tinygltf::AnimationSampler& sampler)
+void skeletonImporter::loadTimepointFromSamplerToKeyFrame(int bone, int frameID, int& count, keyFrame& animationFrame, tinygltf::AnimationSampler& sampler)
 {
 	auto& input				 = model.accessors[sampler.input];
 	count					 = input.count;
@@ -110,7 +109,7 @@ void Ogre_glTF_skeletonImporter::loadTimepointFromSamplerToKeyFrame(int bone, in
 	}
 }
 
-void Ogre_glTF_skeletonImporter::loadVector3FromSampler(int frameID, int& count, tinygltf::AnimationSampler& sampler, Ogre::Vector3& vector)
+void skeletonImporter::loadVector3FromSampler(int frameID, int& count, tinygltf::AnimationSampler& sampler, Ogre::Vector3& vector)
 {
 	auto& output			 = model.accessors[sampler.output];
 	count					 = output.count;
@@ -137,7 +136,7 @@ void Ogre_glTF_skeletonImporter::loadVector3FromSampler(int frameID, int& count,
 	}
 }
 
-void Ogre_glTF_skeletonImporter::loadQuatFromSampler(int frameID, int& count, tinygltf::AnimationSampler& sampler, Ogre::Quaternion& quat) const
+void skeletonImporter::loadQuatFromSampler(int frameID, int& count, tinygltf::AnimationSampler& sampler, Ogre::Quaternion& quat) const
 {
 	auto& output			 = model.accessors[sampler.output];
 	count					 = output.count;
@@ -169,7 +168,7 @@ void Ogre_glTF_skeletonImporter::loadQuatFromSampler(int frameID, int& count, ti
 	}
 }
 
-void Ogre_glTF_skeletonImporter::detectAnimationChannel(const channelList& channels, tinygltf::AnimationChannel*& translation, tinygltf::AnimationChannel*& rotation, tinygltf::AnimationChannel*& scale, tinygltf::AnimationChannel*& weights) const
+void skeletonImporter::detectAnimationChannel(const channelList& channels, tinygltf::AnimationChannel*& translation, tinygltf::AnimationChannel*& rotation, tinygltf::AnimationChannel*& scale, tinygltf::AnimationChannel*& weights) const
 {
 	const auto translationIt = std::find_if(channels.begin(), channels.end(), [](const tinygltf::AnimationChannel& c) {
 		return c.target_path == "translation";
@@ -196,7 +195,7 @@ void Ogre_glTF_skeletonImporter::detectAnimationChannel(const channelList& chann
 		weights = &(*weightsIt).get();
 }
 
-void Ogre_glTF_skeletonImporter::loadKeyFrameDataFromSampler(const tinygltf::Animation& animation,
+void skeletonImporter::loadKeyFrameDataFromSampler(const tinygltf::Animation& animation,
 															 int bone,
 															 tinygltf::AnimationChannel* translation,
 															 tinygltf::AnimationChannel* rotation,
@@ -232,7 +231,7 @@ void Ogre_glTF_skeletonImporter::loadKeyFrameDataFromSampler(const tinygltf::Ani
 	}
 }
 
-void Ogre_glTF_skeletonImporter::loadKeyFrames(const tinygltf::Animation& animation, int bone, Ogre_glTF_skeletonImporter::keyFrameList& keyFrames, tinygltf::AnimationChannel* translation, tinygltf::AnimationChannel* rotation, tinygltf::AnimationChannel* scale, tinygltf::AnimationChannel* weights)
+void skeletonImporter::loadKeyFrames(const tinygltf::Animation& animation, int bone, skeletonImporter::keyFrameList& keyFrames, tinygltf::AnimationChannel* translation, tinygltf::AnimationChannel* rotation, tinygltf::AnimationChannel* scale, tinygltf::AnimationChannel* weights)
 {
 	bool endOfTimeLine = false;
 	int frameID		   = 0;
@@ -250,7 +249,7 @@ void Ogre_glTF_skeletonImporter::loadKeyFrames(const tinygltf::Animation& animat
 	}
 }
 
-void Ogre_glTF_skeletonImporter::loadSkeletonAnimations(const tinygltf::Skin skin, const std::string& skeletonName)
+void skeletonImporter::loadSkeletonAnimations(const tinygltf::Skin skin, const std::string& skeletonName)
 {
 	//List all the animations that own at least one channel that target one of the bones of our skeleton
 	OgreLog("Searching for animations for skeleton " + skeleton->getName());
@@ -330,7 +329,7 @@ void Ogre_glTF_skeletonImporter::loadSkeletonAnimations(const tinygltf::Skin ski
 			for(auto& keyFrameForBone : boneIndexedKeyFrames)
 			{
 				//Get the bone index
-				const auto boneIndex			 = keyFrameForBone.first;
+				const auto boneIndex	 = keyFrameForBone.first;
 				const auto ogreBoneIndex = boneIndex;
 
 				//Add a node to the animation track
@@ -371,7 +370,7 @@ std::vector<int> traversal(const tinygltf::Model& m, int node)
 	return o;
 }
 
-Ogre::v1::SkeletonPtr Ogre_glTF_skeletonImporter::getSkeleton()
+Ogre::v1::SkeletonPtr skeletonImporter::getSkeleton()
 {
 	const auto& skins = model.skins;
 	assert(!skins.empty());
@@ -489,7 +488,6 @@ Ogre::v1::SkeletonPtr Ogre_glTF_skeletonImporter::getSkeleton()
 
 		//Create bone with index "i"
 		auto bone = skeleton->createBone(!name.empty() ? name : skeletonName + std::to_string(i), i);
-
 	}
 
 	loadBoneHierarchy(firstSkin, skeleton->getBone(nodeToJointMap[firstSkin.skeleton]), skeletonName);
