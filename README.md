@@ -30,7 +30,7 @@ This library is based on tinygltf. https://github.com/syoyo/tinygltf. tinygltf i
  - In your code:
 ```cpp
 //Initialize the library. I recomend using a unique_ptr from #include <memory>
-auto gltf = std::make_unique<Ogre_glTF>();
+auto gltf = std::make_unique<Ogre_glTF::glTFLoader>();
 
 //Create an "adapter" object that permit to access the glb/gltf file
 auto adapter = gltf->loadFile("Path/To/GLTF/GLB/Resource");
