@@ -1,16 +1,16 @@
 #include "Ogre_glTF_materialLoader.hpp"
 #include "Ogre_glTF_textureImporter.hpp"
 #include "Ogre_glTF_common.hpp"
-#include "Ogre_glTF_doubleConverter.hpp"
 #include <OgreHlmsPbsDatablock.h>
 #include <OgreHlms.h>
 #include <OgreHlmsManager.h>
 #include <OgreLogManager.h>
+#include "Ogre_glTF_internal_utils.hpp"
 
 Ogre::Vector3 Ogre_glTF_materialLoader::convertColor(const tinygltf::ColorValue& color)
 {
-	std::array<float, 4> colorBuffer;
-	doubleToFloat(color, colorBuffer);
+	std::array<float, 4> colorBuffer{};
+	internal_utils::container_double_to_float(color, colorBuffer);
 	return Ogre::Vector3 { colorBuffer.data() };
 }
 
