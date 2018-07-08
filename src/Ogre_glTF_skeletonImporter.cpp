@@ -52,12 +52,18 @@ void Ogre_glTF_skeletonImporter::loadBoneHierarchy(const tinygltf::Skin& skin, O
 
 	std::array<float, 3> translation{};
 	std::array<float, 4> rotation{};
-	//rootBone->setPosition(1, 2, 3);
-	//internal_utils::container_double_to_float(skeleton.translation, translation);
-	//internal_utils::container_double_to_float(skeleton.rotation, rotation);
+	internal_utils::container_double_to_float(skeleton.translation, translation);
+	internal_utils::container_double_to_float(skeleton.rotation, rotation);
 
-	//rootBone->setPosition(Ogre::Vector3{ translation.data() });
-	//rootBone->setOrientation(Ogre::Quaternion{ rotation[3], rotation[0], rotation[1], rotation[2] });
+	Ogre::Vector3 trans = Ogre::Vector3{ translation.data() };
+	Ogre::Quaternion rot = Ogre::Quaternion{ rotation[3], rotation[0], rotation[1], rotation[2] };
+
+	rootBone->setPosition(trans);
+	rootBone->setOrientation(rot);
+
+	std::stringstream rootBoneXformLog;
+	rootBoneXformLog << "rootBone " << trans << " " << rot;
+	OgreLog(rootBoneXformLog);
 
 	addChidren(name, node.children, rootBone, skin.joints);
 }
@@ -311,18 +317,18 @@ void Ogre_glTF_skeletonImporter::loadSkeletonAnimations(const tinygltf::Skin ski
 
 			//Create animation
 			auto ogreAnimation = skeleton->createAnimation(animationName, maxLen);
-			ogreAnimation->setUseBaseKeyFrame(true);
 			ogreAnimation->setInterpolationMode(Ogre::v1::Animation::InterpolationMode::IM_LINEAR);
 
 			//For each bone's list of keyframes
 			for(auto& keyFrameForBone : boneIndexedKeyFrames)
 			{
 				//Get the bone index
-				const auto bone			 = keyFrameForBone.first;
-				const auto ogreBoneIndex = bone;
+				const auto boneIndex			 = keyFrameForBone.first;
+				const auto ogreBoneIndex = boneIndex;
 
 				//Add a node to the animation track
 				auto nodeAnimTrack = ogreAnimation->createOldNodeTrack(ogreBoneIndex);
+				auto bone		   = skeleton->getBone(boneIndex);
 
 				//for each keyframe
 				for(auto& keyFrame : keyFrameForBone.second)
@@ -331,8 +337,8 @@ void Ogre_glTF_skeletonImporter::loadSkeletonAnimations(const tinygltf::Skin ski
 					Ogre::v1::TransformKeyFrame* transformKeyFrame = nodeAnimTrack->createNodeKeyFrame(keyFrame.timePoint);
 
 					//Set the data
-					transformKeyFrame->setTranslate(keyFrame.position);
-					transformKeyFrame->setRotation(keyFrame.rotation);
+					transformKeyFrame->setRotation(bone->getOrientation().Inverse() * keyFrame.rotation);
+					transformKeyFrame->setTranslate(bone->getPosition() - keyFrame.position);
 					transformKeyFrame->setScale(keyFrame.scale);
 				}
 			}
@@ -477,11 +483,11 @@ Ogre::v1::SkeletonPtr Ogre_glTF_skeletonImporter::getSkeleton()
 		//Create bone with index "i"
 		auto bone = skeleton->createBone(!name.empty() ? name : skeletonName + std::to_string(i), i);
 
-		//Load the inverseBindMatrix of the joint
 	}
 
 	auto rootBoneIndex = nodeToJointMap[firstSkin.skeleton];
 	loadBoneHierarchy(firstSkin, skeleton->getBone(rootBoneIndex), skeletonName);
+	skeleton->setBindingPose();
 	loadSkeletonAnimations(firstSkin, skeletonName);
 
 	return skeleton;

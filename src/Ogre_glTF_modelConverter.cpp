@@ -146,15 +146,15 @@ Ogre::MeshPtr Ogre_glTF_modelConverter::getOgreMesh()
 			//subMesh->_buildBoneAssignmentsFromVertexData();
 
 			//Get the vertexBufferParts from the two iterators
-			OgreLog("The vertex buffer contains blend weights and indices information!");
+			//OgreLog("The vertex buffer contains blend weights and indices information!");
 			Ogre_glTF_vertexBufferPart& blendIndices = *blendIndicesIt;
 			Ogre_glTF_vertexBufferPart& blendWeights = *blendWeightsIt;
 
 			//Debug sanity check, both should be equals
-			OgreLog("Vertex count blendIndex : " + std::to_string(blendIndices.vertexCount));
-			OgreLog("Vertex count blendWeight: " + std::to_string(blendWeights.vertexCount));
-			OgreLog("Vertex element count blendIndex : " + std::to_string(blendIndices.perVertex));
-			OgreLog("Vertex element count blendWeight: " + std::to_string(blendWeights.perVertex));
+			//OgreLog("Vertex count blendIndex : " + std::to_string(blendIndices.vertexCount));
+			//OgreLog("Vertex count blendWeight: " + std::to_string(blendWeights.vertexCount));
+			//OgreLog("Vertex element count blendIndex : " + std::to_string(blendIndices.perVertex));
+			//OgreLog("Vertex element count blendWeight: " + std::to_string(blendWeights.perVertex));
 
 			//Allocate 2 small arrays to store the bone idexes. (They should be of lenght "4")
 			std::vector<Ogre::ushort> vertexBoneIndex(blendIndices.perVertex);
@@ -178,10 +178,10 @@ Ogre::MeshPtr Ogre_glTF_modelConverter::getOgreMesh()
 				{
 					auto vba = Ogre::VertexBoneAssignment(vertexIndex, vertexBoneIndex[i], vertexBlend[i]);
 
-					OgreLog("VertexBoneAssignment: " + std::to_string(i) + " over " + std::to_string(blendIndices.perVertex));
-					OgreLog(std::to_string(vba.vertexIndex));
-					OgreLog(std::to_string(vba.boneIndex));
-					OgreLog(std::to_string(vba.weight));
+					//OgreLog("VertexBoneAssignment: " + std::to_string(i) + " over " + std::to_string(blendIndices.perVertex));
+					//OgreLog(std::to_string(vba.vertexIndex));
+					//OgreLog(std::to_string(vba.boneIndex));
+					//OgreLog(std::to_string(vba.weight));
 
 					subMesh->addBoneAssignment(vba);
 				}
@@ -194,7 +194,7 @@ Ogre::MeshPtr Ogre_glTF_modelConverter::getOgreMesh()
 
 	OgreMesh->_setBounds(boundingBox, true);
 	OgreMesh->_setBoundingSphereRadius(boundingBox.getRadius());
-	OgreLog("Setting 'bounding sphere radius' from bounds : " + std::to_string(boundingBox.getRadius()));
+	//OgreLog("Setting 'bounding sphere radius' from bounds : " + std::to_string(boundingBox.getRadius()));
 
 	return OgreMesh;
 }
@@ -303,15 +303,15 @@ Ogre_glTF_vertexBufferPart Ogre_glTF_modelConverter::extractVertexBuffer(const s
 {
 	const auto elementScemantic = getVertexElementScemantic(attribute.first);
 
-	if(elementScemantic == Ogre::VES_BLEND_INDICES)
-	{
-		OgreLog("Blend Indices...");
-	}
+	//if(elementScemantic == Ogre::VES_BLEND_INDICES)
+	//{
+	//	OgreLog("Blend Indices...");
+	//}
 
-	if(elementScemantic == Ogre::VES_BLEND_WEIGHTS)
-	{
-		OgreLog("Blend weights");
-	}
+	//if(elementScemantic == Ogre::VES_BLEND_WEIGHTS)
+	//{
+	//	OgreLog("Blend weights");
+	//}
 
 	const auto& accessor				= model.accessors[attribute.second];
 	const auto& bufferView				= model.bufferViews[accessor.bufferView];
@@ -351,7 +351,7 @@ Ogre_glTF_vertexBufferPart Ogre_glTF_modelConverter::extractVertexBuffer(const s
 	const auto vertexCount = accessor.count;
 
 	const auto vertexElementLenghtInBytes = numberOfElementPerVertex * geometryBuffer->elementSize();
-	OgreLog("A vertex element on this buffer is " + std::to_string(vertexElementLenghtInBytes) + " bytes long");
+	//OgreLog("A vertex element on this buffer is " + std::to_string(vertexElementLenghtInBytes) + " bytes long");
 	for(size_t vertexIndex = 0; vertexIndex < vertexCount; vertexIndex++)
 	{
 		const auto destOffset   = vertexIndex * vertexElementLenghtInBytes;
@@ -362,13 +362,13 @@ Ogre_glTF_vertexBufferPart Ogre_glTF_modelConverter::extractVertexBuffer(const s
 			   vertexElementLenghtInBytes);
 	}
 
-	if(elementScemantic == Ogre::VES_BLEND_INDICES)
-	{
-		volatile unsigned short* debugbuffer = reinterpret_cast<unsigned short*>(geometryBuffer->dataAddress());
-		for(size_t i = 0; i < (vertexElementLenghtInBytes * vertexCount) / sizeof(unsigned short); ++i)
-			OgreLog(std::to_string(debugbuffer[i]));
-		OgreLog("Done");
-	}
+	//if(elementScemantic == Ogre::VES_BLEND_INDICES)
+	//{
+	//	volatile unsigned short* debugbuffer = reinterpret_cast<unsigned short*>(geometryBuffer->dataAddress());
+	//	for(size_t i = 0; i < (vertexElementLenghtInBytes * vertexCount) / sizeof(unsigned short); ++i)
+	//		OgreLog(std::to_string(debugbuffer[i]));
+	//	OgreLog("Done");
+	//}
 
 	/*
 		Update the bounding sizes once, when vertex positions has been read.
