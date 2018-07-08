@@ -13,18 +13,11 @@ void Ogre_glTF_skeletonImporter::addChidren(const std::string& skinName, const s
 {
 	OgreLog("Bone " + std::to_string(parent->getHandle()) + " has " + std::to_string(childs.size()) + " children");
 
-
 	for(auto child : childs)
 	{
 		const auto& node = model.nodes[child];
 		OgreLog("Node name is " + node.name + "!");
-		auto toFloat = [](double n) { return static_cast<float>(n); };
 
-		std::array<float, 3> translation {};
-		std::array<float, 4> rotation {};
-
-		internal_utils::container_double_to_float(node.translation, translation);
-		internal_utils::container_double_to_float(node.rotation, rotation);
 
 		auto bone = skeleton->getBone(nodeToJointMap[child]);
 		if(!bone)
@@ -34,8 +27,17 @@ void Ogre_glTF_skeletonImporter::addChidren(const std::string& skinName, const s
 
 		parent->addChild(bone);
 
-		bone->setPosition(Ogre::Vector3 { translation.data() });
-		bone->setOrientation(Ogre::Quaternion { rotation[3], rotation[0], rotation[1], rotation[2] });
+		auto bindMatrix = inverseBindMatrices[nodeToJointMap[child]].inverseAffine();
+
+		Ogre::Vector3 translation, scale;
+		Ogre::Quaternion rotaiton;
+
+		bindMatrix.decomposition(translation, scale, rotaiton);
+
+
+		bone->setPosition(parent->convertWorldToLocalPosition(translation));
+		bone->setOrientation(parent->convertWorldToLocalOrientation(rotaiton));
+		bone->setScale(scale);
 
 		Ogre::LogManager::getSingleton().logMessage("Bone pointer value : " + std::to_string(std::size_t(bone)));
 
@@ -48,20 +50,20 @@ void Ogre_glTF_skeletonImporter::loadBoneHierarchy(const tinygltf::Skin& skin, O
 	const auto& node	 = model.nodes[skin.joints[0]];
 	const auto& skeleton = model.nodes[skin.skeleton];
 
-	std::array<float, 3> translation {};
-	std::array<float, 4> rotation {};
+	std::array<float, 3> translation{};
+	std::array<float, 4> rotation{};
+	//rootBone->setPosition(1, 2, 3);
+	//internal_utils::container_double_to_float(skeleton.translation, translation);
+	//internal_utils::container_double_to_float(skeleton.rotation, rotation);
 
-	internal_utils::container_double_to_float(skeleton.translation, translation);
-	internal_utils::container_double_to_float(skeleton.rotation, rotation);
-
-	rootBone->setPosition(Ogre::Vector3 { translation.data() });
-	rootBone->setOrientation(Ogre::Quaternion { rotation[3], rotation[0], rotation[1], rotation[2] });
+	//rootBone->setPosition(Ogre::Vector3{ translation.data() });
+	//rootBone->setOrientation(Ogre::Quaternion{ rotation[3], rotation[0], rotation[1], rotation[2] });
 
 	addChidren(name, node.children, rootBone, skin.joints);
 }
 
 Ogre_glTF_skeletonImporter::Ogre_glTF_skeletonImporter(tinygltf::Model& input) :
- model { input }
+ model{ input }
 {
 }
 
@@ -82,7 +84,7 @@ void Ogre_glTF_skeletonImporter::loadTimepointFromSamplerToKeyFrame(int bone, in
 	}
 	else if(input.componentType == TINYGLTF_COMPONENT_TYPE_DOUBLE)
 	{
-		data = (float)*reinterpret_cast<double*>(dataStart + frameID * byteStride);
+		data = static_cast<float>(*reinterpret_cast<double*>(dataStart + frameID * byteStride));
 	}
 
 	if(animationFrame.timePoint < 0)
@@ -112,8 +114,8 @@ void Ogre_glTF_skeletonImporter::loadVector3FromSampler(int frameID, int& count,
 	}
 	else if(output.componentType == TINYGLTF_COMPONENT_TYPE_DOUBLE) //need double to float conversion
 	{
-		std::array<float, 3> vectFloat {};
-		std::array<double, 3> vectDouble {};
+		std::array<float, 3> vectFloat{};
+		std::array<double, 3> vectDouble{};
 
 		memcpy(vectDouble.data(), reinterpret_cast<double*>(dataStart + frameID * byteStride), 3 * sizeof(double));
 		internal_utils::container_double_to_float(vectDouble, vectFloat);
@@ -144,8 +146,8 @@ void Ogre_glTF_skeletonImporter::loadQuatFromSampler(int frameID, int& count, ti
 	}
 	else if(output.componentType == TINYGLTF_COMPONENT_TYPE_DOUBLE) //need double to float conversion
 	{
-		std::array<float, 4> vectFloat {};
-		std::array<double, 4> vectDouble {};
+		std::array<float, 4> vectFloat{};
+		std::array<double, 4> vectDouble{};
 
 		memcpy(vectDouble.data(), reinterpret_cast<double*>(dataStart + frameID * byteStride), 3 * sizeof(double));
 		internal_utils::container_double_to_float(vectDouble, vectFloat);
@@ -278,8 +280,8 @@ void Ogre_glTF_skeletonImporter::loadSkeletonAnimations(const tinygltf::Skin ski
 			float maxLen = 0;
 			for(auto& channel : animation.channels)
 			{
-				const auto joint					   = channel.target_node;
-				const auto& boneRawAnnimationChannelIt = boneRawAnimationChannels.find(channel.target_node);
+				const auto joint					   = nodeToJointMap[channel.target_node];
+				const auto& boneRawAnnimationChannelIt = boneRawAnimationChannels.find(joint);
 				if(boneRawAnnimationChannelIt == boneRawAnimationChannels.end())
 					boneRawAnimationChannels[joint];
 
@@ -309,6 +311,7 @@ void Ogre_glTF_skeletonImporter::loadSkeletonAnimations(const tinygltf::Skin ski
 
 			//Create animation
 			auto ogreAnimation = skeleton->createAnimation(animationName, maxLen);
+			ogreAnimation->setUseBaseKeyFrame(true);
 			ogreAnimation->setInterpolationMode(Ogre::v1::Animation::InterpolationMode::IM_LINEAR);
 
 			//For each bone's list of keyframes
@@ -316,7 +319,7 @@ void Ogre_glTF_skeletonImporter::loadSkeletonAnimations(const tinygltf::Skin ski
 			{
 				//Get the bone index
 				const auto bone			 = keyFrameForBone.first;
-				const auto ogreBoneIndex = nodeToJointMap[bone];
+				const auto ogreBoneIndex = bone;
 
 				//Add a node to the animation track
 				auto nodeAnimTrack = ogreAnimation->createOldNodeTrack(ogreBoneIndex);
@@ -333,6 +336,8 @@ void Ogre_glTF_skeletonImporter::loadSkeletonAnimations(const tinygltf::Skin ski
 					transformKeyFrame->setScale(keyFrame.scale);
 				}
 			}
+
+			//Need to use the keyframe 0 as base keyframe
 		}
 	}
 }
@@ -356,10 +361,10 @@ std::vector<int> traversal(const tinygltf::Model& m, int node)
 Ogre::v1::SkeletonPtr Ogre_glTF_skeletonImporter::getSkeleton()
 {
 	const auto& skins = model.skins;
-	assert(skins.size() > 0);
+	assert(!skins.empty());
 
 	//TODO, take the skin of a specific mesh...
-	const auto firstSkin = skins[0];
+	const auto& firstSkin = skins.front();
 
 	const std::string skeletonName = !firstSkin.name.empty() ? firstSkin.name : "unnamedSkeleton" + std::to_string(skeletonID++);
 
@@ -380,39 +385,103 @@ Ogre::v1::SkeletonPtr Ogre_glTF_skeletonImporter::getSkeleton()
 
 	if(!skeleton) throw std::runtime_error("Coudn't create skeletion for skin" + skeletonName);
 
-	//Bones in the node hierarchy are a subtree of the nodes in the gltf scene. We need their index to start with zero, so we substract the index of the first joint
-	offset = firstSkin.joints[0];
-
-
 	auto flatList = traversal(model, firstSkin.skeleton);
 	for(auto joint : flatList)
 	{
 		OgreLog(std::to_string(joint));
 	}
 
-	for(auto i = 0; i < firstSkin.joints.size(); i++)
-	{
-		//boneAssignationMap[flatList[i]] = firstSkin.joints[i];
-		boneAssignationMap[firstSkin.joints[i]] = flatList[i];
-	}
-	
 	OgreLog("skin.skeleton = " + std::to_string(firstSkin.skeleton));
-	OgreLog("first joint : " + std::to_string(offset));
+	OgreLog("first joint : " + std::to_string(firstSkin.joints.front()));
+	{
+		const auto inverseBindMatricesID		= firstSkin.inverseBindMatrices;
+		const auto& inverseBindMatricesAccessor = model.accessors[inverseBindMatricesID];
+		const auto& bufferView					= model.bufferViews[inverseBindMatricesAccessor.bufferView];
+		const auto byteStride					= inverseBindMatricesAccessor.ByteStride(bufferView);
+		const auto& buffer						= model.buffers[bufferView.buffer];
+		const unsigned char* dataStart			= buffer.data.data() + bufferView.byteOffset + inverseBindMatricesAccessor.byteOffset;
+
+		assert(inverseBindMatricesAccessor.count == firstSkin.joints.size());
+		assert(inverseBindMatricesAccessor.type == TINYGLTF_TYPE_MAT4);
+
+		for(int i = 0; i < inverseBindMatricesAccessor.count; ++i)
+		{
+			if(inverseBindMatricesAccessor.componentType == TINYGLTF_COMPONENT_TYPE_FLOAT)
+			{
+				const float* floatMatrix = reinterpret_cast<const float*>(dataStart + i * byteStride);
+				inverseBindMatrices.push_back(Ogre::Matrix4(
+												  floatMatrix[0],
+												  floatMatrix[1],
+												  floatMatrix[2],
+												  floatMatrix[3],
+												  floatMatrix[4],
+												  floatMatrix[5],
+												  floatMatrix[6],
+												  floatMatrix[7],
+												  floatMatrix[8],
+												  floatMatrix[9],
+												  floatMatrix[10],
+												  floatMatrix[11],
+												  floatMatrix[12],
+												  floatMatrix[13],
+												  floatMatrix[14],
+												  floatMatrix[15])
+												  .transpose());
+			}
+			else if(inverseBindMatricesAccessor.componentType == TINYGLTF_COMPONENT_TYPE_DOUBLE)
+			{
+				//Double to float conversion
+				std::array<double, 4 * 4> doubleMatrix{};
+				std::array<float, 4 * 4> floatMatrix{};
+				memcpy(doubleMatrix.data(), reinterpret_cast<const double*>(dataStart + i * byteStride), 4 * 4 * sizeof(double));
+				internal_utils::container_double_to_float(doubleMatrix, floatMatrix);
+				inverseBindMatrices.push_back(Ogre::Matrix4(
+												  floatMatrix[0],
+												  floatMatrix[1],
+												  floatMatrix[2],
+												  floatMatrix[3],
+												  floatMatrix[4],
+												  floatMatrix[5],
+												  floatMatrix[6],
+												  floatMatrix[7],
+												  floatMatrix[8],
+												  floatMatrix[9],
+												  floatMatrix[10],
+												  floatMatrix[11],
+												  floatMatrix[12],
+												  floatMatrix[13],
+												  floatMatrix[14],
+												  floatMatrix[15])
+												  .transpose());
+			}
+
+			assert(inverseBindMatrices.back().isAffine());
+		}
+	}
+
+	//Build the "node to joint map". In the vertex buffer, proprery "JOINT_0" refer to the joints that affect a particular vertex of the skined mesh.
+	//To refer to theses joints, it refer to the index of the node in the skin.joints array.
+	//We need to be able to get the index for each of theses joints in the array easilly, so we are builind a dictionarry to be able to reverse-search them
 	for(int i = 0; i < firstSkin.joints.size(); ++i)
 	{
-		auto joint		= firstSkin.joints[i];
-		const auto name = model.nodes[joint].name;
-		OgreLog("joint " + std::to_string(joint) + " name: " + name);
-		skeleton->createBone(!name.empty() ? name : skeletonName + std::to_string(i), i);
 
-		nodeToJointMap[joint] = i;
+		//Get the index in the "node" array in the glTF's JSON
+		const auto jointNode = firstSkin.joints[i];
 
+		//Record in the dictionary the joint node-> index
+		nodeToJointMap[jointNode] = i;
+
+		//Get the name (if possible)
+		const auto name = model.nodes[jointNode].name;
+
+		//Create bone with index "i"
+		auto bone = skeleton->createBone(!name.empty() ? name : skeletonName + std::to_string(i), i);
+
+		//Load the inverseBindMatrix of the joint
 	}
 
-
-
-	const auto rootBone = skeleton->getBone(0);
-	loadBoneHierarchy(firstSkin, rootBone, skeletonName);
+	auto rootBoneIndex = nodeToJointMap[firstSkin.skeleton];
+	loadBoneHierarchy(firstSkin, skeleton->getBone(rootBoneIndex), skeletonName);
 	loadSkeletonAnimations(firstSkin, skeletonName);
 
 	return skeleton;
