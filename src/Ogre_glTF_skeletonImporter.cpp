@@ -137,7 +137,7 @@ void Ogre_glTF_skeletonImporter::loadVector3FromSampler(int frameID, int& count,
 	}
 }
 
-void Ogre_glTF_skeletonImporter::loadQuatFromSampler(int frameID, int& count, tinygltf::AnimationSampler& sampler, Ogre::Quaternion& quat)
+void Ogre_glTF_skeletonImporter::loadQuatFromSampler(int frameID, int& count, tinygltf::AnimationSampler& sampler, Ogre::Quaternion& quat) const
 {
 	auto& output			 = model.accessors[sampler.output];
 	count					 = output.count;
@@ -169,7 +169,7 @@ void Ogre_glTF_skeletonImporter::loadQuatFromSampler(int frameID, int& count, ti
 	}
 }
 
-void Ogre_glTF_skeletonImporter::detectAnimationChannel(const channelList& channels, tinygltf::AnimationChannel*& translation, tinygltf::AnimationChannel*& rotation, tinygltf::AnimationChannel*& scale, tinygltf::AnimationChannel*& weights)
+void Ogre_glTF_skeletonImporter::detectAnimationChannel(const channelList& channels, tinygltf::AnimationChannel*& translation, tinygltf::AnimationChannel*& rotation, tinygltf::AnimationChannel*& scale, tinygltf::AnimationChannel*& weights) const
 {
 	const auto translationIt = std::find_if(channels.begin(), channels.end(), [](const tinygltf::AnimationChannel& c) {
 		return c.target_path == "translation";
@@ -250,7 +250,7 @@ void Ogre_glTF_skeletonImporter::loadKeyFrames(const tinygltf::Animation& animat
 	}
 }
 
-void Ogre_glTF_skeletonImporter::loadSkeletonAnimations(const tinygltf::Skin skin, std::string skeletonName)
+void Ogre_glTF_skeletonImporter::loadSkeletonAnimations(const tinygltf::Skin skin, const std::string& skeletonName)
 {
 	//List all the animations that own at least one channel that target one of the bones of our skeleton
 	OgreLog("Searching for animations for skeleton " + skeleton->getName());
@@ -387,7 +387,7 @@ Ogre::v1::SkeletonPtr Ogre_glTF_skeletonImporter::getSkeleton()
 	skeleton = Ogre::v1::OldSkeletonManager::getSingleton().getByName(skeletonName);
 	if(skeleton)
 	{
-		OgreLog("Found in the skeleton manager");
+		//OgreLog("Found in the skeleton manager");
 		return skeleton;
 	}
 
@@ -492,8 +492,7 @@ Ogre::v1::SkeletonPtr Ogre_glTF_skeletonImporter::getSkeleton()
 
 	}
 
-	auto rootBoneIndex = nodeToJointMap[firstSkin.skeleton];
-	loadBoneHierarchy(firstSkin, skeleton->getBone(rootBoneIndex), skeletonName);
+	loadBoneHierarchy(firstSkin, skeleton->getBone(nodeToJointMap[firstSkin.skeleton]), skeletonName);
 	skeleton->setBindingPose();
 	loadSkeletonAnimations(firstSkin, skeletonName);
 

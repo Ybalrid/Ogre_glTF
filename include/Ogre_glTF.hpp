@@ -5,6 +5,8 @@
 
 #include "Ogre_glTF_DLL.hpp"
 
+
+
 //Forward declare main class
 class Ogre_glTF;
 

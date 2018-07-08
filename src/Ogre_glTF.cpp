@@ -51,12 +51,12 @@ struct Ogre_glTF_adapter::impl
 Ogre_glTF_adapter::Ogre_glTF_adapter() :
  pimpl { std::make_unique<Ogre_glTF_adapter::impl>() }
 {
-	OgreLog("Created adapter object...");
+	//OgreLog("Created adapter object...");
 }
 
 Ogre_glTF_adapter::~Ogre_glTF_adapter()
 {
-	OgreLog("Destructed adapter object...");
+	//OgreLog("Destructed adapter object...");
 }
 
 Ogre::Item* Ogre_glTF_adapter::getItem(Ogre::SceneManager* smgr) const
@@ -82,7 +82,7 @@ Ogre::Item* Ogre_glTF_adapter::getItem(Ogre::SceneManager* smgr) const
 Ogre_glTF_adapter::Ogre_glTF_adapter(Ogre_glTF_adapter&& other) noexcept :
  pimpl { std::move(other.pimpl) }
 {
-	OgreLog("Moved adapter object...");
+	//OgreLog("Moved adapter object...");
 }
 
 Ogre_glTF_adapter& Ogre_glTF_adapter::operator=(Ogre_glTF_adapter&& other) noexcept
@@ -136,7 +136,7 @@ struct Ogre_glTF::gltfLoader
 
 			if(std::string("glTF") == std::string(buffer.data()))
 			{
-				OgreLog("Detected binary file thanks to the magic number at the start!");
+				//OgreLog("Detected binary file thanks to the magic number at the start!");
 				return FileType::Binary;
 			}
 		}
@@ -159,10 +159,10 @@ struct Ogre_glTF::gltfLoader
 			case FileType::Unknown:
 				return false;
 			case FileType::Ascii:
-				OgreLog("Detected ascii file type");
+				//OgreLog("Detected ascii file type");
 				return loader.LoadASCIIFromFile(&adapter.pimpl->model, &adapter.pimpl->error, path);
 			case FileType::Binary:
-				OgreLog("Deteted binary file type");
+				//OgreLog("Deteted binary file type");
 				return loader.LoadBinaryFromFile(&adapter.pimpl->model, &adapter.pimpl->error, path);
 		}
 	}
@@ -182,7 +182,7 @@ Ogre_glTF::~Ogre_glTF()
 
 Ogre_glTF_adapter Ogre_glTF::loadFile(const std::string& path) const
 {
-	OgreLog("Attempting to log " + path);
+	OgreLog("loading file " + path);
 	Ogre_glTF_adapter adapter;
 	loaderImpl->loadInto(adapter, path);
 	//if (adapter.getLastError().empty())

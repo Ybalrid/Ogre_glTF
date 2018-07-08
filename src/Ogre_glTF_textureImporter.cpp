@@ -24,7 +24,7 @@ void Ogre_glTF_textureImporter::loadTexture(const tinygltf::Texture& texture)
 	auto OgreTexture = textureManager->getByName(name);
 	if(OgreTexture)
 	{
-		OgreLog("Texture " + name + " already loaded in Ogre::TextureManager");
+		//OgreLog("Texture " + name + " already loaded in Ogre::TextureManager");
 		return;
 	}
 
@@ -113,7 +113,7 @@ Ogre::TexturePtr Ogre_glTF_textureImporter::generateGreyScaleFromChannel(int glt
 	auto texture = textureManager->getByName(name);
 	if(texture)
 	{
-		OgreLog("texture " + name + "Already loaded in Ogre::TextureManager");
+		//OgreLog("texture " + name + "Already loaded in Ogre::TextureManager");
 		return texture;
 	}
 
@@ -189,7 +189,7 @@ Ogre::TexturePtr Ogre_glTF_textureImporter::getNormalSNORM(int gltfTextureSource
 	auto texture = textureManager->getByName(name);
 	if(texture)
 	{
-		OgreLog("texture " + name + "Already loaded in Ogre::TextureManager");
+		//OgreLog("texture " + name + "Already loaded in Ogre::TextureManager");
 		return texture;
 	}
 

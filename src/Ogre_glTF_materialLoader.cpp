@@ -45,7 +45,7 @@ void Ogre_glTF_materialLoader::setBaseColorTexture(Ogre::HlmsPbsDatablock* block
 	auto texture = textureImporter.getTexture(value);
 	if(texture)
 	{
-		OgreLog("diffuse texture from textureImporter : " + texture->getName());
+		//OgreLog("diffuse texture from textureImporter : " + texture->getName());
 		block->setTexture(Ogre::PbsTextureTypes::PBSM_DIFFUSE, 0, texture);
 	}
 }
@@ -61,13 +61,13 @@ void Ogre_glTF_materialLoader::setMetalRoughTexture(Ogre::HlmsPbsDatablock* bloc
 
 	if(metalTexure)
 	{
-		OgreLog("metalness greyscale texture extracted by textureImporter : " + metalTexure->getName());
+		//OgreLog("metalness greyscale texture extracted by textureImporter : " + metalTexure->getName());
 		block->setTexture(Ogre::PBSM_METALLIC, 0, metalTexure);
 	}
 
 	if(roughTexure)
 	{
-		OgreLog("roughness geyscale texture extracted by textureImporter : " + roughTexure->getName());
+		//OgreLog("roughness geyscale texture extracted by textureImporter : " + roughTexure->getName());
 		block->setTexture(Ogre::PBSM_ROUGHNESS, 0, roughTexure);
 	}
 }
@@ -78,7 +78,7 @@ void Ogre_glTF_materialLoader::setNormalTexture(Ogre::HlmsPbsDatablock* block, i
 	auto texture = textureImporter.getNormalSNORM(value);
 	if(texture)
 	{
-		OgreLog("normal texture from textureImporter : " + texture->getName());
+		//OgreLog("normal texture from textureImporter : " + texture->getName());
 		block->setTexture(Ogre::PbsTextureTypes::PBSM_NORMAL, 0, texture);
 	}
 }
@@ -89,8 +89,8 @@ void Ogre_glTF_materialLoader::setOcclusionTexture(Ogre::HlmsPbsDatablock* block
 	auto texture = textureImporter.getTexture(value);
 	if(texture)
 	{
-		OgreLog("occlusion texture from textureImporter : " + texture->getName());
-		OgreLog("Warning: Ogre doesn't supoort occlusion map in it's HLMS PBS implementation!");
+		//OgreLog("occlusion texture from textureImporter : " + texture->getName());
+		//OgreLog("Warning: Ogre doesn't supoort occlusion map in it's HLMS PBS implementation!");
 		//block->setTexture(Ogre::PbsTextureTypes::PBSM_, 0, texture);
 	}
 }
@@ -101,7 +101,7 @@ void Ogre_glTF_materialLoader::setEmissiveTexture(Ogre::HlmsPbsDatablock* block,
 	auto texture = textureImporter.getTexture(value);
 	if(texture)
 	{
-		OgreLog("emissive texture from textureImporter : " + texture->getName());
+		//OgreLog("emissive texture from textureImporter : " + texture->getName());
 		block->setTexture(Ogre::PbsTextureTypes::PBSM_EMISSIVE, 0, texture);
 	}
 }
@@ -124,7 +124,7 @@ Ogre::HlmsDatablock* Ogre_glTF_materialLoader::getDatablock() const
 	auto datablock = static_cast<Ogre::HlmsPbsDatablock*>(HlmsPbs->getDatablock(Ogre::IdString(material.name)));
 	if(datablock)
 	{
-		OgreLog("Found HlmsPbsDatablock " + material.name + " in Ogre::HlmsPbs");
+		//OgreLog("Found HlmsPbsDatablock " + material.name + " in Ogre::HlmsPbs");
 		return datablock;
 	}
 	datablock = static_cast<Ogre::HlmsPbsDatablock*>(HlmsPbs->createDatablock(Ogre::IdString(material.name),

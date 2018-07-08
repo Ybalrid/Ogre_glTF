@@ -200,8 +200,8 @@ Ogre::MeshPtr Ogre_glTF_modelConverter::getOgreMesh()
 
 void Ogre_glTF_modelConverter::debugDump() const
 {
-	std::stringstream ss;
-	ss << "This glTF model has:\n"
+	std::stringstream gltfContentDump;
+	gltfContentDump << "This glTF model has:\n"
 	   << model.accessors.size() << " accessors\n"
 	   << model.animations.size() << " animations\n"
 	   << model.buffers.size() << " buffers\n"
@@ -217,7 +217,7 @@ void Ogre_glTF_modelConverter::debugDump() const
 	   << model.scenes.size() << " scenes\n"
 	   << model.lights.size() << " lights\n";
 
-	OgreLog(ss.str());
+	OgreLog(gltfContentDump);
 }
 
 bool Ogre_glTF_modelConverter::hasSkins() const

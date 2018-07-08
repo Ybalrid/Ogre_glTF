@@ -60,10 +60,10 @@ class Ogre_glTF_skeletonImporter
 	void loadVector3FromSampler(int frameID, int& count, tinygltf::AnimationSampler& sampler, Ogre::Vector3& vector);
 
 	///Load vector of 4 doubles or 4 floats from the animation sampler, and store them into a quaternion
-	void loadQuatFromSampler(int frameID, int& count, tinygltf::AnimationSampler& sampler, Ogre::Quaternion& quat);
+	void loadQuatFromSampler(int frameID, int& count, tinygltf::AnimationSampler& sampler, Ogre::Quaternion& quat) const;
 
 	///Goes throught the list of animation channel, and assign the 4 given pointers to the one that correspond to it
-	void detectAnimationChannel(const channelList& channels, tinygltf::AnimationChannel*& translation, tinygltf::AnimationChannel*& rotation, tinygltf::AnimationChannel*& scale, tinygltf::AnimationChannel*& weights);
+	void detectAnimationChannel(const channelList& channels, tinygltf::AnimationChannel*& translation, tinygltf::AnimationChannel*& rotation, tinygltf::AnimationChannel*& scale, tinygltf::AnimationChannel*& weights) const;
 
 	///Load keyframe data from the samplers of each AnimationChannel into a KeyFrame object
 	void loadKeyFrameDataFromSampler(const tinygltf::Animation& animation, int bone, tinygltf::AnimationChannel* translation, tinygltf::AnimationChannel* rotation, tinygltf::AnimationChannel* scale, tinygltf::AnimationChannel* weights, int frameID, int& count, keyFrame& animationFrame);
@@ -72,7 +72,7 @@ class Ogre_glTF_skeletonImporter
 	void loadKeyFrames(const tinygltf::Animation& animation, int bone, keyFrameList& keyFrames, tinygltf::AnimationChannel* translation, tinygltf::AnimationChannel* rotation, tinygltf::AnimationChannel* scale, tinygltf::AnimationChannel* weights);
 
 	///All all animation for the skeleton
-	void loadSkeletonAnimations(tinygltf::Skin skin, std::string skeletonName);
+	void loadSkeletonAnimations(tinygltf::Skin skin, const std::string& skeletonName);
 
 	public:
 
