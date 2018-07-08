@@ -6,11 +6,8 @@
 
 class Ogre_glTF_skeletonImporter
 {
-
-
 	///Reference to the model
 	tinygltf::Model& model;
-
 
 	using tinygltfJointNodeIndex = int;
 
@@ -19,7 +16,6 @@ class Ogre_glTF_skeletonImporter
 
 	///Pointer to the skeleton object we are currently working on.
 	Ogre::v1::SkeletonPtr skeleton;
-
 
 	///Recurisve fucntion : Create a bone for each children, and each children's children...
 	/// \param skinName name of the skin
@@ -44,13 +40,17 @@ class Ogre_glTF_skeletonImporter
 
 	///Vector of keyframes
 	using keyFrameList = std::vector<keyFrame>;
-	///Tinygltf
+
 	///Type for a list of animation channels
 	using channelList = std::vector<std::reference_wrapper<tinygltf::AnimationChannel>>;
+
+	///Type for holding the mapping beween Bone index and glTF nodes
 	using nodeIndexConversionMap = std::unordered_map<tinygltfJointNodeIndex, tinygltfJointNodeIndex>;
 
+	///Node -> joint conversion map
 	nodeIndexConversionMap nodeToJointMap;
 
+	///Hold the list of the inverse bind matrices. We use them to calculate bind matrices, that we use to actually define the bones's binding poses
 	std::vector<Ogre::Matrix4> inverseBindMatrices;
 
 	///Load from an animation channel sampler the time data, and ore it inside the keyframe
@@ -74,9 +74,8 @@ class Ogre_glTF_skeletonImporter
 	///All all animation for the skeleton
 	void loadSkeletonAnimations(tinygltf::Skin skin, std::string skeletonName);
 
+	public:
 
-
-public:
 	///Construct the skeleton importer
 	/// \param input model where the skeleton data is loaded from
 	Ogre_glTF_skeletonImporter(tinygltf::Model& input);

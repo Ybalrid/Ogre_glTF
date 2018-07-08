@@ -41,14 +41,17 @@ class Ogre_glTF_materialLoader
 	/// \param block datablock to set
 	/// \param value gltf texture index
 	void setBaseColorTexture(Ogre::HlmsPbsDatablock* block, int value) const;
+
 	///Set the metalness and roughness textures (metalRoughTexture)
 	/// \param block datablock to set
 	/// \param value gltf texture index
 	void setMetalRoughTexture(Ogre::HlmsPbsDatablock* block, int value) const;
+
 	///Set the normal texture
 	/// \param block datablock to set
 	/// \param value gltf texture index
 	void setNormalTexture(Ogre::HlmsPbsDatablock* block, int value) const;
+
 	///Set the occlusion texure (AFAIK, Ogre don't use them, so this does nothing)
 	/// \param block datablock to set
 	/// \param value gltf texture index
@@ -60,6 +63,7 @@ class Ogre_glTF_materialLoader
 	void setEmissiveTexture(Ogre::HlmsPbsDatablock* block, int value) const;
 
 public:
+
 	///Construct the material loader
 	/// \param input model to load material from
 	/// \param textureInterface the texture importer to get Ogre texture from
