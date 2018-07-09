@@ -1,6 +1,7 @@
 # Ogre_glTF
 
 [![Build status](https://ci.appveyor.com/api/projects/status/72mtasrq1qv1uipm/branch/master?svg=true)](https://ci.appveyor.com/project/Ybalrid/ogre-gltf/branch/master)
+[![Build Status](https://travis-ci.com/Ybalrid/Ogre_glTF.svg?branch=master)](https://travis-ci.com/Ybalrid/Ogre_glTF)
 
 Library to use glTF 2.0 resources with Ogre 2.1 licencied under the terms of the [MIT licence](https://opensource.org/licenses/MIT "MIT Licence on the OSI website")
 
@@ -8,6 +9,16 @@ Library to use glTF 2.0 resources with Ogre 2.1 licencied under the terms of the
 
 ![DEMO](./demo2.gif)
 
+## Requirements
+
+ - Ogre 2.1 built for source 
+ - C++14 compliant compiler (any modern-ish version of Visual Studio or GCC will do)
+ 
+`CI` builds are currently performed on Windows under Visual Studio 2017 and on Linux under g++7
+
+(please, do not attempt to do the thing the travis script does directly under linux, unless you really think extracting random archives inside of `/` is wise :wink:)
+
+## Project details
 
 Right now this is not intended to serve as a "plugin" for Ogre, but to be a little support library that permit you to use standard glTF files in an Ogre application.
 
@@ -114,7 +125,8 @@ On a typical install from Ogre's source code on linux, theses path are `/usr/loc
  Here's the list of the contributors that hepled out with this projet:
  
   - Stig Atle @stig-atle
-
+  - [Crashy](https://twitter.com/LMCrashy) helped figure out how to correctly bind the skeleton base pauses, and how to get relative transform in the keyframes
+  - [Matías](https://twitter.com/matiasgoldberg) being the main author/maintainer of the Ogre 2.x for awnsering countless silly questions over twitter, gitter and the forums... ^^"
 
 ## Notes on third party components
 
