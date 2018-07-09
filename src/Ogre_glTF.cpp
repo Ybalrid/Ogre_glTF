@@ -23,10 +23,10 @@ struct loaderAdapter::impl
 	///Constructor, initialize once all the objects inclosed in this class. They need a reference
 	///to a model object (and sometimes more) given at construct time
 	impl() :
-	 textureImporter(model),
-	 materialLoader(model, textureImporter),
-	 modelConverter(model),
-	 skeletonImporter(model)
+	 textureImp(model),
+	 materialLoad(model, textureImp),
+	 modelConv(model),
+	 skeletonImp(model)
 	{}
 
 	///Vaiable to check if everything is allright with the adapter
@@ -38,17 +38,17 @@ struct loaderAdapter::impl
 	std::string error = "";
 
 	///Texture importer object : go throught the texture array and load them into Ogre
-	textureImporter textureImporter;
+	textureImporter textureImp;
 
 	///Mateiral loader : get the data from the material section of the glTF file and create an HlmsDatablock to use
-	materialLoader materialLoader;
+	materialLoader materialLoad;
 
 	///Model converter : load all the actual mesh data from the glTF file, and convert them into index and vertex buffer that can
 	///be used to create an Ogre VAO (Vertex Array Object), then create a mesh for it
-	modelConverter modelConverter;
+	modelConverter modelConv;
 
 	///Skeleton importer : load skins from the glTF model, create equivalent OgreSkeleton objects
-	skeletonImporter skeletonImporter;
+	skeletonImporter skeletonImp;
 };
 
 loaderAdapter::loaderAdapter() :
@@ -66,17 +66,17 @@ Ogre::Item* loaderAdapter::getItem(Ogre::SceneManager* smgr) const
 {
 	if(isOk())
 	{
-		pimpl->textureImporter.loadTextures();
-		auto Mesh = pimpl->modelConverter.getOgreMesh();
-		if(pimpl->modelConverter.hasSkins())
+		pimpl->textureImp.loadTextures();
+		auto Mesh = pimpl->modelConv.getOgreMesh();
+		if(pimpl->modelConv.hasSkins())
 		{
 			//load skeleton information
-			auto skeleton = pimpl->skeletonImporter.getSkeleton(adapterName);
+			auto skeleton = pimpl->skeletonImp.getSkeleton(adapterName);
 			Mesh->_notifySkeleton(skeleton);
 		}
 
 		auto Item = smgr->createItem(Mesh);
-		Item->setDatablock(pimpl->materialLoader.getDatablock());
+		Item->setDatablock(pimpl->materialLoad.getDatablock());
 		return Item;
 	}
 	return nullptr;
@@ -192,7 +192,7 @@ loaderAdapter glTFLoader::loadFile(const std::string& path) const
 		adapter.pimpl->valid = true;
 	}
 
-	adapter.pimpl->modelConverter.debugDump();
+	adapter.pimpl->modelConv.debugDump();
 	return std::move(adapter);
 }
 
