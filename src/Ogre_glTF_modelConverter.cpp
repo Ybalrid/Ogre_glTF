@@ -162,7 +162,7 @@ Ogre::MeshPtr modelConverter::getOgreMesh()
 			std::vector<Ogre::Real> vertexBlend(blendWeights.perVertex);
 
 			//Add the attahcments for each bones
-			for(size_t vertexIndex = 0; vertexIndex < blendIndices.vertexCount; ++vertexIndex)
+			for(Ogre::uint32 vertexIndex = 0; vertexIndex < blendIndices.vertexCount; ++vertexIndex)
 			{
 				//Fetch the for bone indexes from the buffer
 				memcpy(vertexBoneIndex.data(),
@@ -380,14 +380,14 @@ vertexBufferPart modelConverter::extractVertexBuffer(const std::pair<std::string
 
 		OgreLog("Updating bounding box size: ");
 
-		minBounds.x = accessor.minValues.at(0);
-		minBounds.y = accessor.minValues.at(1);
-		minBounds.z = accessor.minValues.at(2);
+		minBounds.x = static_cast<float>(accessor.minValues.at(0));
+		minBounds.y = static_cast<float>(accessor.minValues.at(1));
+		minBounds.z = static_cast<float>(accessor.minValues.at(2));
 		OgreLog("Setting Min size: " + std::to_string(minBounds.x) + " " + std::to_string(minBounds.y) + " " + std::to_string(minBounds.z));
 
-		maxBounds.x = accessor.maxValues.at(0);
-		maxBounds.y = accessor.maxValues.at(1);
-		maxBounds.z = accessor.maxValues.at(2);
+		maxBounds.x = static_cast<float>(accessor.maxValues.at(0));
+		maxBounds.y = static_cast<float>(accessor.maxValues.at(1));
+		maxBounds.z = static_cast<float>(accessor.maxValues.at(2));
 		OgreLog("Setting Max size: " + std::to_string(maxBounds.x) + " " + std::to_string(maxBounds.y) + " " + std::to_string(maxBounds.z));
 
 		boundingBox.setExtents(minBounds, maxBounds);

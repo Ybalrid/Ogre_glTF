@@ -201,6 +201,10 @@ glTFLoader::glTFLoader(glTFLoader&& other) noexcept :
 {
 }
 
-glTFLoader::~glTFLoader()
+glTFLoader& glTFLoader::operator=(glTFLoader&& other) noexcept
 {
+	loaderImpl = std::move(other.loaderImpl);
+	return *this;
 }
+
+glTFLoader::~glTFLoader() = default;

@@ -151,10 +151,10 @@ Ogre::HlmsDatablock* materialLoader::getDatablock() const
 			setBaseColor(datablock, convertColor(content.second.ColorFactor()));
 
 		if(content.first == "metallicFactor")
-			setMetallicValue(datablock, content.second.Factor());
+			setMetallicValue(datablock, static_cast<float>(content.second.Factor()));
 
 		if(content.first == "roughnessFactor")
-			setRoughnesValue(datablock, content.second.Factor());
+			setRoughnesValue(datablock, static_cast<float>(content.second.Factor()));
 	}
 
 	//OgreLog("additionalValues");

@@ -80,7 +80,7 @@ skeletonImporter::skeletonImporter(tinygltf::Model& input) :
 void skeletonImporter::loadTimepointFromSamplerToKeyFrame(int bone, int frameID, int& count, keyFrame& animationFrame, tinygltf::AnimationSampler& sampler)
 {
 	auto& input				 = model.accessors[sampler.input];
-	count					 = input.count;
+	count					 = static_cast<int>(input.count);
 	auto& bufferView		 = model.bufferViews[input.bufferView];
 	auto& buffer			 = model.buffers[bufferView.buffer];
 	unsigned char* dataStart = buffer.data.data() + bufferView.byteOffset + input.byteOffset;
@@ -110,7 +110,7 @@ void skeletonImporter::loadTimepointFromSamplerToKeyFrame(int bone, int frameID,
 void skeletonImporter::loadVector3FromSampler(int frameID, int& count, tinygltf::AnimationSampler& sampler, Ogre::Vector3& vector)
 {
 	auto& output			 = model.accessors[sampler.output];
-	count					 = output.count;
+	count					 = static_cast<int>(output.count);
 	auto& bufferView		 = model.bufferViews[output.bufferView];
 	auto& buffer			 = model.buffers[bufferView.buffer];
 	unsigned char* dataStart = buffer.data.data() + bufferView.byteOffset + output.byteOffset;
@@ -137,7 +137,7 @@ void skeletonImporter::loadVector3FromSampler(int frameID, int& count, tinygltf:
 void skeletonImporter::loadQuatFromSampler(int frameID, int& count, tinygltf::AnimationSampler& sampler, Ogre::Quaternion& quat) const
 {
 	auto& output			 = model.accessors[sampler.output];
-	count					 = output.count;
+	count					 = static_cast<int>(output.count);
 	auto& bufferView		 = model.bufferViews[output.bufferView];
 	auto& buffer			 = model.buffers[bufferView.buffer];
 	unsigned char* dataStart = buffer.data.data() + bufferView.byteOffset + output.byteOffset;

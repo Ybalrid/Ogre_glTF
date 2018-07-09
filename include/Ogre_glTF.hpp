@@ -73,6 +73,8 @@ namespace Ogre_glTF
 		/// \param other object to move
 		glTFLoader(glTFLoader&& other) noexcept;
 
+		glTFLoader& operator=(glTFLoader&& other) noexcept;
+
 		///Deinitialize the library at this object destruction
 		~glTFLoader();
 

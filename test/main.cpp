@@ -3,8 +3,6 @@
 #include <Compositor/OgreCompositorManager2.h>
 //To use the hlms
 #include <Hlms/Pbs/OgreHlmsPbs.h>
-#include <Hlms/Unlit/OgreHlmsUnlit.h>
-#include <Hlms/Pbs/OgreHlmsPbsDatablock.h>
 #include <OgreHlms.h>
 //To load Hlms
 #include <OgreArchive.h>
@@ -14,9 +12,6 @@
 #include <Animation/OgreSkeletonAnimation.h>
 //To use smart pointers
 #include <memory>
-
-#include <OgreMesh2.h>
-#include <OgreSubMesh2.h>
 
 //The library we are trying out in this program
 #include <Ogre_glTF.hpp>
@@ -124,7 +119,6 @@ int main()
 
 	declareHlmsLibrary("./");
 
-	//Ogre::ResourceGroupManager::getSingleton().addResourceLocation("./media", "FileSystem");
 	Ogre::ResourceGroupManager::getSingleton().initialiseAllResourceGroups(true);
 
 	Ogre::Item* ObjectItem		= nullptr;
@@ -152,44 +146,25 @@ int main()
 	ObjectNode = smgr->getRootSceneNode()->createChildSceneNode();
 	ObjectNode->attachObject(ObjectItem);
 	ObjectNode->setOrientation(Ogre::Quaternion(Ogre::Degree(-90), Ogre::Vector3::UNIT_X));
-	//ObjectNode->setPosition(0, -4, +8);
-	//ObjectNode->setScale(2, 2, 2);
-	//auto OtherNode = smgr->getRootSceneNode()->createChildSceneNode();
-	//OtherNode->attachObject(OtherItem);
-	//OtherNode->setPosition(-2, 0, 0);
-	camera->setNearClipDistance(0.001);
+	camera->setNearClipDistance(0.001f);
 	camera->setFarClipDistance(100);
-	//camera->setPosition(Ogre::Vector3::UNIT_SCALE * 0.0625);
-	//camera->lookAt({ 0, 0.03125, 0 });
-	camera->setPosition(2.5,0,2.5);
+	camera->setPosition(2.5f,0,2.5f);
 	camera->lookAt({ 0, 1, 0 });
 	camera->setAutoAspectRatio(true);
 
 	auto light = smgr->createLight();
 	smgr->getRootSceneNode()->createChildSceneNode()->attachObject(light);
 	light->setType(Ogre::Light::LT_DIRECTIONAL);
-	light->setDirection(Ogre::Vector3{ -1, -1, -0.5 });
+	light->setDirection(Ogre::Vector3{ -1, -1, -0.5f });
 	light->setPowerScale(5);
 
 	/*auto*/ light = smgr->createLight();
 	smgr->getRootSceneNode()->createChildSceneNode()->attachObject(light);
 	light->setType(Ogre::Light::LT_DIRECTIONAL);
-	light->setDirection(Ogre::Vector3{ +1, +1, +0.5 });
+	light->setDirection(Ogre::Vector3{ +1, +1, +0.5f });
 	light->setPowerScale(5);
 
 	auto skeleton = ObjectItem->getSkeletonInstance();
-
-	//Ogre::Bone* bone = nullptr;
-	//if(skeleton)
-	//{
-	//	Ogre::LogManager::getSingleton().logMessage("skeleton instance? :O");
-	//	if(skeleton->getBone(0))
-	//		bone = skeleton->getBone(0)->getChild(0);
-	//}
-	//if(bone)
-	//	skeleton->setManualBone(bone, true);
-
-	//Ogre::LogManager::getSingleton().logMessage("Bone pointer value : " + std::to_string(std::size_t(bone)));
 
 	Ogre::SkeletonAnimation* anim = nullptr;
 	Ogre::Bone* bone			  = nullptr;
@@ -200,7 +175,7 @@ int main()
 		auto& animationList = skeleton->getAnimations();
 		if(!animationList.empty())
 		{
-			auto name = animationList[0].getName();
+			const auto name = animationList[0].getName();
 			anim	  = skeleton->getAnimation(name);
 		}
 
@@ -209,32 +184,12 @@ int main()
 			anim->setEnabled(true);
 			anim->setLoop(true);
 		}
-
-	//	//camera->lookAt(skeleton->getBone(0)->getPosition());
 	}
 
 	auto last = root->getTimer()->getMilliseconds();
 	auto now  = last;
 	while(!window->isClosed())
 	{
-		//if(skeleton)
-		//	for(auto i = 0; i < skeleton->getNumBones(); ++i)
-		//	{
-		//		auto a_bone = skeleton->getBone(i);
-		//		std::stringstream ss;
-		//		ss << "bone " << i << " position " << a_bone->getPosition() << " orientaiton " << a_bone->getOrientation();
-		//		Ogre::LogManager::getSingleton().logMessage(ss.str());
-		//	}
-
-		//if(bone)
-		//{
-			//bone->setOrientation(Ogre::Quaternion(Ogre::Degree(45.0f * float(sin((float)root->getTimer()->getMilliseconds() / 1000.0f))), Ogre::Vector3::UNIT_X));
-			//bone->setPosition({ 0, 2.0f * sin((float)root->getTimer()->getMilliseconds() / 1000.f), 0 });
-		//}
-
-		//ObjectNode->setOrientation(Ogre::Quaternion(Ogre::Degree(float(root->getTimer()->getMilliseconds()) / 10.0f), Ogre::Vector3::NEGATIVE_UNIT_Y));
-		//OtherNode->setOrientation(Ogre::Quaternion(Ogre::Degree(float(root->getTimer()->getMilliseconds()) / 10.0f), Ogre::Vector3::UNIT_Y));
-
 		now = root->getTimer()->getMilliseconds();
 		if(anim)
 			anim->addTime(float(now - last) / 1000.0f);
