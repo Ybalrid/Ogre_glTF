@@ -15,11 +15,9 @@ before_script:
   - rm ogre21.tar.xz
   - sudo cp -r * /
   - sudo ldconfig -v
-  - cd $gobakc
+  - cd $goback
   
 script:
-  - git submodule init --recursive
-  - mkdir build
   - cd build
   - cmake ..
   - make
