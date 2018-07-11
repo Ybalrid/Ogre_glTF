@@ -13,7 +13,6 @@ int skeletonImporter::skeletonID = 0;
 
 void skeletonImporter::addChidren(const std::string& skinName, const std::vector<int>& childs, Ogre::v1::OldBone* parent, const std::vector<int>& joints)
 {
-	//OgreLog("Bone " + std::to_string(parent->getHandle()) + " has " + std::to_string(childs.size()) + " children");
 
 	for(auto child : childs)
 	{
@@ -21,22 +20,19 @@ void skeletonImporter::addChidren(const std::string& skinName, const std::vector
 		//OgreLog("Node name is " + node.name + "!");
 
 		auto bone = skeleton->getBone(nodeToJointMap[child]);
-		if(!bone)
-		{
-			throw std::runtime_error("could not get bone " + std::to_string(bone->getHandle()));
-		}
+		if(!bone) { throw std::runtime_error("could not get bone " + std::to_string(bone->getHandle())); }
 
 		parent->addChild(bone);
 
-		auto bindMatrix = inverseBindMatrices[nodeToJointMap[child]].inverseAffine();
+		auto bindMatrix = bindMatrices[nodeToJointMap[child]];
 
 		Ogre::Vector3 translation, scale;
-		Ogre::Quaternion rotaiton;
+		Ogre::Quaternion rotation;
 
-		bindMatrix.decomposition(translation, scale, rotaiton);
+		bindMatrix.decomposition(translation, scale, rotation);
 
 		bone->setPosition(parent->convertWorldToLocalPosition(translation));
-		bone->setOrientation(parent->convertWorldToLocalOrientation(rotaiton));
+		bone->setOrientation(parent->convertWorldToLocalOrientation(rotation));
 		bone->setScale(parent->_getDerivedScale() / scale);
 
 		addChidren(skinName + std::to_string(child), model.nodes[child].children, bone, joints);
@@ -48,16 +44,15 @@ void skeletonImporter::loadBoneHierarchy(const tinygltf::Skin& skin, Ogre::v1::O
 	const auto& node	 = model.nodes[skin.joints[0]];
 	const auto& skeleton = model.nodes[skin.skeleton];
 
-	std::array<float, 3> translation{ 0 }, scale{ 0 };
-	std::array<float, 4> rotation{ 0 };
+	std::array<float, 3> translation { 0 }, scale { 0 };
+	std::array<float, 4> rotation { 0 };
 	internal_utils::container_double_to_float(skeleton.translation, translation);
-	if(skeleton.scale.size() == 3)
-		internal_utils::container_double_to_float(skeleton.scale, scale);
+	if(skeleton.scale.size() == 3) internal_utils::container_double_to_float(skeleton.scale, scale);
 	internal_utils::container_double_to_float(skeleton.rotation, rotation);
 
-	Ogre::Vector3 trans  = Ogre::Vector3{ translation.data() };
-	Ogre::Quaternion rot = Ogre::Quaternion{ rotation[3], rotation[0], rotation[1], rotation[2] };
-	Ogre::Vector3 sc	 = Ogre::Vector3{ scale.data() };
+	Ogre::Vector3 trans  = Ogre::Vector3 { translation.data() };
+	Ogre::Quaternion rot = Ogre::Quaternion { rotation[3], rotation[0], rotation[1], rotation[2] };
+	Ogre::Vector3 sc	 = Ogre::Vector3 { scale.data() };
 
 	if(sc.isZeroLength()) sc = Ogre::Vector3::UNIT_SCALE;
 
@@ -72,10 +67,7 @@ void skeletonImporter::loadBoneHierarchy(const tinygltf::Skin& skin, Ogre::v1::O
 	addChidren(name, node.children, rootBone, skin.joints);
 }
 
-skeletonImporter::skeletonImporter(tinygltf::Model& input) :
- model{ input }
-{
-}
+skeletonImporter::skeletonImporter(tinygltf::Model& input) : model { input } {}
 
 void skeletonImporter::loadTimepointFromSamplerToKeyFrame(int bone, int frameID, int& count, keyFrame& animationFrame, tinygltf::AnimationSampler& sampler)
 {
@@ -88,10 +80,7 @@ void skeletonImporter::loadTimepointFromSamplerToKeyFrame(int bone, int frameID,
 
 	assert(input.type == TINYGLTF_TYPE_SCALAR); //Need to be a scalar, since it's a timepoint
 	float data;
-	if(input.componentType == TINYGLTF_COMPONENT_TYPE_FLOAT)
-	{
-		data = *reinterpret_cast<float*>(dataStart + frameID * byteStride);
-	}
+	if(input.componentType == TINYGLTF_COMPONENT_TYPE_FLOAT) { data = *reinterpret_cast<float*>(dataStart + frameID * byteStride); }
 	else if(input.componentType == TINYGLTF_COMPONENT_TYPE_DOUBLE)
 	{
 		data = static_cast<float>(*reinterpret_cast<double*>(dataStart + frameID * byteStride));
@@ -101,8 +90,9 @@ void skeletonImporter::loadTimepointFromSamplerToKeyFrame(int bone, int frameID,
 		animationFrame.timePoint = data;
 	else if(animationFrame.timePoint != data)
 	{
-		throw std::runtime_error("Missmatch of timecode while loading an animation keyframe for bone joint " + std::to_string(bone) + "\n"
-																																	  "read from file : "
+		throw std::runtime_error("Missmatch of timecode while loading an animation keyframe for bone joint " + std::to_string(bone)
+								 + "\n"
+								   "read from file : "
 								 + std::to_string(data) + " while animationFrame recorded " + std::to_string(animationFrame.timePoint));
 	}
 }
@@ -118,14 +108,11 @@ void skeletonImporter::loadVector3FromSampler(int frameID, int& count, tinygltf:
 
 	assert(output.type == TINYGLTF_TYPE_VEC3); //Need to be a 3D vectorsince it's a translation vector
 
-	if(output.componentType == TINYGLTF_COMPONENT_TYPE_FLOAT)
-	{
-		vector = Ogre::Vector3(reinterpret_cast<float*>(dataStart + frameID * byteStride));
-	}
+	if(output.componentType == TINYGLTF_COMPONENT_TYPE_FLOAT) { vector = Ogre::Vector3(reinterpret_cast<float*>(dataStart + frameID * byteStride)); }
 	else if(output.componentType == TINYGLTF_COMPONENT_TYPE_DOUBLE) //need double to float conversion
 	{
-		std::array<float, 3> vectFloat{};
-		std::array<double, 3> vectDouble{};
+		std::array<float, 3> vectFloat {};
+		std::array<double, 3> vectDouble {};
 
 		memcpy(vectDouble.data(), reinterpret_cast<double*>(dataStart + frameID * byteStride), 3 * sizeof(double));
 		internal_utils::container_double_to_float(vectDouble, vectFloat);
@@ -148,16 +135,12 @@ void skeletonImporter::loadQuatFromSampler(int frameID, int& count, tinygltf::An
 	if(output.componentType == TINYGLTF_COMPONENT_TYPE_FLOAT)
 	{
 		float* quat_data = reinterpret_cast<float*>(dataStart + frameID * byteStride);
-		quat			 = Ogre::Quaternion(
-			quat_data[3],
-			quat_data[0],
-			quat_data[1],
-			quat_data[2]);
+		quat			 = Ogre::Quaternion(quat_data[3], quat_data[0], quat_data[1], quat_data[2]);
 	}
 	else if(output.componentType == TINYGLTF_COMPONENT_TYPE_DOUBLE) //need double to float conversion
 	{
-		std::array<float, 4> vectFloat{};
-		std::array<double, 4> vectDouble{};
+		std::array<float, 4> vectFloat {};
+		std::array<double, 4> vectDouble {};
 
 		memcpy(vectDouble.data(), reinterpret_cast<double*>(dataStart + frameID * byteStride), 3 * sizeof(double));
 		internal_utils::container_double_to_float(vectDouble, vectFloat);
@@ -166,42 +149,35 @@ void skeletonImporter::loadQuatFromSampler(int frameID, int& count, tinygltf::An
 	}
 }
 
-void skeletonImporter::detectAnimationChannel(const channelList& channels, tinygltf::AnimationChannel*& translation, tinygltf::AnimationChannel*& rotation, tinygltf::AnimationChannel*& scale, tinygltf::AnimationChannel*& weights) const
+void skeletonImporter::detectAnimationChannel(const channelList& channels,
+											  tinygltf::AnimationChannel*& translation,
+											  tinygltf::AnimationChannel*& rotation,
+											  tinygltf::AnimationChannel*& scale,
+											  tinygltf::AnimationChannel*& weights) const
 {
-	const auto translationIt = std::find_if(channels.begin(), channels.end(), [](const tinygltf::AnimationChannel& c) {
-		return c.target_path == "translation";
-	});
-	if(translationIt != channels.end())
-		translation = &(*translationIt).get();
+	const auto translationIt
+		= std::find_if(channels.begin(), channels.end(), [](const tinygltf::AnimationChannel& c) { return c.target_path == "translation"; });
+	if(translationIt != channels.end()) translation = &(*translationIt).get();
 
-	const auto rotationIt = std::find_if(channels.begin(), channels.end(), [](const tinygltf::AnimationChannel& c) {
-		return c.target_path == "rotation";
-	});
-	if(rotationIt != channels.end())
-		rotation = &(*rotationIt).get();
+	const auto rotationIt = std::find_if(channels.begin(), channels.end(), [](const tinygltf::AnimationChannel& c) { return c.target_path == "rotation"; });
+	if(rotationIt != channels.end()) rotation = &(*rotationIt).get();
 
-	const auto scaleIt = std::find_if(channels.begin(), channels.end(), [](const tinygltf::AnimationChannel& c) {
-		return c.target_path == "scale";
-	});
-	if(scaleIt != channels.end())
-		scale = &(*scaleIt).get();
+	const auto scaleIt = std::find_if(channels.begin(), channels.end(), [](const tinygltf::AnimationChannel& c) { return c.target_path == "scale"; });
+	if(scaleIt != channels.end()) scale = &(*scaleIt).get();
 
-	const auto weightsIt = std::find_if(channels.begin(), channels.end(), [](const tinygltf::AnimationChannel& c) {
-		return c.target_path == "weights";
-	});
-	if(weightsIt != channels.end())
-		weights = &(*weightsIt).get();
+	const auto weightsIt = std::find_if(channels.begin(), channels.end(), [](const tinygltf::AnimationChannel& c) { return c.target_path == "weights"; });
+	if(weightsIt != channels.end()) weights = &(*weightsIt).get();
 }
 
 void skeletonImporter::loadKeyFrameDataFromSampler(const tinygltf::Animation& animation,
-															 int bone,
-															 tinygltf::AnimationChannel* translation,
-															 tinygltf::AnimationChannel* rotation,
-															 tinygltf::AnimationChannel* scale,
-															 tinygltf::AnimationChannel* weights,
-															 int frameID,
-															 int& count,
-															 keyFrame& animationFrame)
+												   int bone,
+												   tinygltf::AnimationChannel* translation,
+												   tinygltf::AnimationChannel* rotation,
+												   tinygltf::AnimationChannel* scale,
+												   tinygltf::AnimationChannel* weights,
+												   int frameID,
+												   int& count,
+												   keyFrame& animationFrame)
 {
 	if(translation)
 	{
@@ -229,7 +205,13 @@ void skeletonImporter::loadKeyFrameDataFromSampler(const tinygltf::Animation& an
 	}
 }
 
-void skeletonImporter::loadKeyFrames(const tinygltf::Animation& animation, int bone, keyFrameList& keyFrames, tinygltf::AnimationChannel* translation, tinygltf::AnimationChannel* rotation, tinygltf::AnimationChannel* scale, tinygltf::AnimationChannel* weights)
+void skeletonImporter::loadKeyFrames(const tinygltf::Animation& animation,
+									 int bone,
+									 keyFrameList& keyFrames,
+									 tinygltf::AnimationChannel* translation,
+									 tinygltf::AnimationChannel* rotation,
+									 tinygltf::AnimationChannel* scale,
+									 tinygltf::AnimationChannel* weights)
 {
 	bool endOfTimeLine = false;
 	int frameID		   = 0;
@@ -242,8 +224,7 @@ void skeletonImporter::loadKeyFrames(const tinygltf::Animation& animation, int b
 
 		keyFrames.push_back(animationFrame);
 		++frameID;
-		if(frameID >= count)
-			endOfTimeLine = true;
+		if(frameID >= count) endOfTimeLine = true;
 	}
 }
 
@@ -282,8 +263,7 @@ void skeletonImporter::loadSkeletonAnimations(const tinygltf::Skin skin, const s
 			//Get animation
 			auto animation			  = animation_rw.get();
 			std::string animationName = animation.name;
-			if(animation.name.empty())
-				animationName = skeletonName + "Animation" + std::to_string(i++);
+			if(animation.name.empty()) animationName = skeletonName + "Animation" + std::to_string(i++);
 
 			OgreLog("parsing channels for animation " + animationName);
 
@@ -292,8 +272,7 @@ void skeletonImporter::loadSkeletonAnimations(const tinygltf::Skin skin, const s
 			{
 				const auto joint					   = nodeToJointMap[channel.target_node];
 				const auto& boneRawAnnimationChannelIt = boneRawAnimationChannels.find(joint);
-				if(boneRawAnnimationChannelIt == boneRawAnimationChannels.end())
-					boneRawAnimationChannels[joint];
+				if(boneRawAnnimationChannelIt == boneRawAnimationChannels.end()) boneRawAnimationChannels[joint];
 
 				boneRawAnimationChannels[joint].push_back(channel);
 			}
@@ -355,10 +334,7 @@ void skeletonImporter::loadSkeletonAnimations(const tinygltf::Skin skin, const s
 void recurse(const tinygltf::Model& m, int node, std::vector<int>& output)
 {
 	output.push_back(node);
-	for(auto child : m.nodes[node].children)
-	{
-		recurse(m, child, output);
-	}
+	for(auto child : m.nodes[node].children) { recurse(m, child, output); }
 }
 
 std::vector<int> traversal(const tinygltf::Model& m, int node)
@@ -388,9 +364,7 @@ Ogre::v1::SkeletonPtr skeletonImporter::getSkeleton(const std::string& name)
 	}
 
 	//Create new skeleton
-	skeleton = Ogre::v1::OldSkeletonManager::getSingleton().create(skeletonName,
-																   Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
-																   true);
+	skeleton = Ogre::v1::OldSkeletonManager::getSingleton().create(skeletonName, Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, true);
 
 	if(!skeleton) throw std::runtime_error("Coudn't create skeletion for skin" + skeletonName);
 
@@ -407,58 +381,42 @@ Ogre::v1::SkeletonPtr skeletonImporter::getSkeleton(const std::string& name)
 		assert(inverseBindMatricesAccessor.count == firstSkin.joints.size());
 		assert(inverseBindMatricesAccessor.type == TINYGLTF_TYPE_MAT4);
 
+		std::array<float, 4 * 4> floatMatrix {};
+
 		for(int i = 0; i < inverseBindMatricesAccessor.count; ++i)
 		{
 			if(inverseBindMatricesAccessor.componentType == TINYGLTF_COMPONENT_TYPE_FLOAT)
 			{
-				const float* floatMatrix = reinterpret_cast<const float*>(dataStart + i * byteStride);
-				inverseBindMatrices.push_back(Ogre::Matrix4(
-												  floatMatrix[0],
-												  floatMatrix[1],
-												  floatMatrix[2],
-												  floatMatrix[3],
-												  floatMatrix[4],
-												  floatMatrix[5],
-												  floatMatrix[6],
-												  floatMatrix[7],
-												  floatMatrix[8],
-												  floatMatrix[9],
-												  floatMatrix[10],
-												  floatMatrix[11],
-												  floatMatrix[12],
-												  floatMatrix[13],
-												  floatMatrix[14],
-												  floatMatrix[15])
-												  .transpose());
+				//Copy inside a float array the 16 floats
+				memcpy(floatMatrix.data(), reinterpret_cast<const float*>(dataStart + i * byteStride), 4 * 4 * sizeof(float));
 			}
 			else if(inverseBindMatricesAccessor.componentType == TINYGLTF_COMPONENT_TYPE_DOUBLE)
 			{
-				//Double to float conversion
-				std::array<double, 4 * 4> doubleMatrix{};
-				std::array<float, 4 * 4> floatMatrix{};
+				//Needs to do Double -> Float conversion
+				std::array<double, 4 * 4> doubleMatrix {};
 				memcpy(doubleMatrix.data(), reinterpret_cast<const double*>(dataStart + i * byteStride), 4 * 4 * sizeof(double));
 				internal_utils::container_double_to_float(doubleMatrix, floatMatrix);
-				inverseBindMatrices.push_back(Ogre::Matrix4(
-												  floatMatrix[0],
-												  floatMatrix[1],
-												  floatMatrix[2],
-												  floatMatrix[3],
-												  floatMatrix[4],
-												  floatMatrix[5],
-												  floatMatrix[6],
-												  floatMatrix[7],
-												  floatMatrix[8],
-												  floatMatrix[9],
-												  floatMatrix[10],
-												  floatMatrix[11],
-												  floatMatrix[12],
-												  floatMatrix[13],
-												  floatMatrix[14],
-												  floatMatrix[15])
-												  .transpose());
 			}
 
-			assert(inverseBindMatrices.back().isAffine());
+			Ogre::Matrix4 inverseBindMatrixTransposed = Ogre::Matrix4(floatMatrix[0],
+													 floatMatrix[1],
+													 floatMatrix[2],
+													 floatMatrix[3],
+													 floatMatrix[4],
+													 floatMatrix[5],
+													 floatMatrix[6],
+													 floatMatrix[7],
+													 floatMatrix[8],
+													 floatMatrix[9],
+													 floatMatrix[10],
+													 floatMatrix[11],
+													 floatMatrix[12],
+													 floatMatrix[13],
+													 floatMatrix[14],
+													 floatMatrix[15]);
+
+			assert(inverseBindMatrixTransposed.transpose().isAffine());
+			bindMatrices.push_back(inverseBindMatrixTransposed.transpose().inverseAffine());
 		}
 	}
 

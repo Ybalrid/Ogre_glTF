@@ -53,7 +53,7 @@ namespace Ogre_glTF
 		///Node -> joint conversion map
 		nodeIndexConversionMap nodeToJointMap;
 
-		///Hold the list of the inverse bind matrices. We use them to calculate bind matrices, that we use to actually define the bones's binding poses
+		///Hold the list of the bind matrices. These are the inverse of the inverse bind matrices of the skin. Represent transforms that put each bone's into it's binding pose
 		std::vector<Ogre::Matrix4> bindMatrices;
 
 		///Load from an animation channel sampler the time data, and ore it inside the keyframe
