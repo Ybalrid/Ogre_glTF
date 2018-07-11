@@ -30,7 +30,7 @@ BraceWrapping:
   SplitEmptyRecord: false
   SplitEmptyNamespace: false
 BreakConstructorInitializers: AfterColon
-ColumnLimit: 0
+ColumnLimit: 160
 ConstructorInitializerAllOnOneLineOrOnePerLine: false
 ConstructorInitializerIndentWidth: 1
 IndentCaseLabels: true
