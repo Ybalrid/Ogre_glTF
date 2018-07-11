@@ -56,28 +56,21 @@ Ogre::Item* ObjectItem = adapter.getItem(smgr);
 //Now you can add this item to an node, and do everything you may want with it
 //to cleanup the library, you just let go of the "gltf" smart pointer
 ```
- 
- 
 
-## Current state
+## Features
 
-**At the moment, the code assume that you are using one gltf file to represent one "mesh". This is not a scene loader and doesn't support multiple objects per file**
-
-This is a projet under developement. Here's a short todolist beofre this thing will be in an "usable" state:
+This project is currently in developement, here's a list of features that we are working on, ticked items means that the feature is implemented.
 
  - [x] Load mesh infrmation (index and vertex buffer, including vertex coordinates, normal vectors, texture coordinates) and create an Ogre::Mesh out of it via Ogre::MeshManager and Ogre::VaoManager
  - [x] Load Image information from glTF into Ogre::TextureManager
  - [x] Load PBR material definition form glTF and create coresponding Ogre::HlmsPbsDatablock for them. (Ogre call PBR "PBS", more or less)
-
- At this point, the library will be able to load static geometry into Ogre.
-
- If this works, we can start tackeling animation data:
  - [x] Load "skin" information from glTF and create corresponding Ogre::Skeleton for the mesh
  - [x] Loop through all the vertex <-> bone assignement to get a valid skeleton configuration
  - [x] Load animation information and create animations from them
  - [ ] ~~Load mesh "target" information and create Ogre "morph" target from them~~ (Ogre 2.1 doesn't support them yet)
-
-
+ - [ ] Load `.glb` files from Ogre's resource manager
+ - [ ] Load `.gltf` from Ogre's resource manager
+ - [ ] Being able to "load" and "install" this as an actual Ogre plugin
 ## Known issues
 
  - There's a problem with loading normal map data with the Direct 3D 11 render system of Ogre [issue #2](https://github.com/Ybalrid/Ogre_glTF/issues/2)
