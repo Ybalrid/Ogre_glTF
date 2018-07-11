@@ -16,9 +16,6 @@ namespace Ogre_glTF
 	{
 		friend class glTFLoader;
 
-		///Private constructor. glTFLoader act as a factory for theses object.
-		///This will aslo initialize the "pimpl" structure
-		loaderAdapter();
 
 		///opaque content of the class
 		struct impl;
@@ -29,6 +26,10 @@ namespace Ogre_glTF
 		std::string adapterName;
 
 	public:
+
+		///This will aslo initialize the "pimpl" structure
+		loaderAdapter();
+
 		///This clear the pimpl structure
 		~loaderAdapter();
 
