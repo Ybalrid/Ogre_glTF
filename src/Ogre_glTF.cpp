@@ -34,6 +34,7 @@ struct loaderAdapter::impl
 
 	///The model object that data will be loaded into and read from
 	tinygltf::Model model;
+
 	///Where tinygltf will write it's error status
 	std::string error = "";
 

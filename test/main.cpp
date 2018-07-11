@@ -8,6 +8,9 @@
 #include <OgreArchive.h>
 //To use objects
 #include <OgreItem.h>
+#include <OgreMesh2.h>
+#include <OgreSubMesh2.h>
+#include <Hlms/Pbs/OgreHlmsPbsDatablock.h>
 //To play animations
 #include <Animation/OgreSkeletonAnimation.h>
 //To use smart pointers
@@ -105,7 +108,7 @@ int main()
 	//Create a window and a scene
 	Ogre::NameValuePairList params;
 	params["FSAA"] = "16";
-	auto window	= root->createRenderWindow("glTF test!", 800, 600, false, &params);
+	const auto window	= root->createRenderWindow("glTF test!", 800, 600, false, &params);
 	auto smgr	  = root->createSceneManager(Ogre::ST_GENERIC, 2, Ogre::INSTANCING_CULLING_THREADED);
 	smgr->showBoundingBoxes(true);
 	smgr->setDisplaySceneNodes(true);
@@ -127,10 +130,15 @@ int main()
 	//Ogre::Item* OtherItem;
 	//Initialize the library
 	auto gltf = std::make_unique<Ogre_glTF::glTFLoader>();
+
+	Ogre_glTF::loaderAdapter gizmoLoader;
 	try
 	{
 		//auto adapter = gltf->loadFile("from_gltf_export_skinned_cylinder.glb");
 		auto adapter = gltf->loadFile("CesiumMan.glb");
+
+		gizmoLoader = gltf->loadFile("gizmo.glb");
+
 		//auto adapter = gltf->loadFile("./damagedHelmet/damagedHelmet.gltf");
 		//auto adapter = gltf->loadFile("./Corset.glb");
 		ObjectItem
@@ -145,10 +153,31 @@ int main()
 
 	ObjectNode = smgr->getRootSceneNode()->createChildSceneNode();
 	ObjectNode->attachObject(ObjectItem);
-	ObjectNode->setOrientation(Ogre::Quaternion(Ogre::Degree(-90), Ogre::Vector3::UNIT_X));
+
+	auto gizmoNode = ObjectNode->createChildSceneNode();
+	gizmoNode->attachObject(gizmoLoader.getItem(smgr));
+
+	gizmoNode->getAttachedObject(0);
+	//auto gizmoItem = dynamic_cast<Ogre::Item*>(gizmoNode->getAttachedObject(0));
+
+	//if(gizmoItem)
+	//{
+	//	auto name  = gizmoItem->getMesh()->getSubMesh(0)->getMaterialName();
+	//	auto block = root->getHlmsManager()->getDatablock(name);
+	//	if(block)
+	//	{
+	//		Ogre::HlmsMacroblock mb;
+	//		mb.mDepthFunc = Ogre::CMPF_ALWAYS_PASS;
+	//		block->setMacroblock(mb);
+	//	}
+	//}
+
+
+	gizmoNode->setScale(1, 1, 1);
+	//ObjectNode->setOrientation(Ogre::Quaternion(Ogre::Degree(-90), Ogre::Vector3::UNIT_X));
 	camera->setNearClipDistance(0.001f);
 	camera->setFarClipDistance(100);
-	camera->setPosition(2.5f,0,2.5f);
+	camera->setPosition(2.5f, 0, 2.5f);
 	camera->lookAt({ 0, 1, 0 });
 	camera->setAutoAspectRatio(true);
 
@@ -158,7 +187,7 @@ int main()
 	light->setDirection(Ogre::Vector3{ -1, -1, -0.5f });
 	light->setPowerScale(5);
 
-	/*auto*/ light = smgr->createLight();
+	light = smgr->createLight();
 	smgr->getRootSceneNode()->createChildSceneNode()->attachObject(light);
 	light->setType(Ogre::Light::LT_DIRECTIONAL);
 	light->setDirection(Ogre::Vector3{ +1, +1, +0.5f });
@@ -176,7 +205,7 @@ int main()
 		if(!animationList.empty())
 		{
 			const auto name = animationList[0].getName();
-			anim	  = skeleton->getAnimation(name);
+			anim			= skeleton->getAnimation(name);
 		}
 
 		if(anim)
