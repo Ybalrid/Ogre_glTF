@@ -5,7 +5,11 @@
 
 Library to use glTF 2.0 resources with Ogre 2.1 licencied under the terms of the [MIT licence](https://opensource.org/licenses/MIT "MIT Licence on the OSI website")
 
+*Loading an object with a PBR material as HLMS/PBS datablock*
+
 ![DEMO](./demo.gif)
+
+*Loading of an object with skeletal animation*
 
 ![DEMO](./demo2.gif)
 
