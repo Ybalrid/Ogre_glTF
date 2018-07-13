@@ -15,7 +15,6 @@ void Ogre_glTF::GlbFile::readFromStream(Ogre::DataStreamPtr& stream)
 	}
 }
 
-Ogre_glTF::GlbFile* Ogre_glTF::GlbFile::cast(void* gltfFileRawPtr) { return static_cast<GlbFile*>(gltfFileRawPtr); }
 
 void Ogre_glTF::GlbFile::loadImpl()
 {
