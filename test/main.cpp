@@ -109,6 +109,7 @@ int main()
 	Ogre::NameValuePairList params;
 	params["FSAA"] = "16";
 	const auto window	= root->createRenderWindow("glTF test!", 800, 600, false, &params);
+
 	auto smgr	  = root->createSceneManager(Ogre::ST_GENERIC, 2, Ogre::INSTANCING_CULLING_THREADED);
 	smgr->showBoundingBoxes(true);
 	smgr->setDisplaySceneNodes(true);
@@ -122,6 +123,7 @@ int main()
 
 	declareHlmsLibrary("./");
 
+	Ogre::ResourceGroupManager::getSingleton().addResourceLocation("gltfFiles.zip", "Zip");
 	Ogre::ResourceGroupManager::getSingleton().initialiseAllResourceGroups(true);
 
 	Ogre::Item* ObjectItem		= nullptr;
@@ -135,7 +137,7 @@ int main()
 	try
 	{
 		//auto adapter = gltf->loadFile("from_gltf_export_skinned_cylinder.glb");
-		auto adapter = gltf->loadFile("CesiumMan.glb");
+		auto adapter = gltf->loadGlbResource("CesiumMan.glb");
 
 		gizmoLoader = gltf->loadFile("gizmo.glb");
 

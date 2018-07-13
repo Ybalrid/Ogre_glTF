@@ -16,7 +16,6 @@ namespace Ogre_glTF
 	{
 		friend class glTFLoader;
 
-
 		///opaque content of the class
 		struct impl;
 
@@ -26,7 +25,6 @@ namespace Ogre_glTF
 		std::string adapterName;
 
 	public:
-
 		///This will aslo initialize the "pimpl" structure
 		loaderAdapter();
 
@@ -82,6 +80,8 @@ namespace Ogre_glTF
 		///Load a glTF text or binary file. Give you an adapter to use this file with Ogre
 		/// \param path String containing the path to a file to load (either .glTF or .glc)
 		loaderAdapter loadFile(const std::string& path) const;
+
+		loaderAdapter loadGlbResource(const std::string& name) const;
 
 		///Deleted copy contructor
 		glTFLoader(const glTFLoader&) = delete;

@@ -7,6 +7,8 @@
 #include "Ogre_glTF_skeletonImporter.hpp"
 #include "Ogre_glTF_common.hpp"
 
+#include "Ogre_glTF_OgreResource.hpp"
+
 #define TINYGLTF_IMPLEMENTATION
 #define STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_WRITE_IMPLEMENTATION
@@ -22,12 +24,7 @@ struct loaderAdapter::impl
 {
 	///Constructor, initialize once all the objects inclosed in this class. They need a reference
 	///to a model object (and sometimes more) given at construct time
-	impl() :
-	 textureImp(model),
-	 materialLoad(model, textureImp),
-	 modelConv(model),
-	 skeletonImp(model)
-	{}
+	impl() : textureImp(model), materialLoad(model, textureImp), modelConv(model), skeletonImp(model) {}
 
 	///Vaiable to check if everything is allright with the adapter
 	bool valid = false;
@@ -52,8 +49,7 @@ struct loaderAdapter::impl
 	skeletonImporter skeletonImp;
 };
 
-loaderAdapter::loaderAdapter() :
- pimpl { std::make_unique<impl>() }
+loaderAdapter::loaderAdapter() : pimpl{ std::make_unique<impl>() }
 {
 	//OgreLog("Created adapter object...");
 }
@@ -65,12 +61,10 @@ loaderAdapter::~loaderAdapter()
 
 Ogre::Item* loaderAdapter::getItem(Ogre::SceneManager* smgr) const
 {
-	if(isOk())
-	{
+	if(isOk()) {
 		pimpl->textureImp.loadTextures();
 		auto Mesh = pimpl->modelConv.getOgreMesh();
-		if(pimpl->modelConv.hasSkins())
-		{
+		if(pimpl->modelConv.hasSkins()) {
 			//load skeleton information
 			auto skeleton = pimpl->skeletonImp.getSkeleton(adapterName);
 			Mesh->_notifySkeleton(skeleton);
@@ -83,8 +77,7 @@ Ogre::Item* loaderAdapter::getItem(Ogre::SceneManager* smgr) const
 	return nullptr;
 }
 
-loaderAdapter::loaderAdapter(loaderAdapter&& other) noexcept :
- pimpl { std::move(other.pimpl) }
+loaderAdapter::loaderAdapter(loaderAdapter&& other) noexcept : pimpl{ std::move(other.pimpl) }
 {
 	//OgreLog("Moved adapter object...");
 }
@@ -95,15 +88,9 @@ loaderAdapter& loaderAdapter::operator=(loaderAdapter&& other) noexcept
 	return *this;
 }
 
-bool loaderAdapter::isOk() const
-{
-	return pimpl->valid;
-}
+bool loaderAdapter::isOk() const { return pimpl->valid; }
 
-std::string loaderAdapter::getLastError() const
-{
-	return pimpl->error;
-}
+std::string loaderAdapter::getLastError() const { return pimpl->error; }
 
 ///Implementation of the glTF loader. Exist as a pImpl inside the glTFLoader class
 struct glTFLoader::glTFLoaderImpl
@@ -112,17 +99,10 @@ struct glTFLoader::glTFLoaderImpl
 	tinygltf::TinyGLTF loader;
 
 	///Construtor. the loader is on the stack, there isn't mutch state to set inside the object
-	glTFLoaderImpl()
-	{
-		OgreLog("initialized TinyGLTF loader");
-	}
+	glTFLoaderImpl() { OgreLog("initialized TinyGLTF loader"); }
 
 	///For file type detection. Ascii is plain old JSON text, Binary is .glc files.
-	enum class FileType {
-		Ascii,
-		Binary,
-		Unknown
-	};
+	enum class FileType { Ascii, Binary, Unknown };
 
 	///Probe inside the file, or check the extension to determine if we have to load a text file, or a binary file
 	FileType detectType(const std::string& path) const
@@ -130,16 +110,13 @@ struct glTFLoader::glTFLoaderImpl
 		//Quickly open the file as binary and chekc if there's the gltf binary magic number
 		{
 			auto probe = std::ifstream(path, std::ios_base::binary);
-			if(!probe)
-				throw std::runtime_error("Could not open " + path);
+			if(!probe) throw std::runtime_error("Could not open " + path);
 
-			std::array<char, 5> buffer {};
-			for(size_t i { 0 }; i < 4; ++i)
-				probe >> buffer[i];
+			std::array<char, 5> buffer{};
+			for(size_t i{ 0 }; i < 4; ++i) probe >> buffer[i];
 			buffer[4] = 0;
 
-			if(std::string("glTF") == std::string(buffer.data()))
-			{
+			if(std::string("glTF") == std::string(buffer.data())) {
 				//OgreLog("Detected binary file thanks to the magic number at the start!");
 				return FileType::Binary;
 			}
@@ -160,8 +137,7 @@ struct glTFLoader::glTFLoaderImpl
 		switch(detectType(path))
 		{
 			default:
-			case FileType::Unknown:
-				return false;
+			case FileType::Unknown: return false;
 			case FileType::Ascii:
 				//OgreLog("Detected ascii file type");
 				return loader.LoadASCIIFromFile(&adapter.pimpl->model, &adapter.pimpl->error, path);
@@ -170,13 +146,18 @@ struct glTFLoader::glTFLoaderImpl
 				return loader.LoadBinaryFromFile(&adapter.pimpl->model, &adapter.pimpl->error, path);
 		}
 	}
+
+	bool loadGlb(loaderAdapter& adapter, GlbFilePtr file)
+	{
+		return loader.LoadBinaryFromMemory(&adapter.pimpl->model, &adapter.pimpl->error, file->getData(), file->getSize(), ".", 0);
+	}
 };
 
-glTFLoader::glTFLoader() :
- loaderImpl { std::make_unique<glTFLoaderImpl>() }
+glTFLoader::glTFLoader() : loaderImpl{ std::make_unique<glTFLoaderImpl>() }
 {
-	if(Ogre::Root::getSingletonPtr() == nullptr)
-		throw std::runtime_error("Please create an Ogre::Root instance before initializing the glTF library!");
+	if(Ogre::Root::getSingletonPtr() == nullptr) throw std::runtime_error("Please create an Ogre::Root instance before initializing the glTF library!");
+
+	if(!Ogre_glTF::GlbFileManager::getSingletonPtr()) new GlbFileManager;
 
 	OgreLog("glTFLoader created!");
 }
@@ -197,10 +178,24 @@ loaderAdapter glTFLoader::loadFile(const std::string& path) const
 	return std::move(adapter);
 }
 
-glTFLoader::glTFLoader(glTFLoader&& other) noexcept :
- loaderImpl(std::move(other.loaderImpl))
+loaderAdapter glTFLoader::loadGlbResource(const std::string& name) const
 {
+	OgreLog("Loading GLB from resource manager " + name);
+	auto& glbManager = GlbFileManager::getSingleton();
+	auto glbFile	 = glbManager.load(name, Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+
+	loaderAdapter adapter;
+	if(glbFile)
+	{
+		loaderImpl->loadGlb(adapter, glbFile);
+		adapter.pimpl->valid = true;
+	}
+
+	adapter.pimpl->modelConv.debugDump();
+	return std::move(adapter);
 }
+
+glTFLoader::glTFLoader(glTFLoader&& other) noexcept : loaderImpl(std::move(other.loaderImpl)) {}
 
 glTFLoader& glTFLoader::operator=(glTFLoader&& other) noexcept
 {
