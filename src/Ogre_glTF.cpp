@@ -149,7 +149,7 @@ struct glTFLoader::glTFLoaderImpl
 
 	bool loadGlb(loaderAdapter& adapter, GlbFilePtr file)
 	{
-		return loader.LoadBinaryFromMemory(&adapter.pimpl->model, &adapter.pimpl->error, file->getData(), file->getSize(), ".", 0);
+		return loader.LoadBinaryFromMemory(&adapter.pimpl->model, &adapter.pimpl->error, file->getData(), int(file->getSize()), ".", 0);
 	}
 };
 
