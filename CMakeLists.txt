@@ -20,6 +20,7 @@ find_package(OGRE COMPONENTS HlmsPbs REQUIRED)
 
 file(GLOB librarySources ./src/*.cpp ./src/private_headers/*.hpp ./include/*.hpp)
 file(GLOB testSources ./test/*.cpp ./test/*.hpp ./include/*.hpp)
+file(GLOB pluginTestSources ./pluginTest/*.cpp ./pluginTest/*.hpp ./include/*.hpp)
 
 add_library(Ogre_glTF SHARED ${librarySources})
 #add_library(Ogre_glTF_static STATIC ${librarySources})
@@ -27,9 +28,11 @@ add_library(Ogre_glTF SHARED ${librarySources})
 
 if(MSVC)
 add_executable(Ogre_glTF_TEST WIN32 ${testSources})
+add_executable(Ogre_gltf_PluginTest WIN32 ${pluginTestSources})
 #add_executable(Ogre_glTF_TEST_static WIN32 ${testSources})
 else()
 add_executable(Ogre_glTF_TEST ${testSources})
+add_executable(Ogre_gltf_PluginTest ${pluginTestSources})
 #add_executable(Ogre_glTF_TEST_static ${testSources})
 endif(MSVC)
 
