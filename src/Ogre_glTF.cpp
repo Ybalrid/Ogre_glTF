@@ -49,7 +49,7 @@ struct loaderAdapter::impl
 	skeletonImporter skeletonImp;
 };
 
-loaderAdapter::loaderAdapter() : pimpl{ std::make_unique<impl>() }
+loaderAdapter::loaderAdapter() : pimpl { std::make_unique<impl>() }
 {
 	//OgreLog("Created adapter object...");
 }
@@ -61,10 +61,12 @@ loaderAdapter::~loaderAdapter()
 
 Ogre::Item* loaderAdapter::getItem(Ogre::SceneManager* smgr) const
 {
-	if(isOk()) {
+	if(isOk())
+	{
 		pimpl->textureImp.loadTextures();
 		auto Mesh = pimpl->modelConv.getOgreMesh();
-		if(pimpl->modelConv.hasSkins()) {
+		if(pimpl->modelConv.hasSkins())
+		{
 			//load skeleton information
 			auto skeleton = pimpl->skeletonImp.getSkeleton(adapterName);
 			Mesh->_notifySkeleton(skeleton);
@@ -77,7 +79,7 @@ Ogre::Item* loaderAdapter::getItem(Ogre::SceneManager* smgr) const
 	return nullptr;
 }
 
-loaderAdapter::loaderAdapter(loaderAdapter&& other) noexcept : pimpl{ std::move(other.pimpl) }
+loaderAdapter::loaderAdapter(loaderAdapter&& other) noexcept : pimpl { std::move(other.pimpl) }
 {
 	//OgreLog("Moved adapter object...");
 }
@@ -112,11 +114,12 @@ struct glTFLoader::glTFLoaderImpl
 			auto probe = std::ifstream(path, std::ios_base::binary);
 			if(!probe) throw std::runtime_error("Could not open " + path);
 
-			std::array<char, 5> buffer{};
-			for(size_t i{ 0 }; i < 4; ++i) probe >> buffer[i];
+			std::array<char, 5> buffer {};
+			for(size_t i { 0 }; i < 4; ++i) probe >> buffer[i];
 			buffer[4] = 0;
 
-			if(std::string("glTF") == std::string(buffer.data())) {
+			if(std::string("glTF") == std::string(buffer.data()))
+			{
 				//OgreLog("Detected binary file thanks to the magic number at the start!");
 				return FileType::Binary;
 			}
@@ -153,7 +156,7 @@ struct glTFLoader::glTFLoaderImpl
 	}
 };
 
-glTFLoader::glTFLoader() : loaderImpl{ std::make_unique<glTFLoaderImpl>() }
+glTFLoader::glTFLoader() : loaderImpl { std::make_unique<glTFLoaderImpl>() }
 {
 	if(Ogre::Root::getSingletonPtr() == nullptr) throw std::runtime_error("Please create an Ogre::Root instance before initializing the glTF library!");
 
@@ -162,7 +165,7 @@ glTFLoader::glTFLoader() : loaderImpl{ std::make_unique<glTFLoaderImpl>() }
 	OgreLog("glTFLoader created!");
 }
 
-loaderAdapter glTFLoader::loadFile(const std::string& path) const
+loaderAdapter glTFLoader::loadFromFileSystem(const std::string& path) const
 {
 	OgreLog("loading file " + path);
 	loaderAdapter adapter;

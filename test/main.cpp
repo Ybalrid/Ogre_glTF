@@ -107,10 +107,10 @@ int main()
 
 	//Create a window and a scene
 	Ogre::NameValuePairList params;
-	params["FSAA"] = "16";
-	const auto window	= root->createRenderWindow("glTF test!", 800, 600, false, &params);
+	params["FSAA"]	= "16";
+	const auto window = root->createRenderWindow("glTF test!", 800, 600, false, &params);
 
-	auto smgr	  = root->createSceneManager(Ogre::ST_GENERIC, 2, Ogre::INSTANCING_CULLING_THREADED);
+	auto smgr = root->createSceneManager(Ogre::ST_GENERIC, 2, Ogre::INSTANCING_CULLING_THREADED);
 	smgr->showBoundingBoxes(true);
 	smgr->setDisplaySceneNodes(true);
 	auto camera = smgr->createCamera("cam");
@@ -118,7 +118,7 @@ int main()
 	//Setup rendering pipeline
 	auto compositor			   = root->getCompositorManager2();
 	const char workspaceName[] = "workspace0";
-	compositor->createBasicWorkspaceDef(workspaceName, Ogre::ColourValue{ 0.2f, 0.3f, 0.4f });
+	compositor->createBasicWorkspaceDef(workspaceName, Ogre::ColourValue { 0.2f, 0.3f, 0.4f });
 	auto workspace = compositor->addWorkspace(smgr, window, camera, workspaceName, true);
 
 	declareHlmsLibrary("./");
@@ -136,15 +136,14 @@ int main()
 	Ogre_glTF::loaderAdapter gizmoLoader;
 	try
 	{
-		//auto adapter = gltf->loadFile("from_gltf_export_skinned_cylinder.glb");
+		//auto adapter = gltf->loadFromFileSystem("from_gltf_export_skinned_cylinder.glb");
 		auto adapter = gltf->loadGlbResource("CesiumMan.glb");
 
-		gizmoLoader = gltf->loadFile("gizmo.glb");
+		gizmoLoader = gltf->loadFromFileSystem("gizmo.glb");
 
-		//auto adapter = gltf->loadFile("./damagedHelmet/damagedHelmet.gltf");
-		//auto adapter = gltf->loadFile("./Corset.glb");
-		ObjectItem
-			= adapter.getItem(smgr);
+		//auto adapter = gltf->loadFromFileSystem("./damagedHelmet/damagedHelmet.gltf");
+		//auto adapter = gltf->loadFromFileSystem("./Corset.glb");
+		ObjectItem = adapter.getItem(smgr);
 		//OtherItem = adapter.getItem(smgr);
 	}
 	catch(std::exception& e)
@@ -162,19 +161,6 @@ int main()
 	gizmoNode->getAttachedObject(0);
 	//auto gizmoItem = dynamic_cast<Ogre::Item*>(gizmoNode->getAttachedObject(0));
 
-	//if(gizmoItem)
-	//{
-	//	auto name  = gizmoItem->getMesh()->getSubMesh(0)->getMaterialName();
-	//	auto block = root->getHlmsManager()->getDatablock(name);
-	//	if(block)
-	//	{
-	//		Ogre::HlmsMacroblock mb;
-	//		mb.mDepthFunc = Ogre::CMPF_ALWAYS_PASS;
-	//		block->setMacroblock(mb);
-	//	}
-	//}
-
-
 	gizmoNode->setScale(1, 1, 1);
 	//ObjectNode->setOrientation(Ogre::Quaternion(Ogre::Degree(-90), Ogre::Vector3::UNIT_X));
 	camera->setNearClipDistance(0.001f);
@@ -186,13 +172,13 @@ int main()
 	auto light = smgr->createLight();
 	smgr->getRootSceneNode()->createChildSceneNode()->attachObject(light);
 	light->setType(Ogre::Light::LT_DIRECTIONAL);
-	light->setDirection(Ogre::Vector3{ -1, -1, -0.5f });
+	light->setDirection(Ogre::Vector3 { -1, -1, -0.5f });
 	light->setPowerScale(5);
 
 	light = smgr->createLight();
 	smgr->getRootSceneNode()->createChildSceneNode()->attachObject(light);
 	light->setType(Ogre::Light::LT_DIRECTIONAL);
-	light->setDirection(Ogre::Vector3{ +1, +1, +0.5f });
+	light->setDirection(Ogre::Vector3 { +1, +1, +0.5f });
 	light->setPowerScale(5);
 
 	auto skeleton = ObjectItem->getSkeletonInstance();
@@ -222,8 +208,7 @@ int main()
 	while(!window->isClosed())
 	{
 		now = root->getTimer()->getMilliseconds();
-		if(anim)
-			anim->addTime(float(now - last) / 1000.0f);
+		if(anim) anim->addTime(float(now - last) / 1000.0f);
 		last = now;
 
 		root->renderOneFrame();

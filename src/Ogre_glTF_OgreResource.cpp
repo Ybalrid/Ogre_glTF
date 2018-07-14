@@ -15,7 +15,6 @@ void Ogre_glTF::GlbFile::readFromStream(Ogre::DataStreamPtr& stream)
 	}
 }
 
-
 void Ogre_glTF::GlbFile::loadImpl()
 {
 	auto stream = Ogre::ResourceGroupManager::getSingleton().openResource(mName, mGroup, true, this);

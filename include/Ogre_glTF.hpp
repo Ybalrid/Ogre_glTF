@@ -79,7 +79,7 @@ namespace Ogre_glTF
 
 		///Load a glTF text or binary file. Give you an adapter to use this file with Ogre
 		/// \param path String containing the path to a file to load (either .glTF or .glc)
-		loaderAdapter loadFile(const std::string& path) const;
+		loaderAdapter loadFromFileSystem(const std::string& path) const;
 
 		loaderAdapter loadGlbResource(const std::string& name) const;
 
