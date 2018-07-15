@@ -133,8 +133,8 @@ int main()
 
 	//Get access to the gltf loader, and load a GLB file in the resources to an item
 	auto glTFLoader = gltfPluginAccessor::findPlugin()->getLoader();
-	auto item	 = glTFLoader->getItemFromResource("CesiumMan.glb", smgr);
-	auto itemNode = smgr->getRootSceneNode()->createChildSceneNode();
+	auto item		= glTFLoader->getItemFromResource("CesiumMan.glb", smgr);
+	auto itemNode   = smgr->getRootSceneNode()->createChildSceneNode();
 	itemNode->attachObject(item);
 	itemNode->setOrientation(Quaternion(Radian(Math::HALF_PI), Vector3::NEGATIVE_UNIT_X));
 
@@ -148,19 +148,19 @@ int main()
 
 	//Setup animation and how to update it with time
 	const auto animationName = (item->getSkeletonInstance()->getAnimations().front().getName());
-	auto animation	 = item->getSkeletonInstance()->getAnimation(animationName);
+	auto animation			 = item->getSkeletonInstance()->getAnimation(animationName);
 	animation->setEnabled(true);
 	animation->setLoop(true);
-	auto timer = root->getTimer();
-	auto now   = timer->getMilliseconds();
-	auto last  = now;
+	auto timer	= root->getTimer();
+	auto now	  = timer->getMilliseconds();
+	auto last	 = now;
 	auto duration = now - last;
 
 	//Update
 	while(!window->isClosed())
 	{
 		//Add time to animation
-		now					= timer->getMilliseconds();
+		now		 = timer->getMilliseconds();
 		duration = (now - last);
 		animation->addTime(Real(duration) / 1000.0f);
 		last = now;
