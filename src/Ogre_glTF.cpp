@@ -185,7 +185,7 @@ loaderAdapter glTFLoader::loadGlbResource(const std::string& name) const
 {
 	OgreLog("Loading GLB from resource manager " + name);
 	auto& glbManager = GlbFileManager::getSingleton();
-	auto glbFile	 = glbManager.load(name, Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+	auto glbFile	 = glbManager.load(name, Ogre::ResourceGroupManager::AUTODETECT_RESOURCE_GROUP_NAME);
 
 	loaderAdapter adapter;
 	if(glbFile)
