@@ -8,6 +8,7 @@
 
 namespace Ogre_glTF
 {
+	///Interface callable from plugin users without linking the DLL
 	struct  gltfPluginAccessor
 	{
 		virtual ~gltfPluginAccessor() = default;
@@ -16,6 +17,7 @@ namespace Ogre_glTF
 		virtual glTFLoaderInterface* getLoader() const = 0;
 
 		///This to seach throught the list of installed pluigins, finds the gltf one, and up-cast it to a gltfAccessor pointer for you to use
+		///This is the user's nomral "entry point" to get access to the glTF Loader
 		static gltfPluginAccessor* findPlugin()
 		{
 			const auto list						  = Ogre::Root::getSingleton().getInstalledPlugins();
@@ -30,9 +32,12 @@ namespace Ogre_glTF
 		}
 	};
 
+	///Ogre::Plugin object, also implements the gltfPluign Accessor.
 	class Ogre_glTF_EXPORT glTFLoaderPlugin final : public Ogre::Plugin, public gltfPluginAccessor
 	{
 		Ogre::String name							= "Ogre glTF Loader";
+
+		///The actual library root object is managed by this smart pointer, the rest of is just
 		std::unique_ptr<Ogre_glTF::glTFLoader> gltf = nullptr;
 
 	public:
@@ -44,7 +49,7 @@ namespace Ogre_glTF
 		void shutdown() override;
 		void uninstall() override;
 
-
+		///This will get you the object you want ;-)
 		glTFLoaderInterface* getLoader() const override
 		{
 			return gltf.get();
