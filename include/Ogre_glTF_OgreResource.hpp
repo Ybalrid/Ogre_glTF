@@ -52,7 +52,7 @@ namespace Ogre_glTF
 	using GlbFilePtr = Ogre::SharedPtr<GlbFile>;
 
 	///File manager. initialized by the plugin, this is for Ogre, not for you
-	class Ogre_glTF_EXPORT GlbFileManager : public Ogre::ResourceManager, public Ogre::Singleton<GlbFileManager>
+	class /*Ogre_glTF_EXPORT*/ GlbFileManager : public Ogre::ResourceManager, public Ogre::Singleton<GlbFileManager>
 	{
 	protected:
 		///This effectively create a resource

@@ -55,8 +55,14 @@ namespace Ogre_glTF
 		std::string getLastError() const;
 	};
 
+	struct glTFLoaderInterface
+	{
+		virtual Ogre::Item* getItemFromResource(const std::string& name, Ogre::SceneManager* smgr) = 0;
+		virtual Ogre::Item* getItemFromFileSystem(const std::string& fileName, Ogre::SceneManager* smgr) = 0;
+	};
+
 	///Class that is responsible for initializing the library with the loader, and giving out
-	class Ogre_glTF_EXPORT glTFLoader
+	class Ogre_glTF_EXPORT glTFLoader final : public glTFLoaderInterface
 	{
 		///object that acutally communicate with the underlying glTF loading library
 		struct glTFLoaderImpl;
@@ -83,6 +89,9 @@ namespace Ogre_glTF
 
 		loaderAdapter loadGlbResource(const std::string& name) const;
 
+		Ogre::Item* getItemFromResource(const std::string& name, Ogre::SceneManager* smgr) override;
+		Ogre::Item* getItemFromFileSystem(const std::string& fileName, Ogre::SceneManager* smgr) override;
+
 		///Deleted copy contructor
 		glTFLoader(const glTFLoader&) = delete;
 
@@ -90,3 +99,7 @@ namespace Ogre_glTF
 		glTFLoader& operator=(const glTFLoader&) = delete;
 	};
 }
+
+//To facilitate the use of the library:
+#include "Ogre_glTF_OgreResource.hpp"
+#include "Ogre_glTF_OgrePlugin.hpp"

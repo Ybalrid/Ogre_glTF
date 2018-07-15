@@ -1,7 +1,7 @@
 #pragma once
 
 #ifdef _WIN32
-#ifdef DLLDIR_EX
+#ifdef Ogre_glTF_DLL_EXPORT_CONFIG_ON
 ///Export symbol
 #define Ogre_glTF_EXPORT __declspec(dllexport)
 #else

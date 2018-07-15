@@ -1,5 +1,32 @@
 #include "Ogre_glTF_OgrePlugin.hpp"
 #include <algorithm>
+
+Ogre_glTF::glTFLoaderPlugin* gPluginInstaller = nullptr;
+
+extern "C" {
+
+void Ogre_glTF_EXPORT dllStartPlugin(void)
+{
+	if(gPluginInstaller)
+	{
+		throw std::runtime_error("Apparenltly called dllStartPlugin on the Ogre_glTF"
+								 "plugin twice. I'm affraid you can't do that... ");
+	}
+
+	gPluginInstaller = new Ogre_glTF::glTFLoaderPlugin;
+	Ogre::Root::getSingleton().installPlugin(gPluginInstaller);
+}
+
+void Ogre_glTF_EXPORT dllStopPlugin(void)
+{
+	Ogre::Root::getSingleton().uninstallPlugin(gPluginInstaller);
+	delete gPluginInstaller;
+	gPluginInstaller = nullptr;
+}
+
+
+}
+
 Ogre_glTF::glTFLoaderPlugin::glTFLoaderPlugin() : Ogre::Plugin() {}
 
 Ogre_glTF::glTFLoaderPlugin::~glTFLoaderPlugin() = default;
@@ -14,17 +41,3 @@ void Ogre_glTF::glTFLoaderPlugin::shutdown() { gltf = nullptr; }
 
 void Ogre_glTF::glTFLoaderPlugin::uninstall() {}
 
-Ogre_glTF::glTFLoaderPlugin* Ogre_glTF::glTFLoaderPlugin::getGltfPluginInstance()
-{
-	const auto list						  = Ogre::Root::getSingleton().getInstalledPlugins();
-	const auto thisPluginInstanceIterator = std::find_if(std::begin(list), std::end(list), [](const Ogre::Plugin* plugPtr) {
-		static const Ogre::String name = "Ogre glTF Loader";
-		return plugPtr->getName() == name;
-	});
-
-	if(thisPluginInstanceIterator != std::end(list)) return dynamic_cast<glTFLoaderPlugin*>(*thisPluginInstanceIterator);
-
-	return nullptr;
-}
-
-Ogre_glTF::glTFLoader* Ogre_glTF::glTFLoaderPlugin::getGlTFLoader() const { return gltf.get(); }
