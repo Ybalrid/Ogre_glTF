@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['valid',['valid',['../struct_ogre__gl_t_f__adapter_1_1impl.html#a3210b284b059be846e05a350a4eaa0c1',1,'Ogre_glTF_adapter::impl']]],
-  ['vertexcount',['vertexCount',['../struct_ogre__gl_t_f__vertex_buffer_part.html#a018f9f3612b9499ba93e17f2133facdd',1,'Ogre_glTF_vertexBufferPart']]]
+  ['valid',['valid',['../structloader_adapter_1_1impl.html#ab649b615fd7c007d594e6fa25aa27b65',1,'loaderAdapter::impl']]],
+  ['vertexcount',['vertexCount',['../struct_ogre__gl_t_f_1_1vertex_buffer_part.html#a281c887ec55e59d05b6f9ed003495947',1,'Ogre_glTF::vertexBufferPart']]]
 ];

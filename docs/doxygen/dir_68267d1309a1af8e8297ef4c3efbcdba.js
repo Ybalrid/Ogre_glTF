@@ -5,6 +5,8 @@ var dir_68267d1309a1af8e8297ef4c3efbcdba =
     [ "Ogre_glTF_common.cpp", "_ogre__gl_t_f__common_8cpp_source.html", null ],
     [ "Ogre_glTF_materialLoader.cpp", "_ogre__gl_t_f__material_loader_8cpp_source.html", null ],
     [ "Ogre_glTF_modelConverter.cpp", "_ogre__gl_t_f__model_converter_8cpp_source.html", null ],
+    [ "Ogre_glTF_OgrePlugin.cpp", "_ogre__gl_t_f___ogre_plugin_8cpp_source.html", null ],
+    [ "Ogre_glTF_OgreResource.cpp", "_ogre__gl_t_f___ogre_resource_8cpp_source.html", null ],
     [ "Ogre_glTF_skeletonImporter.cpp", "_ogre__gl_t_f__skeleton_importer_8cpp_source.html", null ],
     [ "Ogre_glTF_textureImporter.cpp", "_ogre__gl_t_f__texture_importer_8cpp_source.html", null ]
 ];

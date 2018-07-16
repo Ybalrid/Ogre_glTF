@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['loader',['loader',['../struct_ogre__gl_t_f_1_1gltf_loader.html#a31ea4f74c3cb89c3603fc5e2bfdd21ed',1,'Ogre_glTF::gltfLoader']]]
+  ['loader',['loader',['../structgl_t_f_loader_1_1gl_t_f_loader_impl.html#a45c1ffc29023c24f0ac386cfb113779b',1,'glTFLoader::glTFLoaderImpl']]]
 ];

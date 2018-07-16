@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['materialloader',['materialLoader',['../struct_ogre__gl_t_f__adapter_1_1impl.html#a9a002bf5535323a633bfc4157f09e96d',1,'Ogre_glTF_adapter::impl']]],
-  ['model',['model',['../struct_ogre__gl_t_f__adapter_1_1impl.html#af0ab307ee720800508ae00742bb87b5a',1,'Ogre_glTF_adapter::impl']]],
-  ['modelconverter',['modelConverter',['../struct_ogre__gl_t_f__adapter_1_1impl.html#a33c81da556dc87ecded03333b4cbf779',1,'Ogre_glTF_adapter::impl']]]
+  ['materialload',['materialLoad',['../structloader_adapter_1_1impl.html#a00bf8d32948b8f5190a343ee4023ec99',1,'loaderAdapter::impl']]],
+  ['model',['model',['../structloader_adapter_1_1impl.html#a017131119684a2a51353488ac21137b2',1,'loaderAdapter::impl']]],
+  ['modelconv',['modelConv',['../structloader_adapter_1_1impl.html#ab105fd46afde9caf98dba76009ac10ad',1,'loaderAdapter::impl']]]
 ];
