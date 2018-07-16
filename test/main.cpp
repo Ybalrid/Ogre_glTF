@@ -186,6 +186,9 @@ int main()
 	Ogre::SkeletonAnimation* anim = nullptr;
 	Ogre::Bone* bone			  = nullptr;
 
+	auto plugins = root->getInstalledPlugins();
+
+
 	if(skeleton)
 	{
 		bone				= skeleton->getBone(1);

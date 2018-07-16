@@ -7,11 +7,6 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "" FORCE)
 
-#add a preprocessor definition for windows for selecting the export directive for DLL with a macro
-if(MSVC)
-	add_definitions(-DDLLDIR_EX)
-endif(MSVC)
-
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/CMake)
 
 #get Ogre from your system. May need to set some variable for Windows folks
@@ -20,16 +15,22 @@ find_package(OGRE COMPONENTS HlmsPbs REQUIRED)
 
 file(GLOB librarySources ./src/*.cpp ./src/private_headers/*.hpp ./include/*.hpp)
 file(GLOB testSources ./test/*.cpp ./test/*.hpp ./include/*.hpp)
+file(GLOB pluginTestSources ./pluginTest/*.cpp ./pluginTest/*.hpp ./include/*.hpp)
 
 add_library(Ogre_glTF SHARED ${librarySources})
 #add_library(Ogre_glTF_static STATIC ${librarySources})
 
+target_compile_definitions(Ogre_glTF PUBLIC Ogre_glTF_DLL_EXPORT_CONFIG_ON)
+
+
 
 if(MSVC)
 add_executable(Ogre_glTF_TEST WIN32 ${testSources})
+add_executable(Ogre_gltf_PluginTest WIN32 ${pluginTestSources})
 #add_executable(Ogre_glTF_TEST_static WIN32 ${testSources})
 else()
 add_executable(Ogre_glTF_TEST ${testSources})
+add_executable(Ogre_gltf_PluginTest ${pluginTestSources})
 #add_executable(Ogre_glTF_TEST_static ${testSources})
 endif(MSVC)
 
@@ -44,6 +45,8 @@ target_include_directories( Ogre_glTF PUBLIC
 	./src/private_headers
 	./thirdParty/tinygltf/
 )
+
+
 
 #target_include_directories( Ogre_glTF_static PUBLIC
 #	#Ogre and the physics based high level material system
@@ -75,6 +78,12 @@ target_include_directories( Ogre_glTF_TEST PUBLIC
 #	./include
 #)
 
+target_include_directories(Ogre_gltf_PluginTest PUBLIC
+	${OGRE_INCLUDE_DIRS}
+	${OGRE_HlmsPbs_INCLUDE_DIRS}
+	./include
+)
+
 target_link_libraries(Ogre_glTF
 	${OGRE_LIBRARIES}
 	${OGRE_HlmsPbs_LIBRARIES}
@@ -86,6 +95,11 @@ target_link_libraries(Ogre_glTF_TEST
 
     #the library we just built
 	Ogre_glTF
+)
+
+target_link_libraries(Ogre_gltf_PluginTest
+	${OGRE_LIBRARIES}
+	${OGRE_HlmsPbs_LIBRARIES}
 )
 
 #target_link_libraries(Ogre_glTF_TEST_static

@@ -49,7 +49,7 @@ struct loaderAdapter::impl
 	skeletonImporter skeletonImp;
 };
 
-loaderAdapter::loaderAdapter() : pimpl { std::make_unique<impl>() }
+loaderAdapter::loaderAdapter() : pimpl{ std::make_unique<impl>() }
 {
 	//OgreLog("Created adapter object...");
 }
@@ -61,12 +61,10 @@ loaderAdapter::~loaderAdapter()
 
 Ogre::Item* loaderAdapter::getItem(Ogre::SceneManager* smgr) const
 {
-	if(isOk())
-	{
+	if(isOk()) {
 		pimpl->textureImp.loadTextures();
 		auto Mesh = pimpl->modelConv.getOgreMesh();
-		if(pimpl->modelConv.hasSkins())
-		{
+		if(pimpl->modelConv.hasSkins()) {
 			//load skeleton information
 			auto skeleton = pimpl->skeletonImp.getSkeleton(adapterName);
 			Mesh->_notifySkeleton(skeleton);
@@ -79,7 +77,7 @@ Ogre::Item* loaderAdapter::getItem(Ogre::SceneManager* smgr) const
 	return nullptr;
 }
 
-loaderAdapter::loaderAdapter(loaderAdapter&& other) noexcept : pimpl { std::move(other.pimpl) }
+loaderAdapter::loaderAdapter(loaderAdapter&& other) noexcept : pimpl{ std::move(other.pimpl) }
 {
 	//OgreLog("Moved adapter object...");
 }
@@ -114,12 +112,11 @@ struct glTFLoader::glTFLoaderImpl
 			auto probe = std::ifstream(path, std::ios_base::binary);
 			if(!probe) throw std::runtime_error("Could not open " + path);
 
-			std::array<char, 5> buffer {};
-			for(size_t i { 0 }; i < 4; ++i) probe >> buffer[i];
+			std::array<char, 5> buffer{};
+			for(size_t i{ 0 }; i < 4; ++i) probe >> buffer[i];
 			buffer[4] = 0;
 
-			if(std::string("glTF") == std::string(buffer.data()))
-			{
+			if(std::string("glTF") == std::string(buffer.data())) {
 				//OgreLog("Detected binary file thanks to the magic number at the start!");
 				return FileType::Binary;
 			}
@@ -156,7 +153,7 @@ struct glTFLoader::glTFLoaderImpl
 	}
 };
 
-glTFLoader::glTFLoader() : loaderImpl { std::make_unique<glTFLoaderImpl>() }
+glTFLoader::glTFLoader() : loaderImpl{ std::make_unique<glTFLoaderImpl>() }
 {
 	if(Ogre::Root::getSingletonPtr() == nullptr) throw std::runtime_error("Please create an Ogre::Root instance before initializing the glTF library!");
 
@@ -178,7 +175,7 @@ loaderAdapter glTFLoader::loadFromFileSystem(const std::string& path) const
 	}
 
 	adapter.pimpl->modelConv.debugDump();
-	return std::move(adapter);
+	return adapter;
 }
 
 loaderAdapter glTFLoader::loadGlbResource(const std::string& name) const
@@ -188,14 +185,36 @@ loaderAdapter glTFLoader::loadGlbResource(const std::string& name) const
 	auto glbFile	 = glbManager.load(name, Ogre::ResourceGroupManager::AUTODETECT_RESOURCE_GROUP_NAME);
 
 	loaderAdapter adapter;
-	if(glbFile)
-	{
+	if(glbFile) {
 		loaderImpl->loadGlb(adapter, glbFile);
 		adapter.pimpl->valid = true;
 	}
 
 	adapter.pimpl->modelConv.debugDump();
-	return std::move(adapter);
+	return adapter;
+}
+
+Ogre::Item* glTFLoader::getItemFromResource(const std::string& name, Ogre::SceneManager* smgr)
+{
+	OgreLog("Getting resource");
+	auto adapter = loadGlbResource(name);
+	if(adapter.isOk())
+	{
+		OgreLog("Adapter is ok!");
+	}
+	else
+	{
+		OgreLog("Adapter is not okay!");
+	}
+
+	OgreLog("Calling get item with your smgr...");
+	return adapter.getItem(smgr);
+}
+
+Ogre::Item* glTFLoader::getItemFromFileSystem(const std::string& fileName, Ogre::SceneManager* smgr)
+{
+	auto adapter = loadFromFileSystem(fileName);
+	return adapter.getItem(smgr);
 }
 
 glTFLoader::glTFLoader(glTFLoader&& other) noexcept : loaderImpl(std::move(other.loaderImpl)) {}

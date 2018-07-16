@@ -7,9 +7,19 @@
 
 namespace Ogre_glTF
 {
-
 	//Forward declare main class
 	class glTFLoader;
+
+	///Plugin accessible interface that plugin users can use
+	struct glTFLoaderInterface
+	{
+		///Polymorphic dtor
+		virtual ~glTFLoaderInterface() = default;
+		///Get you an item from a GLB file loaded inside an Ogre resource group
+		virtual Ogre::Item* getItemFromResource(const std::string& name, Ogre::SceneManager* smgr) = 0;
+		///Get you an item from a GLB or a GLTF file from the filesystem.
+		virtual Ogre::Item* getItemFromFileSystem(const std::string& fileName, Ogre::SceneManager* smgr) = 0;
+	};
 
 	///Class that hold the loaded content of a glTF file and that can create Ogre objects from it
 	class Ogre_glTF_EXPORT loaderAdapter
@@ -56,7 +66,7 @@ namespace Ogre_glTF
 	};
 
 	///Class that is responsible for initializing the library with the loader, and giving out
-	class Ogre_glTF_EXPORT glTFLoader
+	class Ogre_glTF_EXPORT glTFLoader final : public glTFLoaderInterface
 	{
 		///object that acutally communicate with the underlying glTF loading library
 		struct glTFLoaderImpl;
@@ -83,6 +93,9 @@ namespace Ogre_glTF
 
 		loaderAdapter loadGlbResource(const std::string& name) const;
 
+		Ogre::Item* getItemFromResource(const std::string& name, Ogre::SceneManager* smgr) override;
+		Ogre::Item* getItemFromFileSystem(const std::string& fileName, Ogre::SceneManager* smgr) override;
+
 		///Deleted copy contructor
 		glTFLoader(const glTFLoader&) = delete;
 
@@ -90,3 +103,7 @@ namespace Ogre_glTF
 		glTFLoader& operator=(const glTFLoader&) = delete;
 	};
 }
+
+//To facilitate the use of the library:
+#include "Ogre_glTF_OgreResource.hpp"
+#include "Ogre_glTF_OgrePlugin.hpp"
