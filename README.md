@@ -28,7 +28,7 @@ Library and Plugin to use glTF 2.0 resources with Ogre 2.1 licencied under the t
 
  - Get the source code with `git clone https://github.com/Ybalrid/Ogre_glTF --recursive`
  - Build the library with CMake, using the `build` subdirectory, and get the `Ogre_glTF.dll`/`libOgre_glTF.so` file (instructions below)
- - Point your compiler to the public headers (the /include directory of the repository), or copy them to
+ - Point your compiler to the public headers (the /include directory of the repository), or copy them to your project
  - Point Ogre to use Ogre_glTF as a plugin in the same way you'll do to the other (e.g. RenderSystems, using plugin.cfg, ...)
  - You can put binary glTF files (GLB files) inside your resources, like you would do with .mesh/.skeleton/textures files
  - In your code:
