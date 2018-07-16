@@ -26,32 +26,35 @@ Library and Plugin to use glTF 2.0 resources with Ogre 2.1 licencied under the t
 
 ## How to use
 
- - Build the library with CMake
- - Point your compiler to the public headers (the /include directory of the repository)
- - Point Ogre to use the Ogre_glTF plugin you just built in the same way you'll do to the other (e.g. RenderSystems, using plugin.cfg)
+ - Get the source code with `git clone https://github.com/Ybalrid/Ogre_glTF --recursive`
+ - Build the library with CMake, using the `build` subdirectory, and get the `Ogre_glTF.dll`/`libOgre_glTF.so` file (instructions below)
+ - Point your compiler to the public headers (the /include directory of the repository), or copy them to
+ - Point Ogre to use Ogre_glTF as a plugin in the same way you'll do to the other (e.g. RenderSystems, using plugin.cfg, ...)
  - You can put binary glTF files (GLB files) inside your resources, like you would do with .mesh/.skeleton/textures files
  - In your code:
  
  ```cpp
 //Get access to the gltf loader, and load a GLB file in the resources to an item
-auto glTFLoader = gltfPluginAccessor::findPlugin()->getLoader();
-Ogre::Item* cesiumMan = glTFLoader->getItemFromResource("CesiumMan.glb, smgr);
+//This actually search through the list of installed plugin, keep that pointer somewhere convinient
+auto glTFLoader = gltfPluginAccessor::findPlugin()->getLoader(); 
 
- ```
+//You can creae an Item for a scene by giving the name of the GLB file to look for in the resources
+Ogre::Item* cesiumMan = glTFLoader->getItemFromResource("CesiumMan.glb, smgr);
+```
  
  ## Building the sourcde code
 
 First of all, locally clone this repository. It uses git submodules to get it's dependencies, so you just need to do 
 
-```
+```bash
 git clone --recursive https://github.com/Ybalrid/Ogre_glTF
 ```
 
 This project uses CMake. The CMake directory is a simple copy of every cmake script shipped in the Ogre SDK, to make things simpler.
 
-You should get and install Ogre 2.1 from source on your system, 
+You should get and install Ogre 2.1 from source on your system, some help can be found here: https://forums.ogre3d.org/viewtopic.php?f=25&t=92874
 
-To build the project, you need to have Ogre 2.1 build and "installed" somewhere. Windows users may need to set the `OGRE_HOME` variable.
+To build the project, you need to have Ogre 2.1 build and "installed" somewhere. Windows users may need to build the INSTALL target of Ogre and then to set the `OGRE_HOME` variable to the "build/sdk" folder. Linux users, you can `make install` Ogre in /usr/local
 
 then, do the folliwng (linux) :
 
@@ -64,7 +67,7 @@ make                            #build the library and the demo program
 cp -r <path to HLMS> .          #add the Hlms shader code that comes with Ogre
 cp <path to ogre plugins>/* .   #add the necessary plugins (RenderSystem_GL3+)
 ```
-On a typical install from Ogre's source code on linux, theses path are `/usr/local/share/OGRE/Media/Hlms` and `/usr/local/lib/OGRE/*`
+On a typical install from Ogre's source code on linux, theses path are `/usr/local/share/OGRE/Media/Hlms` and `/usr/local/lib/OGRE/*` respectively
 
 (windows) :
 
@@ -73,7 +76,7 @@ On a typical install from Ogre's source code on linux, theses path are `/usr/loc
  - To make the test program works, copy inside the "build" directory all the .dll (and .pdb if you want to debug) files from Ogre's debug and release binary directories
  - Copy the HLMS libary to the "build" directory
  
- The "test" program is really crude and badly written, it was to validate taht some of the feautres where workign during developement.
+ The "test" program is really crude and badly written, it was to validate taht some of the feautres where working during developement.
  
  
 ## Project details
@@ -114,7 +117,6 @@ This project is currently in developement, here's a list of features that we are
  - Can only load one mesh and it's associated material in a file. Will either load the first one, of the fist node of the default scene, depending if the default scene is set
  - Library only has been tested on an handfull of glTF files, so some corner cases may make it not work.
 
-
  
  ## Contributors
  
@@ -128,7 +130,7 @@ This project is currently in developement, here's a list of features that we are
 
 ## Notes on third party components
 
-tinygltf is an header only library. It is included in this very repository via git submodules.
+`tinygltf` is an header only library. It is included in this very repository via git submodules.
 If you are about to clone this repository, you should use `git clone --recursive`
 
 The library define inside one of it's files the implementation of `tinygltf` and `stb_image`. This shouldn't be an issue and your program using ogre_glTF shouldn't be affected by them in any way. Everything is hidden inside a [pimpl](http://en.cppreference.com/w/cpp/language/pimpl)
