@@ -6,16 +6,16 @@
 #include "Ogre_glTF_OgrePlugin.hpp"
 
 #ifdef _DEBUG
-const char GL_RENDER_PLUGIN[] = "RenderSystem_GL3Plus_d";
+const char GL_RENDER_PLUGIN[] = "./RenderSystem_GL3Plus_d";
 #else
-const char GL_RENDER_PLUGIN[] = "RenderSystem_GL3Plus";
+const char GL_RENDER_PLUGIN[] = "./RenderSystem_GL3Plus";
 #endif
 
 #ifdef _WIN32
 #ifdef _DEBUG
-const char D3D11_RENDER_PLUGIN[] = "RenderSystem_Direct3D11_d";
+const char D3D11_RENDER_PLUGIN[] = "./RenderSystem_Direct3D11_d";
 #else
-const char D3D11_RENDER_PLUGIN[] = "RenderSystem_Direct3D11";
+const char D3D11_RENDER_PLUGIN[] = "./RenderSystem_Direct3D11";
 #endif
 #endif
 
@@ -99,10 +99,12 @@ int main()
 	root->loadPlugin(GL_RENDER_PLUGIN);
 #ifdef _WIN32
 	root->loadPlugin(D3D11_RENDER_PLUGIN);
-#endif
-
 	//Append the Ogre_glTF plugin to that list
 	root->loadPlugin("./Debug/Ogre_glTF");
+#else
+    root->loadPlugin("./libOgre_glTF.so");
+#endif
+
 
 	//Startup Ogre as you woul generally do it
 	root->showConfigDialog();
