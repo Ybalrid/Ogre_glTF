@@ -5,13 +5,16 @@ project(Ogre_glTF)
 #to build a library
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-#set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "" FORCE)
+set(CMAKE_INSTALL_PREFIX "./output")
+
+if(NOT CMAKE_DEBUG_POSTFIX)
+  set(CMAKE_DEBUG_POSTFIX "_d")
+endif()
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/CMake)
 
 #get Ogre from your system. May need to set some variable for Windows folks
 find_package(OGRE COMPONENTS HlmsPbs REQUIRED)
-
 
 file(GLOB librarySources ./src/*.cpp ./src/private_headers/*.hpp ./include/*.hpp)
 file(GLOB testSources ./test/*.cpp ./test/*.hpp ./include/*.hpp)
@@ -22,18 +25,15 @@ add_library(Ogre_glTF SHARED ${librarySources})
 
 target_compile_definitions(Ogre_glTF PUBLIC Ogre_glTF_DLL_EXPORT_CONFIG_ON)
 
-
-
 if(MSVC)
-add_executable(Ogre_glTF_TEST WIN32 ${testSources})
-add_executable(Ogre_gltf_PluginTest WIN32 ${pluginTestSources})
-#add_executable(Ogre_glTF_TEST_static WIN32 ${testSources})
+	add_executable(Ogre_glTF_TEST WIN32 ${testSources})
+	add_executable(Ogre_gltf_PluginTest WIN32 ${pluginTestSources})
+	#add_executable(Ogre_glTF_TEST_static WIN32 ${testSources})
 else()
-add_executable(Ogre_glTF_TEST ${testSources})
-add_executable(Ogre_gltf_PluginTest ${pluginTestSources})
-#add_executable(Ogre_glTF_TEST_static ${testSources})
+	add_executable(Ogre_glTF_TEST ${testSources})
+	add_executable(Ogre_gltf_PluginTest ${pluginTestSources})
+	#add_executable(Ogre_glTF_TEST_static ${testSources})
 endif(MSVC)
-
 
 target_include_directories( Ogre_glTF PUBLIC
 	#Ogre and the physics based high level material system
@@ -45,8 +45,6 @@ target_include_directories( Ogre_glTF PUBLIC
 	./src/private_headers
 	./thirdParty/tinygltf/
 )
-
-
 
 #target_include_directories( Ogre_glTF_static PUBLIC
 #	#Ogre and the physics based high level material system
@@ -110,3 +108,16 @@ target_link_libraries(Ogre_gltf_PluginTest
 #	Ogre_glTF_static
 #)
 
+#installation
+if(WIN32)
+	set(CMAKE_INSTALL_PREFIX "./sdk" CACHE PATH "Installation prefix on windows, should be a subdirectory of the build directory" FORCE)
+endif()
+
+install(TARGETS Ogre_glTF DESTINATION "bin")
+install(FILES
+./include/Ogre_glTF.hpp
+./include/Ogre_glTF_OgrePlugin.hpp
+./include/Ogre_glTF_OgreResource.hpp
+./include/Ogre_glTF_DLL.hpp
+DESTINATION
+"include")

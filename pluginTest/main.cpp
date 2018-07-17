@@ -14,7 +14,7 @@ const char GL_RENDER_PLUGIN[] = "./RenderSystem_GL3Plus";
 #ifdef _WIN32
 #ifdef _DEBUG
 const char D3D11_RENDER_PLUGIN[] = "./RenderSystem_Direct3D11_d";
-const char Ogre_glTF_PluginPath[] = "./Debug/Ogre_glTF";
+const char Ogre_glTF_PluginPath[] = "./Debug/Ogre_glTF_d";
 #else
 const char D3D11_RENDER_PLUGIN[] = "./RenderSystem_Direct3D11";
 const char Ogre_glTF_PluginPath[] = "./Release/Ogre_glTF";
