@@ -14,8 +14,10 @@ const char GL_RENDER_PLUGIN[] = "./RenderSystem_GL3Plus";
 #ifdef _WIN32
 #ifdef _DEBUG
 const char D3D11_RENDER_PLUGIN[] = "./RenderSystem_Direct3D11_d";
+const char Ogre_glTF_PluginPath[] = "./Debug/Ogre_glTF";
 #else
 const char D3D11_RENDER_PLUGIN[] = "./RenderSystem_Direct3D11";
+const char Ogre_glTF_PluginPath[] = "./Release/Ogre_glTF";
 #endif
 #endif
 
@@ -100,7 +102,7 @@ int main()
 #ifdef _WIN32
 	root->loadPlugin(D3D11_RENDER_PLUGIN);
 	//Append the Ogre_glTF plugin to that list
-	root->loadPlugin("./Debug/Ogre_glTF");
+	root->loadPlugin(Ogre_glTF_PluginPath);
 #else
     root->loadPlugin("./libOgre_glTF.so");
 #endif
