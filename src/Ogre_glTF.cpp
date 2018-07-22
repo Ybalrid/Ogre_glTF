@@ -61,21 +61,32 @@ loaderAdapter::~loaderAdapter()
 
 Ogre::Item* loaderAdapter::getItem(Ogre::SceneManager* smgr) const
 {
-	if(isOk()) {
+	if(isOk())
+	{
 		pimpl->textureImp.loadTextures();
-		auto Mesh = pimpl->modelConv.getOgreMesh();
-		if(pimpl->modelConv.hasSkins()) {
-			//load skeleton information
-			auto skeleton = pimpl->skeletonImp.getSkeleton(adapterName);
-			Mesh->_notifySkeleton(skeleton);
-		}
+		Ogre::MeshPtr Mesh = getMesh();
 
 		auto Item = smgr->createItem(Mesh);
-		Item->setDatablock(pimpl->materialLoad.getDatablock());
+		Item->setDatablock(getDatablock());
 		return Item;
 	}
 	return nullptr;
 }
+
+Ogre::MeshPtr loaderAdapter::getMesh() const
+{
+	auto Mesh = this->pimpl->modelConv.getOgreMesh();
+
+	if(this->pimpl->modelConv.hasSkins())
+	{
+		//load skeleton information
+		auto skeleton = this->pimpl->skeletonImp.getSkeleton(this->adapterName);
+		Mesh->_notifySkeleton(skeleton);
+	}
+	return Mesh;
+}
+
+Ogre::HlmsDatablock* loaderAdapter::getDatablock() const { return pimpl->materialLoad.getDatablock(); }
 
 loaderAdapter::loaderAdapter(loaderAdapter&& other) noexcept : pimpl{ std::move(other.pimpl) }
 {
@@ -116,7 +127,8 @@ struct glTFLoader::glTFLoaderImpl
 			for(size_t i{ 0 }; i < 4; ++i) probe >> buffer[i];
 			buffer[4] = 0;
 
-			if(std::string("glTF") == std::string(buffer.data())) {
+			if(std::string("glTF") == std::string(buffer.data()))
+			{
 				//OgreLog("Detected binary file thanks to the magic number at the start!");
 				return FileType::Binary;
 			}
@@ -185,7 +197,8 @@ loaderAdapter glTFLoader::loadGlbResource(const std::string& name) const
 	auto glbFile	 = glbManager.load(name, Ogre::ResourceGroupManager::AUTODETECT_RESOURCE_GROUP_NAME);
 
 	loaderAdapter adapter;
-	if(glbFile) {
+	if(glbFile)
+	{
 		loaderImpl->loadGlb(adapter, glbFile);
 		adapter.pimpl->valid = true;
 	}
@@ -198,10 +211,7 @@ Ogre::Item* glTFLoader::getItemFromResource(const std::string& name, Ogre::Scene
 {
 	OgreLog("Getting resource");
 	auto adapter = loadGlbResource(name);
-	if(adapter.isOk())
-	{
-		OgreLog("Adapter is ok!");
-	}
+	if(adapter.isOk()) { OgreLog("Adapter is ok!"); }
 	else
 	{
 		OgreLog("Adapter is not okay!");
@@ -214,7 +224,34 @@ Ogre::Item* glTFLoader::getItemFromResource(const std::string& name, Ogre::Scene
 Ogre::Item* glTFLoader::getItemFromFileSystem(const std::string& fileName, Ogre::SceneManager* smgr)
 {
 	auto adapter = loadFromFileSystem(fileName);
+	if(adapter.isOk()) { OgreLog("Adapter is ok!"); }
+	else
+	{
+		OgreLog("Adapter is not okay!");
+	}
 	return adapter.getItem(smgr);
+}
+
+MeshAndDataBlock glTFLoader::getMeshFromFileSystem(const std::string& name)
+{
+	auto adapter = loadFromFileSystem(name);
+	if(adapter.isOk()) { OgreLog("Adapter is ok!"); }
+	else
+	{
+		OgreLog("Adapter is not okay!");
+	}
+	return { adapter.getMesh(), adapter.getDatablock() };
+}
+
+MeshAndDataBlock glTFLoader::getMeshFromResource(const std::string& name)
+{
+	auto adapter = loadGlbResource(name);
+	if(adapter.isOk()) { OgreLog("Adapter is ok!"); }
+	else
+	{
+		OgreLog("Adapter is not okay!");
+	}
+	return { adapter.getMesh(), adapter.getDatablock() };
 }
 
 glTFLoader::glTFLoader(glTFLoader&& other) noexcept : loaderImpl(std::move(other.loaderImpl)) {}

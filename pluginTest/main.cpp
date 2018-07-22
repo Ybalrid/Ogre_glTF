@@ -108,7 +108,7 @@ int main()
 #endif
 
 
-	//Startup Ogre as you woul generally do it
+	//Startup Ogre as you would generally do it
 	root->showConfigDialog();
 	root->getRenderSystem()->setConfigOption("FSAA", "16");
 	root->getRenderSystem()->setConfigOption("sRGB Gamma Conversion", "Yes");

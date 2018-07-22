@@ -10,15 +10,45 @@ namespace Ogre_glTF
 	//Forward declare main class
 	class glTFLoader;
 
+	///struct that contains a mesh and the datablock that should be used with it.
+	///This represent what an extracted object from a glTF asset contains.
+	///The mash should have a skeletonInstance attached to it the glTF file defined a skin;
+	struct MeshAndDataBlock
+	{
+		///Pointer to the Ogre Mesh
+		Ogre::MeshPtr Mesh;
+
+		///Pointer to the HlmsDatablock. This should be a HlmsPbsDatablock
+		Ogre::HlmsDatablock* datablock;
+	};
+
 	///Plugin accessible interface that plugin users can use
 	struct glTFLoaderInterface
 	{
 		///Polymorphic dtor
 		virtual ~glTFLoaderInterface() = default;
+
 		///Get you an item from a GLB file loaded inside an Ogre resource group
+		/// \param name The name of the resource
+		/// \param smgr The scene manager where the Item will be used
+		/// \return pointer to a created item in your scene manager using the mesh in the glTF asset
 		virtual Ogre::Item* getItemFromResource(const std::string& name, Ogre::SceneManager* smgr) = 0;
+
 		///Get you an item from a GLB or a GLTF file from the filesystem.
+		/// \param name The name of the resource
+		/// \param smgr The scene manager where the Item will be used
+		/// \return pointer to a created item in your scene manager using the mesh in the glTF asset
 		virtual Ogre::Item* getItemFromFileSystem(const std::string& fileName, Ogre::SceneManager* smgr) = 0;
+
+		///Get you a mesh and a material datablock from a GLB in the resource manager
+		/// \param name The name of the resource
+		/// \return a struct containing pointers to a mesh and a datablock
+		virtual MeshAndDataBlock getMeshFromResource(const std::string& name) = 0;
+
+		///Get you  mesh and a material datablock from GLB or a GLTF file from the filesystem
+		/// \param name The name of the resource
+		/// \return a struct containing pointers to a mesh and a datablock
+		virtual MeshAndDataBlock getMeshFromFileSystem(const std::string& name) = 0;
 	};
 
 	///Class that hold the loaded content of a glTF file and that can create Ogre objects from it
@@ -46,6 +76,9 @@ namespace Ogre_glTF
 
 		///Deleted asignment constructor : non copyable class
 		loaderAdapter& operator=(const loaderAdapter&) = delete;
+
+		Ogre::MeshPtr getMesh() const;
+		Ogre::HlmsDatablock* getDatablock() const;
 
 		///Construct an item for this object
 		/// \param smgr pointer to the scene manager where we are creating the item
@@ -95,6 +128,8 @@ namespace Ogre_glTF
 
 		Ogre::Item* getItemFromResource(const std::string& name, Ogre::SceneManager* smgr) override;
 		Ogre::Item* getItemFromFileSystem(const std::string& fileName, Ogre::SceneManager* smgr) override;
+		MeshAndDataBlock getMeshFromResource(const std::string& name) override;
+		MeshAndDataBlock getMeshFromFileSystem(const std::string& name) override;
 
 		///Deleted copy contructor
 		glTFLoader(const glTFLoader&) = delete;
