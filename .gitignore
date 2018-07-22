@@ -1,6 +1,8 @@
 #For some reason Visual Studio started creating theses files everywhere
 *.TMP
 
+.idea/
+
 build/
 Doxygen/
 
