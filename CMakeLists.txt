@@ -109,9 +109,6 @@ target_link_libraries(Ogre_gltf_PluginTest
 #)
 
 #installation
-if(WIN32)
-	set(CMAKE_INSTALL_PREFIX "./sdk" CACHE PATH "Installation prefix on windows, should be a subdirectory of the build directory" FORCE)
-endif()
 
 install(TARGETS Ogre_glTF DESTINATION "bin")
 install(FILES
