@@ -11,4 +11,10 @@ void OgreLog(const std::string& message)
 #endif
 }
 
-void OgreLog(const std::stringstream& message) { OgreLog(message.str()); }
+void OgreLog(const std::stringstream& message)
+{
+#ifdef _DEBUG
+	OgreLog(message.str()); //Also prevent codegen for reading the string insdie that stream
+#else
+#endif
+}
