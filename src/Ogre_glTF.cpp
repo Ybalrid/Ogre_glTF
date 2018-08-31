@@ -35,6 +35,9 @@ struct loaderAdapter::impl
 	///Where tinygltf will write it's error status
 	std::string error = "";
 
+	///Where tinygltf will write it's warning messages
+	std::string warnings = "";
+
 	///Texture importer object : go throught the texture array and load them into Ogre
 	textureImporter textureImp;
 
@@ -152,16 +155,16 @@ struct glTFLoader::glTFLoaderImpl
 			case FileType::Unknown: return false;
 			case FileType::Ascii:
 				//OgreLog("Detected ascii file type");
-				return loader.LoadASCIIFromFile(&adapter.pimpl->model, &adapter.pimpl->error, path);
+				return loader.LoadASCIIFromFile(&adapter.pimpl->model, &adapter.pimpl->error, &adapter.pimpl->warnings, path);
 			case FileType::Binary:
 				//OgreLog("Deteted binary file type");
-				return loader.LoadBinaryFromFile(&adapter.pimpl->model, &adapter.pimpl->error, path);
+				return loader.LoadBinaryFromFile(&adapter.pimpl->model, &adapter.pimpl->error, &adapter.pimpl->warnings, path);
 		}
 	}
 
 	bool loadGlb(loaderAdapter& adapter, GlbFilePtr file)
 	{
-		return loader.LoadBinaryFromMemory(&adapter.pimpl->model, &adapter.pimpl->error, file->getData(), int(file->getSize()), ".", 0);
+		return loader.LoadBinaryFromMemory(&adapter.pimpl->model, &adapter.pimpl->error, &adapter.pimpl->warnings, file->getData(), int(file->getSize()), ".", 0);
 	}
 };
 

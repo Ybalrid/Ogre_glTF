@@ -1,5 +1,4 @@
 #include "Ogre_glTF_OgrePlugin.hpp"
-#include <algorithm>
 
 Ogre_glTF::glTFLoaderPlugin* gPluginInstaller = nullptr;
 
@@ -9,8 +8,8 @@ void Ogre_glTF_EXPORT dllStartPlugin(void)
 {
 	if(gPluginInstaller)
 	{
-		throw std::runtime_error("Apparenltly called dllStartPlugin on the Ogre_glTF"
-								 "plugin twice. I'm affraid you can't do that... ");
+		throw std::runtime_error("Apparently called dllStartPlugin on the Ogre_glTF"
+								 "plugin twice. I'm afraid you can't do that... ");
 	}
 
 	gPluginInstaller = new Ogre_glTF::glTFLoaderPlugin;
@@ -23,8 +22,6 @@ void Ogre_glTF_EXPORT dllStopPlugin(void)
 	delete gPluginInstaller;
 	gPluginInstaller = nullptr;
 }
-
-
 }
 
 Ogre_glTF::glTFLoaderPlugin::glTFLoaderPlugin() : Ogre::Plugin() {}
@@ -40,4 +37,3 @@ void Ogre_glTF::glTFLoaderPlugin::initialise() { gltf = std::make_unique<Ogre_gl
 void Ogre_glTF::glTFLoaderPlugin::shutdown() { gltf = nullptr; }
 
 void Ogre_glTF::glTFLoaderPlugin::uninstall() {}
-
