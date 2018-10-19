@@ -26,7 +26,7 @@ struct loaderAdapter::impl
 	///to a model object (and sometimes more) given at construct time
 	impl() : textureImp(model), materialLoad(model, textureImp), modelConv(model), skeletonImp(model) {}
 
-	///Vaiable to check if everything is allright with the adapter
+	///Variable to check if everything is alright with the adapter
 	bool valid = false;
 
 	///The model object that data will be loaded into and read from
@@ -38,10 +38,10 @@ struct loaderAdapter::impl
 	///Where tinygltf will write it's warning messages
 	std::string warnings = "";
 
-	///Texture importer object : go throught the texture array and load them into Ogre
+	///Texture importer object : go through the texture array and load them into Ogre
 	textureImporter textureImp;
 
-	///Mateiral loader : get the data from the material section of the glTF file and create an HlmsDatablock to use
+	///Material loader : get the data from the material section of the glTF file and create an HlmsDatablock to use
 	materialLoader materialLoad;
 
 	///Model converter : load all the actual mesh data from the glTF file, and convert them into index and vertex buffer that can
@@ -74,6 +74,11 @@ Ogre::Item* loaderAdapter::getItem(Ogre::SceneManager* smgr) const
 		return Item;
 	}
 	return nullptr;
+}
+
+void loaderAdapter::getTransforms(ItemAndTransforms* tran)
+{
+	this->pimpl->modelConv.getTransforms(tran);
 }
 
 Ogre::MeshPtr loaderAdapter::getMesh() const
@@ -112,7 +117,7 @@ struct glTFLoader::glTFLoaderImpl
 	///The loader object from TinyGLTF
 	tinygltf::TinyGLTF loader;
 
-	///Construtor. the loader is on the stack, there isn't mutch state to set inside the object
+	///Constructor. the loader is on the stack, there isn't much state to set inside the object
 	glTFLoaderImpl() { OgreLog("initialized TinyGLTF loader"); }
 
 	///For file type detection. Ascii is plain old JSON text, Binary is .glc files.
@@ -121,7 +126,7 @@ struct glTFLoader::glTFLoaderImpl
 	///Probe inside the file, or check the extension to determine if we have to load a text file, or a binary file
 	FileType detectType(const std::string& path) const
 	{
-		//Quickly open the file as binary and chekc if there's the gltf binary magic number
+		//Quickly open the file as binary and check if there's the gltf binary magic number
 		{
 			auto probe = std::ifstream(path, std::ios_base::binary);
 			if(!probe) throw std::runtime_error("Could not open " + path);
@@ -164,7 +169,8 @@ struct glTFLoader::glTFLoaderImpl
 
 	bool loadGlb(loaderAdapter& adapter, GlbFilePtr file)
 	{
-		return loader.LoadBinaryFromMemory(&adapter.pimpl->model, &adapter.pimpl->error, &adapter.pimpl->warnings, file->getData(), int(file->getSize()), ".", 0);
+		return loader.LoadBinaryFromMemory(
+			&adapter.pimpl->model, &adapter.pimpl->error, &adapter.pimpl->warnings, file->getData(), int(file->getSize()), ".", 0);
 	}
 };
 
@@ -222,6 +228,23 @@ Ogre::Item* glTFLoader::getItemFromResource(const std::string& name, Ogre::Scene
 
 	OgreLog("Calling get item with your smgr...");
 	return adapter.getItem(smgr);
+}
+
+ItemAndTransforms glTFLoader::getItemAndTransformsFromResource(const std::string& name, Ogre::SceneManager* smgr)
+{
+	ItemAndTransforms data{ nullptr, Ogre::Vector3::ZERO, Ogre::Vector3::ZERO, Ogre::Quaternion::IDENTITY };
+	OgreLog("Getting resource");
+	auto adapter = loadGlbResource(name);
+	if(adapter.isOk()) { OgreLog("Adapter is ok!"); }
+	else
+	{
+		OgreLog("Adapter is not okay!");
+	}
+	OgreLog("Calling get item with your smgr...");
+	data.item = adapter.getItem(smgr);
+	adapter.getTransforms(&data);
+
+	return { data};
 }
 
 Ogre::Item* glTFLoader::getItemFromFileSystem(const std::string& fileName, Ogre::SceneManager* smgr)
