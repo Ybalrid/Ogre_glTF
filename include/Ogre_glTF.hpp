@@ -22,6 +22,17 @@ namespace Ogre_glTF
 		Ogre::HlmsDatablock* datablock;
 	};
 
+	///struct that contains a pointer to the item, and the associated transformations
+	struct ItemAndTransforms
+	{
+		///Pointer to the item
+		Ogre::Item* item;
+
+		Ogre::Vector3 pos;
+		Ogre::Vector3 scale;
+		Ogre::Quaternion rot;
+	};
+
 	///Plugin accessible interface that plugin users can use
 	struct glTFLoaderInterface
 	{
@@ -34,6 +45,12 @@ namespace Ogre_glTF
 		/// \return pointer to a created item in your scene manager using the mesh in the glTF asset
 		virtual Ogre::Item* getItemFromResource(const std::string& name, Ogre::SceneManager* smgr) = 0;
 
+		///Get you an item and transforms from a GLB file loaded inside an Ogre resource group
+		/// \param name The name of the resource
+		/// \param smgr The scene manager where the Item will be used
+		/// \return a struct containing the item pointer and transforms
+		virtual ItemAndTransforms getItemAndTransformsFromResource(const std::string& name, Ogre::SceneManager* smgr) = 0;
+
 		///Get you an item from a GLB or a GLTF file from the filesystem.
 		/// \param name The name of the resource
 		/// \param smgr The scene manager where the Item will be used
@@ -45,7 +62,7 @@ namespace Ogre_glTF
 		/// \return a struct containing pointers to a mesh and a datablock
 		virtual MeshAndDataBlock getMeshFromResource(const std::string& name) = 0;
 
-		///Get you  mesh and a material datablock from GLB or a GLTF file from the filesystem
+		///Gets you a mesh and a material datablock from GLB or a GLTF file from the filesystem
 		/// \param name The name of the resource
 		/// \return a struct containing pointers to a mesh and a datablock
 		virtual MeshAndDataBlock getMeshFromFileSystem(const std::string& name) = 0;
@@ -65,7 +82,7 @@ namespace Ogre_glTF
 		std::string adapterName;
 
 	public:
-		///This will aslo initialize the "pimpl" structure
+		///This will also initialize the "pimpl" structure
 		loaderAdapter();
 
 		///This clear the pimpl structure
@@ -74,11 +91,12 @@ namespace Ogre_glTF
 		///Deleted copy constructor : non copyable class
 		loaderAdapter(const loaderAdapter&) = delete;
 
-		///Deleted asignment constructor : non copyable class
+		///Deleted assignment constructor : non copyable class
 		loaderAdapter& operator=(const loaderAdapter&) = delete;
 
 		Ogre::MeshPtr getMesh() const;
 		Ogre::HlmsDatablock* getDatablock() const;
+		void getTransforms(ItemAndTransforms* tran);
 
 		///Construct an item for this object
 		/// \param smgr pointer to the scene manager where we are creating the item
@@ -88,7 +106,7 @@ namespace Ogre_glTF
 		/// \param other object to move
 		loaderAdapter(loaderAdapter&& other) noexcept;
 
-		///Move assignemnt operator
+		///Move assignment operator
 		loaderAdapter& operator=(loaderAdapter&& other) noexcept;
 
 		///Return the current state of the adapter
@@ -128,13 +146,14 @@ namespace Ogre_glTF
 
 		Ogre::Item* getItemFromResource(const std::string& name, Ogre::SceneManager* smgr) override;
 		Ogre::Item* getItemFromFileSystem(const std::string& fileName, Ogre::SceneManager* smgr) override;
+		ItemAndTransforms getItemAndTransformsFromResource(const std::string& name, Ogre::SceneManager* smgr) override;
 		MeshAndDataBlock getMeshFromResource(const std::string& name) override;
 		MeshAndDataBlock getMeshFromFileSystem(const std::string& name) override;
 
-		///Deleted copy contructor
+		///Deleted copy constructor
 		glTFLoader(const glTFLoader&) = delete;
 
-		///Deleted asignment operator
+		///Deleted assignment operator
 		glTFLoader& operator=(const glTFLoader&) = delete;
 	};
 }
