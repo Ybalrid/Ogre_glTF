@@ -123,7 +123,7 @@ This project is currently in developement, here's a list of features that we are
  This project is Open Source. If you can improve it in any way, Pull Requests are welcommed!
  
  Here's the list of the contributors that hepled out with this projet:
- 
+  - [Stuggy](https://github.com/Stuggy) Implemented the retreival of node local transform, if you just want a model, but has to apply the scene nodes transform on them
   - [Stig Atle](https://twitter.com/stigatle) @stig-atle
   - [Crashy](https://twitter.com/LMCrashy) helped figure out how to correctly bind the skeleton base pauses, and how to get relative transform in the keyframes
   - [Matías](https://twitter.com/matiasgoldberg) being the main author/maintainer of the Ogre 2.x for awnsering countless silly questions over twitter, gitter and the forums... ^^"
