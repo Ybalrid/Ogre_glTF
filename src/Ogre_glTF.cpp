@@ -232,7 +232,7 @@ Ogre::Item* glTFLoader::getItemFromResource(const std::string& name, Ogre::Scene
 
 ItemAndTransforms glTFLoader::getItemAndTransformsFromResource(const std::string& name, Ogre::SceneManager* smgr)
 {
-	ItemAndTransforms data{ nullptr, Ogre::Vector3::ZERO, Ogre::Vector3{1.0f,1.0f,1.0f}, Ogre::Quaternion::IDENTITY };
+	ItemAndTransforms data{ nullptr, Ogre::Vector3::ZERO, Ogre::Vector3::UNIT_SCALE, Ogre::Quaternion::IDENTITY };
 	OgreLog("Getting resource");
 	auto adapter = loadGlbResource(name);
 	if(adapter.isOk()) { OgreLog("Adapter is ok!"); }
