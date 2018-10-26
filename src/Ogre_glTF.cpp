@@ -70,7 +70,10 @@ Ogre::Item* loaderAdapter::getItem(Ogre::SceneManager* smgr) const
 		Ogre::MeshPtr Mesh = getMesh();
 
 		auto Item = smgr->createItem(Mesh);
-		Item->setDatablock(getDatablock());
+		for(size_t i = 0; i < Item->getNumSubItems(); ++i)
+		{
+			Item->getSubItem(i)->setDatablock(getDatablock(i));
+		}
 		return Item;
 	}
 	return nullptr;
@@ -94,7 +97,7 @@ Ogre::MeshPtr loaderAdapter::getMesh() const
 	return Mesh;
 }
 
-Ogre::HlmsDatablock* loaderAdapter::getDatablock() const { return pimpl->materialLoad.getDatablock(); }
+Ogre::HlmsDatablock* loaderAdapter::getDatablock(size_t index) const { return pimpl->materialLoad.getDatablock(index); }
 
 loaderAdapter::loaderAdapter(loaderAdapter&& other) noexcept : pimpl{ std::move(other.pimpl) }
 {
@@ -266,7 +269,7 @@ MeshAndDataBlock glTFLoader::getMeshFromFileSystem(const std::string& name)
 	{
 		OgreLog("Adapter is not okay!");
 	}
-	return { adapter.getMesh(), adapter.getDatablock() };
+	return { adapter.getMesh(), adapter.getDatablock(0) };
 }
 
 MeshAndDataBlock glTFLoader::getMeshFromResource(const std::string& name)
@@ -277,7 +280,7 @@ MeshAndDataBlock glTFLoader::getMeshFromResource(const std::string& name)
 	{
 		OgreLog("Adapter is not okay!");
 	}
-	return { adapter.getMesh(), adapter.getDatablock() };
+	return { adapter.getMesh(), adapter.getDatablock(0) };
 }
 
 glTFLoader::glTFLoader(glTFLoader&& other) noexcept : loaderImpl(std::move(other.loaderImpl)) {}

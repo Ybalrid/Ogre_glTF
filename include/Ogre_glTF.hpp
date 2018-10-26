@@ -95,7 +95,7 @@ namespace Ogre_glTF
 		loaderAdapter& operator=(const loaderAdapter&) = delete;
 
 		Ogre::MeshPtr getMesh() const;
-		Ogre::HlmsDatablock* getDatablock() const;
+		Ogre::HlmsDatablock* getDatablock(size_t index) const;
 		void getTransforms(ItemAndTransforms* tran);
 
 		///Construct an item for this object
