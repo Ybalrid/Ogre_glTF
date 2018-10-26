@@ -114,7 +114,7 @@ materialLoader::materialLoader(tinygltf::Model& input, textureImporter& textureI
 {
 }
 
-Ogre::HlmsDatablock* materialLoader::getDatablock(size_t index = 0) const
+Ogre::HlmsDatablock* materialLoader::getDatablock(size_t index) const
 {
 	OgreLog("Loading material...");
 	//TODO this will need some modification if we support multiple meshes by glTF file
