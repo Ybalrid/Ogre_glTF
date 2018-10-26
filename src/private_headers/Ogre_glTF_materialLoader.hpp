@@ -71,6 +71,6 @@ namespace Ogre_glTF
 		/// \param textureInterface the texture importer to get Ogre texture from
 		materialLoader(tinygltf::Model& input, textureImporter& textureInterface);
 		///Get the material (the HlmsDatablock)
-		Ogre::HlmsDatablock* getDatablock() const;
+		Ogre::HlmsDatablock* getDatablock(size_t index = 0) const;
 	};
 }

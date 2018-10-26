@@ -356,7 +356,7 @@ vertexBufferPart modelConverter::extractVertexBuffer(const std::pair<std::string
 		OgreLog("Updating bounding box size: ");
 		OgreLog("Setting Min size: " + std::to_string(minBounds.x) + " " + std::to_string(minBounds.y) + " " + std::to_string(minBounds.z));
 		OgreLog("Setting Max size: " + std::to_string(maxBounds.x) + " " + std::to_string(maxBounds.y) + " " + std::to_string(maxBounds.z));
-		boundingBox.setExtents(minBounds, maxBounds);
+		boundingBox.merge(Ogre::Aabb(minBounds, maxBounds));
 	}
 
 	//geometryBuffer->_debugContentToLog();
