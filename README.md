@@ -42,7 +42,7 @@ auto glTFLoader = gltfPluginAccessor::findPlugin()->getLoader();
 Ogre::Item* cesiumMan = glTFLoader->getItemFromResource("CesiumMan.glb, smgr);
 ```
  
- ## Building the sourcde code
+ ## Building the source code
 
 First of all, locally clone this repository. It uses git submodules to get it's dependencies, so you just need to do 
 
@@ -71,12 +71,12 @@ On a typical install from Ogre's source code on linux, theses path are `/usr/loc
 
 (windows) :
 
- - Use cmake-gui to generate a Visual Studio solutution inside the `build` using the same version that you built Ogre with. You probably need to set the `OGRE_HOME` variable.
+ - Use cmake-gui to generate a Visual Studio solution inside the `build` using the same version that you built Ogre with. You probably need to set the `OGRE_HOME` variable.
  - Open the .sln (solution) file into Visual Studio. You'll get 2 projects : `Ogre_glTF` (the DLL) and `Ogre_glTF_TEST` (a test program)
  - To make the test program works, copy inside the "build" directory all the .dll (and .pdb if you want to debug) files from Ogre's debug and release binary directories
  - Copy the HLMS libary to the "build" directory
  
- The "test" program is really crude and badly written, it was to validate taht some of the feautres where working during developement.
+ The "test" program is really crude and badly written, it was to validate that some of the features were working during development.
  
  
 ## Project details
@@ -123,7 +123,7 @@ This project is currently in developement, here's a list of features that we are
  This project is Open Source. If you can improve it in any way, Pull Requests are welcommed!
  
  Here's the list of the contributors that hepled out with this projet:
- 
+  - [Stuggy](https://github.com/Stuggy) Implemented the retreival of node local transform, if you just want a model, but has to apply the scene nodes transform on them
   - [Stig Atle](https://twitter.com/stigatle) @stig-atle
   - [Crashy](https://twitter.com/LMCrashy) helped figure out how to correctly bind the skeleton base pauses, and how to get relative transform in the keyframes
   - [Matías](https://twitter.com/matiasgoldberg) being the main author/maintainer of the Ogre 2.x for awnsering countless silly questions over twitter, gitter and the forums... ^^"

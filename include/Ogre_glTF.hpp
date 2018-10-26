@@ -22,17 +22,15 @@ namespace Ogre_glTF
 		Ogre::HlmsDatablock* datablock;
 	};
 
-	// Struct that contains a pointer to the item along with positions, scale and orientation
-	// of the node the holds it
-	// This transform information can then be used in Ogre to correctly scale etc the item
+	///struct that contains a pointer to the item, and the associated transformations
 	struct ItemAndTransforms
 	{
-		// Pointer to the item
+		///Pointer to the item
 		Ogre::Item* item;
 
-		Ogre::Vector3 pos;	// Position
-		Ogre::Vector3 scale;  // scale
-		Ogre::Quaternion rot; // rotation
+		Ogre::Vector3 pos;
+		Ogre::Vector3 scale;
+		Ogre::Quaternion rot;
 	};
 
 	///Plugin accessible interface that plugin users can use
