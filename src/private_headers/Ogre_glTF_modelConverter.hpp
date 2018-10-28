@@ -168,8 +168,8 @@ namespace Ogre_glTF
 		///Return true if the model defines skins. Skins are "vertex to bone" asignment for skeletal animation
 		bool hasSkins() const;
 
-		// Return the transforms.  The item pointer will be a nullptr at this point
-		void getTransforms(Ogre_glTF::ItemAndTransforms* trans);
+		/// Return the transforms.  The item pointer will be a nullptr at this point
+		ItemAndTransform getTransform();
 
 	private:
 		///Get a pointer to the Ogre::VaoManager

@@ -198,23 +198,27 @@ void modelConverter::debugDump() const
 	OgreLog(gltfContentDump);
 }
 
-bool modelConverter::hasSkins() const { return model.skins.size() > 0; }
+bool modelConverter::hasSkins() const { return !model.skins.empty(); }
 
-void modelConverter::getTransforms(Ogre_glTF::ItemAndTransforms* trans)
+ItemAndTransform modelConverter::getTransform()
 {
-	if (model.nodes.size() > 0) { 
+	ItemAndTransform trans;
+	if(!model.nodes.empty())
+	{
 		std::array<float, 3> translation{ 0 }, scale{ 0 };
 		std::array<float, 4> rotation{ 0 };
 
 		// Just get the first one - not sure if there can be more for a model but doubt it
 		const auto& nodes = model.nodes[model.scenes[model.defaultScene].nodes.front()];
-		if (nodes.translation.size() == 3) internal_utils::container_double_to_float(nodes.translation, translation);
-		if (nodes.scale.size() == 3) internal_utils::container_double_to_float(nodes.scale, scale);
-		if (nodes.rotation.size() == 3) internal_utils::container_double_to_float(nodes.rotation, rotation);
-		trans->pos  = Ogre::Vector3{ translation.data() };
-		trans->rot = Ogre::Quaternion{ rotation[3], rotation[0], rotation[1], rotation[2] };
-		trans->scale = Ogre::Vector3{ scale.data() };
+		if(nodes.translation.size() == 3) internal_utils::container_double_to_float(nodes.translation, translation);
+		if(nodes.scale.size() == 3) internal_utils::container_double_to_float(nodes.scale, scale);
+		if(nodes.rotation.size() == 3) internal_utils::container_double_to_float(nodes.rotation, rotation);
+		trans.pos	 = Ogre::Vector3{ translation.data() };
+		trans.rot	 = Ogre::Quaternion{ rotation[3], rotation[0], rotation[1], rotation[2] };
+		trans.scale = Ogre::Vector3{ scale.data() };
 	}
+
+	return trans;
 }
 
 Ogre::VaoManager* modelConverter::getVaoManager()

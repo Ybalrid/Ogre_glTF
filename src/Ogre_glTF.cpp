@@ -70,19 +70,13 @@ Ogre::Item* loaderAdapter::getItem(Ogre::SceneManager* smgr) const
 		Ogre::MeshPtr Mesh = getMesh();
 
 		auto Item = smgr->createItem(Mesh);
-		for(size_t i = 0; i < Item->getNumSubItems(); ++i)
-		{
-			Item->getSubItem(i)->setDatablock(getDatablock(i));
-		}
+		for(size_t i = 0; i < Item->getNumSubItems(); ++i) { Item->getSubItem(i)->setDatablock(getDatablock(i)); }
 		return Item;
 	}
 	return nullptr;
 }
 
-void loaderAdapter::getTransforms(ItemAndTransforms* tran)
-{
-	this->pimpl->modelConv.getTransforms(tran);
-}
+ItemAndTransform loaderAdapter::getTransform() { return this->pimpl->modelConv.getTransform(); }
 
 Ogre::MeshPtr loaderAdapter::getMesh() const
 {
@@ -233,9 +227,8 @@ Ogre::Item* glTFLoader::getItemFromResource(const std::string& name, Ogre::Scene
 	return adapter.getItem(smgr);
 }
 
-ItemAndTransforms glTFLoader::getItemAndTransformsFromResource(const std::string& name, Ogre::SceneManager* smgr)
+ItemAndTransform glTFLoader::getItemAndTransformFromResource(const std::string& name, Ogre::SceneManager* smgr)
 {
-	ItemAndTransforms data{ nullptr, Ogre::Vector3::ZERO, Ogre::Vector3::UNIT_SCALE, Ogre::Quaternion::IDENTITY };
 	OgreLog("Getting resource");
 	auto adapter = loadGlbResource(name);
 	if(adapter.isOk()) { OgreLog("Adapter is ok!"); }
@@ -244,10 +237,26 @@ ItemAndTransforms glTFLoader::getItemAndTransformsFromResource(const std::string
 		OgreLog("Adapter is not okay!");
 	}
 	OgreLog("Calling get item with your smgr...");
-	data.item = adapter.getItem(smgr);
-	adapter.getTransforms(&data);
 
-	return { data};
+	auto itemTransform = adapter.getTransform();
+	itemTransform.item = adapter.getItem(smgr);
+
+	return itemTransform;
+}
+
+ItemAndTransform glTFLoader::getItemAndTransformFromFileSystem(const std::string& fileName, Ogre::SceneManager* smgr)
+{
+	auto adapter = loadFromFileSystem(fileName);
+	if(adapter.isOk()) { OgreLog("Adapter is ok!"); }
+	else
+	{
+		OgreLog("Adapter is not okay!");
+	}
+
+	auto itemTransform = adapter.getTransform();
+	itemTransform.item = adapter.getItem(smgr);
+
+	return itemTransform;
 }
 
 Ogre::Item* glTFLoader::getItemFromFileSystem(const std::string& fileName, Ogre::SceneManager* smgr)

@@ -23,14 +23,14 @@ namespace Ogre_glTF
 	};
 
 	///struct that contains a pointer to the item, and the associated transformations
-	struct ItemAndTransforms
+	struct ItemAndTransform
 	{
 		///Pointer to the item
-		Ogre::Item* item;
+		Ogre::Item* item = nullptr;
 
-		Ogre::Vector3 pos;
-		Ogre::Vector3 scale;
-		Ogre::Quaternion rot;
+		Ogre::Vector3 pos = Ogre::Vector3::ZERO;
+		Ogre::Vector3 scale = Ogre::Vector3::UNIT_SCALE;
+		Ogre::Quaternion rot = Ogre::Quaternion::IDENTITY;
 	};
 
 	///Plugin accessible interface that plugin users can use
@@ -45,11 +45,17 @@ namespace Ogre_glTF
 		/// \return pointer to a created item in your scene manager using the mesh in the glTF asset
 		virtual Ogre::Item* getItemFromResource(const std::string& name, Ogre::SceneManager* smgr) = 0;
 
-		///Get you an item and transforms from a GLB file loaded inside an Ogre resource group
+		///Get you an item and transform from a GLB file loaded inside an Ogre resource group
 		/// \param name The name of the resource
 		/// \param smgr The scene manager where the Item will be used
 		/// \return a struct containing the item pointer and transforms
-		virtual ItemAndTransforms getItemAndTransformsFromResource(const std::string& name, Ogre::SceneManager* smgr) = 0;
+		virtual ItemAndTransform getItemAndTransformFromResource(const std::string& name, Ogre::SceneManager* smgr) = 0;
+
+		///Get you an item and transform from a GLB or a GLTF file from the filesystem.
+		/// \param name The name of the resource
+		/// \param smgr The scene manager where the Item will be used
+		/// \return a struct containing the item pointer and transforms
+		virtual ItemAndTransform getItemAndTransformFromFileSystem(const std::string& name, Ogre::SceneManager* smgr) =0;
 
 		///Get you an item from a GLB or a GLTF file from the filesystem.
 		/// \param name The name of the resource
@@ -96,7 +102,7 @@ namespace Ogre_glTF
 
 		Ogre::MeshPtr getMesh() const;
 		Ogre::HlmsDatablock* getDatablock(size_t index = 0) const;
-		void getTransforms(ItemAndTransforms* tran);
+		ItemAndTransform getTransform();
 
 		///Construct an item for this object
 		/// \param smgr pointer to the scene manager where we are creating the item
@@ -146,7 +152,8 @@ namespace Ogre_glTF
 
 		Ogre::Item* getItemFromResource(const std::string& name, Ogre::SceneManager* smgr) override;
 		Ogre::Item* getItemFromFileSystem(const std::string& fileName, Ogre::SceneManager* smgr) override;
-		ItemAndTransforms getItemAndTransformsFromResource(const std::string& name, Ogre::SceneManager* smgr) override;
+		ItemAndTransform getItemAndTransformFromResource(const std::string& name, Ogre::SceneManager* smgr) override;
+		ItemAndTransform getItemAndTransformFromFileSystem(const std::string& fileName, Ogre::SceneManager* smgr) override;
 		MeshAndDataBlock getMeshFromResource(const std::string& name) override;
 		MeshAndDataBlock getMeshFromFileSystem(const std::string& name) override;
 
