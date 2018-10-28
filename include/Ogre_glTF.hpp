@@ -28,8 +28,8 @@ namespace Ogre_glTF
 		///Pointer to the item
 		Ogre::Item* item = nullptr;
 
-		Ogre::Vector3 pos = Ogre::Vector3::ZERO;
-		Ogre::Vector3 scale = Ogre::Vector3::UNIT_SCALE;
+		Ogre::Vector3 pos	= Ogre::Vector3::ZERO;
+		Ogre::Vector3 scale  = Ogre::Vector3::UNIT_SCALE;
 		Ogre::Quaternion rot = Ogre::Quaternion::IDENTITY;
 	};
 
@@ -38,6 +38,8 @@ namespace Ogre_glTF
 	{
 		///Polymorphic dtor
 		virtual ~glTFLoaderInterface() = default;
+
+		///TODO refactor this API : Having one method for filesystem and one method for Ogre resource is silly. Having Item, ItemAndTransform and MeshAndDatablock is also silly. And there's no way to get a Mesh+Transform right now.
 
 		///Get you an item from a GLB file loaded inside an Ogre resource group
 		/// \param name The name of the resource
@@ -55,7 +57,7 @@ namespace Ogre_glTF
 		/// \param name The name of the resource
 		/// \param smgr The scene manager where the Item will be used
 		/// \return a struct containing the item pointer and transforms
-		virtual ItemAndTransform getItemAndTransformFromFileSystem(const std::string& name, Ogre::SceneManager* smgr) =0;
+		virtual ItemAndTransform getItemAndTransformFromFileSystem(const std::string& name, Ogre::SceneManager* smgr) = 0;
 
 		///Get you an item from a GLB or a GLTF file from the filesystem.
 		/// \param name The name of the resource
