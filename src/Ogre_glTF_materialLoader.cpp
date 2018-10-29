@@ -108,6 +108,25 @@ void materialLoader::setEmissiveTexture(Ogre::HlmsPbsDatablock* block, int value
 	}
 }
 
+void materialLoader::setAlphaMode(Ogre::HlmsPbsDatablock* block, const std::string& mode) const
+{
+	if(mode == "BLEND")
+	{
+		auto blendBlock = *block->getBlendblock();
+		blendBlock.setBlendType(Ogre::SBT_TRANSPARENT_ALPHA);
+		block->setBlendblock(blendBlock);
+	}
+	else if(mode =="MASK")
+	{
+		block->setAlphaTest( Ogre::CMPF_GREATER_EQUAL );
+	}
+}
+
+void materialLoader::setAlphaCutoff(Ogre::HlmsPbsDatablock* block, Ogre::Real value) const
+{
+	block->setAlphaTestThreshold(value);
+}
+
 materialLoader::materialLoader(tinygltf::Model& input, textureImporter& textureInterface) :
  textureImporterRef { textureInterface },
  model { input }
@@ -172,6 +191,12 @@ Ogre::HlmsDatablock* materialLoader::getDatablock(size_t index) const
 
 		if(content.first == "emissiveFactor")
 			setEmissiveColor(datablock, convertColor(content.second.ColorFactor()));
+
+		if(content.first == "alphaMode") 
+			setAlphaMode(datablock, content.second.string_value);
+
+		if(content.first == "alphaCutoff") 
+			setAlphaCutoff(datablock, static_cast<Ogre::Real>(content.second.number_value));
 	}
 
 	//	OgreLog("extCommonValues");
