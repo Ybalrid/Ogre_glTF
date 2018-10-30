@@ -65,6 +65,16 @@ namespace Ogre_glTF
 		/// \param value gltf texture index
 		void setEmissiveTexture(Ogre::HlmsPbsDatablock* block, int value) const;
 
+		///Set the alpha mode
+		/// \param block datablock to set
+		/// \param mode string that defines the used alpha mode
+		void setAlphaMode(Ogre::HlmsPbsDatablock* block, const std::string& mode) const;
+
+		///Set the alpha cutoff limit, should only be set if the alpha mode is set to MASK.
+		/// \param block datablock to set
+		/// \param value Alpha cutoff value
+		void setAlphaCutoff(Ogre::HlmsPbsDatablock* block, Ogre::Real value) const;
+
 	public:
 		///Construct the material loader
 		/// \param input model to load material from
