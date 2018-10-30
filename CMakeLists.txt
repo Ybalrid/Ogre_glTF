@@ -100,6 +100,8 @@ target_link_libraries(Ogre_gltf_PluginTest
 	${OGRE_HlmsPbs_LIBRARIES}
 )
 
+add_dependencies(Ogre_gltf_PluginTest Ogre_glTF)
+
 #target_link_libraries(Ogre_glTF_TEST_static
 #	${OGRE_LIBRARIES}
 #	${OGRE_HlmsPbs_LIBRARIES}
