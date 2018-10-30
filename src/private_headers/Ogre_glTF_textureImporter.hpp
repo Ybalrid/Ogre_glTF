@@ -23,6 +23,9 @@ namespace Ogre_glTF
 		/// \param texture reference to the texture that we are loading
 		void loadTexture(const tinygltf::Texture& texture);
 
+		///Checks that is hardware gamma enabled
+		bool IsHwGammaEnabled() const;
+
 	public:
 		///Construct the texture importer object. Inrement the id counter
 		/// \param input reference to the model that we are loading

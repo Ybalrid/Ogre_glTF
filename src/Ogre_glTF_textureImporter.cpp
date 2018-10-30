@@ -6,6 +6,8 @@
 #include <OgreImage.h>
 #include <OgreHardwarePixelBuffer.h>
 #include <OgreColourValue.h>
+#include <OgreRoot.h>
+#include <OgreRenderTarget.h>
 
 using namespace Ogre_glTF;
 
@@ -74,11 +76,25 @@ void textureImporter::loadTexture(const tinygltf::Texture& texture)
 											   1,
 											   1,
 											   pixelFormat,
-											   Ogre::TU_DEFAULT);
+											   Ogre::TU_DEFAULT,
+											   nullptr,
+											   IsHwGammaEnabled());
 
 	OgreTexture->loadImage(OgreImage);
 
 	loadedTextures.insert({ texture.source, OgreTexture });
+}
+
+bool textureImporter::IsHwGammaEnabled() const
+{
+	bool isHwGammaEnabled = false;
+
+	auto renderTargetIt = Ogre::Root::getSingleton().getRenderSystem()->getRenderTargetIterator();
+	if(renderTargetIt.hasMoreElements())
+    { 
+		isHwGammaEnabled = renderTargetIt.current()->second->isHardwareGammaEnabled();
+	}
+	return isHwGammaEnabled;
 }
 
 textureImporter::textureImporter(tinygltf::Model& input) :
@@ -176,7 +192,9 @@ Ogre::TexturePtr textureImporter::generateGreyScaleFromChannel(int gltfTextureSo
 											   1,
 											   1,
 											   pixelFormat,
-											   Ogre::TU_DEFAULT);
+											   Ogre::TU_DEFAULT,
+											   nullptr,
+											   IsHwGammaEnabled());
 	OgreTexture->loadImage(OgreImage);
 	return OgreTexture;
 }
@@ -224,7 +242,9 @@ Ogre::TexturePtr textureImporter::getNormalSNORM(int gltfTextureSourceID)
 																1,
 																1,
 																pixelFormatSnorm,
-																Ogre::TU_DEFAULT);
+																Ogre::TU_DEFAULT,
+																nullptr,
+																IsHwGammaEnabled());
 
 	auto pixels = OgreTexture->getBuffer()->lock(
 		{ 0, 0, unsigned(image.width), unsigned(image.height) }, //PixelBox that take the whole image

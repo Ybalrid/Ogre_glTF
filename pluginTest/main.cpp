@@ -117,6 +117,7 @@ int main()
 	//Create a window and a scene
 	NameValuePairList params;
 	params["FSAA"]	= "16";
+	params["gamma"]   = "true";
 	const auto window = root->createRenderWindow("glTF test!", 800, 600, false, &params);
 	auto smgr		  = root->createSceneManager(ST_GENERIC, 2, INSTANCING_CULLING_THREADED);
 	smgr->setForward3D(true, 4, 4, 5, 96, 3, 200);
