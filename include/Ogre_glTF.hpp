@@ -41,7 +41,7 @@ namespace Ogre_glTF {
 	};
 
 	///struct that contains a pointer to the item, and the associated transformations
-	struct [[deprecated("use the getModelData() method that returns a  ModelInformation object")]] ItemAndTransform
+	struct ItemAndTransform
 	{
 		///Pointer to the item
 		Ogre::Item* item = nullptr;
@@ -61,6 +61,9 @@ namespace Ogre_glTF {
 		///location where to load the data
 		enum class LoadFrom { FileSystem, ResourceManager };
 
+		///Get the model data
+		///\param modelName name of the resource being loaded
+		///\param loadLocation flag that signal if the model is loaded directly from the filesystem, or from Ogre's resource manager
 		virtual ModelInformation getModelData(const std::string& modelName, LoadFrom loadLocation) = 0;
 
 		///Get you an item from a GLB file loaded inside an Ogre resource group

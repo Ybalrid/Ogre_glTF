@@ -138,10 +138,13 @@ int main()
 
 	//Get access to the gltf loader, and load a GLB file in the resources to an item
 	auto glTFLoader = gltfPluginAccessor::findPlugin()->getLoader();
-	auto item		= glTFLoader->getItemFromResource("CesiumMan.glb", smgr);
+	auto model =  glTFLoader->getModelData("CesiumMan.glb", glTFLoaderInterface::LoadFrom::ResourceManager);
+	auto item = model.makeItem(smgr);
 	auto itemNode   = smgr->getRootSceneNode()->createChildSceneNode();
 	itemNode->attachObject(item);
-	itemNode->setOrientation(Quaternion(Radian(Math::HALF_PI), Vector3::NEGATIVE_UNIT_X));
+	itemNode->setPosition(model.transform.position);
+	itemNode->setOrientation(model.transform.orientation);
+	itemNode->setScale(model.transform.scale);
 
 	//Add light
 	auto light = smgr->createLight();
