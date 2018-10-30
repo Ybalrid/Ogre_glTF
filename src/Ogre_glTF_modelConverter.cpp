@@ -210,12 +210,21 @@ ItemAndTransform modelConverter::getTransform()
 
 		// Just get the first one - not sure if there can be more for a model but doubt it
 		const auto& nodes = model.nodes[model.scenes[model.defaultScene].nodes.front()];
-		if(nodes.translation.size() == 3) internal_utils::container_double_to_float(nodes.translation, translation);
-		if(nodes.scale.size() == 3) internal_utils::container_double_to_float(nodes.scale, scale);
-		if(nodes.rotation.size() == 3) internal_utils::container_double_to_float(nodes.rotation, rotation);
-		trans.pos	 = Ogre::Vector3{ translation.data() };
-		trans.rot	 = Ogre::Quaternion{ rotation[3], rotation[0], rotation[1], rotation[2] };
-		trans.scale = Ogre::Vector3{ scale.data() };
+		if (!nodes.translation.empty())
+		{
+			internal_utils::container_double_to_float(nodes.translation, translation);
+			trans.pos	 = Ogre::Vector3{ translation.data() };
+		}
+		if (!nodes.scale.empty())
+		{
+			internal_utils::container_double_to_float(nodes.scale, scale);
+			trans.scale = Ogre::Vector3{ scale.data() };
+		}
+		if (!nodes.rotation.empty())
+		{
+			internal_utils::container_double_to_float(nodes.rotation, rotation);
+			trans.rot	 = Ogre::Quaternion{ rotation[3], rotation[0], rotation[1], rotation[2] };
+		}
 	}
 
 	return trans;
