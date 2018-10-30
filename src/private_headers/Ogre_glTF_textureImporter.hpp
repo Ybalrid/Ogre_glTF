@@ -24,7 +24,7 @@ namespace Ogre_glTF
 		void loadTexture(const tinygltf::Texture& texture);
 
 		///Checks that is hardware gamma enabled
-		bool IsHwGammaEnabled() const;
+		bool isHardwareGammaEnabled() const;
 
 	public:
 		///Construct the texture importer object. Inrement the id counter
