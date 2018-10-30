@@ -2,18 +2,36 @@
 
 #include <memory>
 #include <Ogre.h>
-
+#include <OgreItem.h>
 #include "Ogre_glTF_DLL.hpp"
 
-namespace Ogre_glTF
-{
+namespace Ogre_glTF {
 	//Forward declare main class
 	class glTFLoader;
+
+	///Structure that contains the information of the model that you loaded
+	struct ModelInformation {
+		Ogre::Item* makeItem(Ogre::SceneManager* smgr, Ogre::SceneMemoryMgrTypes sceneType = Ogre::SCENE_DYNAMIC)
+		{
+			auto item = smgr->createItem(mesh, sceneType);
+			for (size_t i = 0; i < item->getNumSubItems(); ++i) { item->getSubItem(i)->setDatablock(pbrMaterialList[i]); }
+			return item;
+		}
+
+		Ogre::MeshPtr mesh;
+		std::vector<Ogre::HlmsDatablock*> pbrMaterialList;
+
+		struct ModelTransform {
+			Ogre::Vector3 position       = Ogre::Vector3::ZERO;
+			Ogre::Vector3 scale          = Ogre::Vector3::UNIT_SCALE;
+			Ogre::Quaternion orientation = Ogre::Quaternion::IDENTITY;
+		} transform;
+	};
 
 	///struct that contains a mesh and the datablock that should be used with it.
 	///This represent what an extracted object from a glTF asset contains.
 	///The mash should have a skeletonInstance attached to it the glTF file defined a skin;
-	struct MeshAndDataBlock
+	struct  MeshAndDataBlock
 	{
 		///Pointer to the Ogre Mesh
 		Ogre::MeshPtr Mesh;
@@ -23,23 +41,27 @@ namespace Ogre_glTF
 	};
 
 	///struct that contains a pointer to the item, and the associated transformations
-	struct ItemAndTransform
+	struct [[deprecated("use the getModelData() method that returns a  ModelInformation object")]] ItemAndTransform
 	{
 		///Pointer to the item
 		Ogre::Item* item = nullptr;
 
-		Ogre::Vector3 pos	= Ogre::Vector3::ZERO;
+		Ogre::Vector3 pos    = Ogre::Vector3::ZERO;
 		Ogre::Vector3 scale  = Ogre::Vector3::UNIT_SCALE;
 		Ogre::Quaternion rot = Ogre::Quaternion::IDENTITY;
 	};
 
 	///Plugin accessible interface that plugin users can use
-	struct glTFLoaderInterface
-	{
+	struct glTFLoaderInterface {
 		///Polymorphic dtor
 		virtual ~glTFLoaderInterface() = default;
 
 		///TODO refactor this API : Having one method for filesystem and one method for Ogre resource is silly. Having Item, ItemAndTransform and MeshAndDatablock is also silly. And there's no way to get a Mesh+Transform right now.
+
+		///location where to load the data
+		enum class LoadFrom { FileSystem, ResourceManager };
+
+		virtual ModelInformation getModelData(const std::string& modelName, LoadFrom loadLocation) = 0;
 
 		///Get you an item from a GLB file loaded inside an Ogre resource group
 		/// \param name The name of the resource
@@ -77,8 +99,7 @@ namespace Ogre_glTF
 	};
 
 	///Class that hold the loaded content of a glTF file and that can create Ogre objects from it
-	class Ogre_glTF_EXPORT loaderAdapter
-	{
+	class Ogre_glTF_EXPORT loaderAdapter {
 		friend class glTFLoader;
 
 		///opaque content of the class
@@ -104,6 +125,7 @@ namespace Ogre_glTF
 
 		Ogre::MeshPtr getMesh() const;
 		Ogre::HlmsDatablock* getDatablock(size_t index = 0) const;
+		size_t getDatablockCount();
 		ItemAndTransform getTransform();
 
 		///Construct an item for this object
@@ -125,8 +147,7 @@ namespace Ogre_glTF
 	};
 
 	///Class that is responsible for initializing the library with the loader, and giving out
-	class Ogre_glTF_EXPORT glTFLoader final : public glTFLoaderInterface
-	{
+	class Ogre_glTF_EXPORT glTFLoader final : public glTFLoaderInterface {
 		///object that acutally communicate with the underlying glTF loading library
 		struct glTFLoaderImpl;
 
@@ -151,6 +172,8 @@ namespace Ogre_glTF
 		loaderAdapter loadFromFileSystem(const std::string& path) const;
 
 		loaderAdapter loadGlbResource(const std::string& name) const;
+
+		ModelInformation getModelData(const std::string& modelName, LoadFrom loadLocation) override;
 
 		Ogre::Item* getItemFromResource(const std::string& name, Ogre::SceneManager* smgr) override;
 		Ogre::Item* getItemFromFileSystem(const std::string& fileName, Ogre::SceneManager* smgr) override;

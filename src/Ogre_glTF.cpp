@@ -93,6 +93,11 @@ Ogre::MeshPtr loaderAdapter::getMesh() const
 
 Ogre::HlmsDatablock* loaderAdapter::getDatablock(size_t index) const { return pimpl->materialLoad.getDatablock(index); }
 
+size_t loaderAdapter::getDatablockCount()
+{
+	return pimpl->materialLoad.getDatablockCount();
+}
+
 loaderAdapter::loaderAdapter(loaderAdapter&& other) noexcept : pimpl{ std::move(other.pimpl) }
 {
 	//OgreLog("Moved adapter object...");
@@ -211,6 +216,37 @@ loaderAdapter glTFLoader::loadGlbResource(const std::string& name) const
 
 	adapter.pimpl->modelConv.debugDump();
 	return adapter;
+}
+
+ModelInformation glTFLoader::getModelData(const std::string& modelName, LoadFrom loadLocation)
+{
+	auto adapter = [&]
+	{
+		switch (loadLocation)
+		{
+		case LoadFrom::FileSystem:
+			return loadFromFileSystem(modelName);
+		case LoadFrom::ResourceManager:
+			return loadGlbResource(modelName);
+		}
+
+		return loaderAdapter{};
+	}();
+
+	const auto mesh = adapter.getMesh();
+	const auto transform = adapter.getTransform();
+
+	ModelInformation model;
+	model.mesh = mesh;
+
+	for (size_t i{ 0 }; i < adapter.getDatablockCount(); i++)
+		model.pbrMaterialList.push_back(adapter.getDatablock(i));
+
+	model.transform.position = transform.pos;
+	model.transform.orientation = transform.rot;
+	model.transform.scale = transform.scale;
+
+	return model;
 }
 
 Ogre::Item* glTFLoader::getItemFromResource(const std::string& name, Ogre::SceneManager* smgr)
