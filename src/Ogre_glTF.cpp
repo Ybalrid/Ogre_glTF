@@ -52,14 +52,14 @@ struct loaderAdapter::impl
 	skeletonImporter skeletonImp;
 };
 
-loaderAdapter::loaderAdapter() : pimpl{ std::make_unique<impl>() }
+loaderAdapter::loaderAdapter() : pimpl { std::make_unique<impl>() }
 {
-	//OgreLog("Created adapter object...");
+	OgreLog("Created adapter object...");
 }
 
 loaderAdapter::~loaderAdapter()
 {
-	//OgreLog("Destructed adapter object...");
+	OgreLog("Destructed adapter object...");
 }
 
 Ogre::Item* loaderAdapter::getItem(Ogre::SceneManager* smgr) const
@@ -76,7 +76,11 @@ Ogre::Item* loaderAdapter::getItem(Ogre::SceneManager* smgr) const
 	return nullptr;
 }
 
-ItemAndTransform loaderAdapter::getTransform() { return this->pimpl->modelConv.getTransform(); }
+ItemAndTransform loaderAdapter::getTransform()
+{
+	//TODO stop using this structure that ties the transform to an item
+	return this->pimpl->modelConv.getTransform();
+}
 
 Ogre::MeshPtr loaderAdapter::getMesh() const
 {
@@ -93,12 +97,9 @@ Ogre::MeshPtr loaderAdapter::getMesh() const
 
 Ogre::HlmsDatablock* loaderAdapter::getDatablock(size_t index) const { return pimpl->materialLoad.getDatablock(index); }
 
-size_t loaderAdapter::getDatablockCount()
-{
-	return pimpl->materialLoad.getDatablockCount();
-}
+size_t loaderAdapter::getDatablockCount() { return pimpl->materialLoad.getDatablockCount(); }
 
-loaderAdapter::loaderAdapter(loaderAdapter&& other) noexcept : pimpl{ std::move(other.pimpl) }
+loaderAdapter::loaderAdapter(loaderAdapter&& other) noexcept : pimpl { std::move(other.pimpl) }
 {
 	//OgreLog("Moved adapter object...");
 }
@@ -133,8 +134,8 @@ struct glTFLoader::glTFLoaderImpl
 			auto probe = std::ifstream(path, std::ios_base::binary);
 			if(!probe) throw std::runtime_error("Could not open " + path);
 
-			std::array<char, 5> buffer{};
-			for(size_t i{ 0 }; i < 4; ++i) probe >> buffer[i];
+			std::array<char, 5> buffer {};
+			for(size_t i { 0 }; i < 4; ++i) probe >> buffer[i];
 			buffer[4] = 0;
 
 			if(std::string("glTF") == std::string(buffer.data()))
@@ -176,7 +177,7 @@ struct glTFLoader::glTFLoaderImpl
 	}
 };
 
-glTFLoader::glTFLoader() : loaderImpl{ std::make_unique<glTFLoaderImpl>() }
+glTFLoader::glTFLoader() : loaderImpl { std::make_unique<glTFLoaderImpl>() }
 {
 	if(Ogre::Root::getSingletonPtr() == nullptr) throw std::runtime_error("Please create an Ogre::Root instance before initializing the glTF library!");
 
@@ -220,31 +221,31 @@ loaderAdapter glTFLoader::loadGlbResource(const std::string& name) const
 
 ModelInformation glTFLoader::getModelData(const std::string& modelName, LoadFrom loadLocation)
 {
-	auto adapter = [&]
-	{
-		switch (loadLocation)
+	auto adapter = [&] {
+		switch(loadLocation)
 		{
-		case LoadFrom::FileSystem:
-			return loadFromFileSystem(modelName);
-		case LoadFrom::ResourceManager:
-			return loadGlbResource(modelName);
+			case LoadFrom::FileSystem: return loadFromFileSystem(modelName);
+			case LoadFrom::ResourceManager: return loadGlbResource(modelName);
 		}
 
-		return loaderAdapter{};
+		return loaderAdapter {};
 	}();
 
-	const auto mesh = adapter.getMesh();
+	if(!adapter.isOk()) OgreLog("adapter is signaling it isn't in \"ok\" state");
+
+	adapter.pimpl->textureImp.loadTextures();
+
+	const auto mesh		 = adapter.getMesh();
 	const auto transform = adapter.getTransform();
 
 	ModelInformation model;
 	model.mesh = mesh;
 
-	for (size_t i{ 0 }; i < adapter.getDatablockCount(); i++)
-		model.pbrMaterialList.push_back(adapter.getDatablock(i));
+	for(size_t i { 0 }; i < adapter.getDatablockCount(); i++) model.pbrMaterialList.push_back(adapter.getDatablock(i));
 
-	model.transform.position = transform.pos;
+	model.transform.position	= transform.pos;
 	model.transform.orientation = transform.rot;
-	model.transform.scale = transform.scale;
+	model.transform.scale		= transform.scale;
 
 	return model;
 }
