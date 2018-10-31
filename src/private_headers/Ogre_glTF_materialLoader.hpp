@@ -82,5 +82,6 @@ namespace Ogre_glTF
 		materialLoader(tinygltf::Model& input, textureImporter& textureInterface);
 		///Get the material (the HlmsDatablock)
 		Ogre::HlmsDatablock* getDatablock(size_t index = 0) const;
+		size_t getDatablockCount() const;
 	};
 }

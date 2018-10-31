@@ -13,7 +13,10 @@ var hierarchy =
     [ "Ogre_glTF::loaderAdapter::impl", "structloader_adapter_1_1impl.html", null ],
     [ "Ogre_glTF::loaderAdapter", "class_ogre__gl_t_f_1_1loader_adapter.html", null ],
     [ "Ogre_glTF::materialLoader", "class_ogre__gl_t_f_1_1material_loader.html", null ],
+    [ "Ogre_glTF::MeshAndDataBlock", "struct_ogre__gl_t_f_1_1_mesh_and_data_block.html", null ],
     [ "Ogre_glTF::modelConverter", "class_ogre__gl_t_f_1_1model_converter.html", null ],
+    [ "Ogre_glTF::ModelInformation", "struct_ogre__gl_t_f_1_1_model_information.html", null ],
+    [ "Ogre_glTF::ModelInformation::ModelTransform", "struct_ogre__gl_t_f_1_1_model_information_1_1_model_transform.html", null ],
     [ "Plugin", null, [
       [ "Ogre_glTF::glTFLoaderPlugin", "class_ogre__gl_t_f_1_1gl_t_f_loader_plugin.html", null ]
     ] ],

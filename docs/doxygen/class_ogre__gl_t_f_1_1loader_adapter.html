@@ -111,7 +111,7 @@ Classes</h2></td></tr>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:a007f2e62d2ee48b0f5586b1cc1fbcfcb"><td class="memItemLeft" align="right" valign="top"><a id="a007f2e62d2ee48b0f5586b1cc1fbcfcb"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_ogre__gl_t_f_1_1loader_adapter.html#a007f2e62d2ee48b0f5586b1cc1fbcfcb">loaderAdapter</a> ()</td></tr>
-<tr class="memdesc:a007f2e62d2ee48b0f5586b1cc1fbcfcb"><td class="mdescLeft">&#160;</td><td class="mdescRight">This will aslo initialize the "pimpl" structure. <br /></td></tr>
+<tr class="memdesc:a007f2e62d2ee48b0f5586b1cc1fbcfcb"><td class="mdescLeft">&#160;</td><td class="mdescRight">This will also initialize the "pimpl" structure. <br /></td></tr>
 <tr class="separator:a007f2e62d2ee48b0f5586b1cc1fbcfcb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acf9c1fd0f8ed3b627358eae7ec208ae8"><td class="memItemLeft" align="right" valign="top"><a id="acf9c1fd0f8ed3b627358eae7ec208ae8"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_ogre__gl_t_f_1_1loader_adapter.html#acf9c1fd0f8ed3b627358eae7ec208ae8">~loaderAdapter</a> ()</td></tr>
@@ -123,15 +123,29 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a4a32229838720cd617447c8a3543fb3b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a408041f691670c6e717a9893ee7bcdd8"><td class="memItemLeft" align="right" valign="top"><a id="a408041f691670c6e717a9893ee7bcdd8"></a>
 <a class="el" href="class_ogre__gl_t_f_1_1loader_adapter.html">loaderAdapter</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_ogre__gl_t_f_1_1loader_adapter.html#a408041f691670c6e717a9893ee7bcdd8">operator=</a> (const <a class="el" href="class_ogre__gl_t_f_1_1loader_adapter.html">loaderAdapter</a> &amp;)=delete</td></tr>
-<tr class="memdesc:a408041f691670c6e717a9893ee7bcdd8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Deleted asignment constructor : non copyable class. <br /></td></tr>
+<tr class="memdesc:a408041f691670c6e717a9893ee7bcdd8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Deleted assignment constructor : non copyable class. <br /></td></tr>
 <tr class="separator:a408041f691670c6e717a9893ee7bcdd8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acc344a61f7cef4addca802707bd1fea4"><td class="memItemLeft" align="right" valign="top"><a id="acc344a61f7cef4addca802707bd1fea4"></a>
+Ogre::MeshPtr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_ogre__gl_t_f_1_1loader_adapter.html#acc344a61f7cef4addca802707bd1fea4">getMesh</a> () const</td></tr>
+<tr class="memdesc:acc344a61f7cef4addca802707bd1fea4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the mesh loaded from the glTF file. <br /></td></tr>
+<tr class="separator:acc344a61f7cef4addca802707bd1fea4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adec6084ea93de50084d45dcf5bc15d24"><td class="memItemLeft" align="right" valign="top">Ogre::HlmsDatablock *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_ogre__gl_t_f_1_1loader_adapter.html#adec6084ea93de50084d45dcf5bc15d24">getDatablock</a> (size_t index=0) const</td></tr>
+<tr class="separator:adec6084ea93de50084d45dcf5bc15d24"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a923e23c343b8da4d51ff5969cad27520"><td class="memItemLeft" align="right" valign="top"><a id="a923e23c343b8da4d51ff5969cad27520"></a>
+size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_ogre__gl_t_f_1_1loader_adapter.html#a923e23c343b8da4d51ff5969cad27520">getDatablockCount</a> ()</td></tr>
+<tr class="memdesc:a923e23c343b8da4d51ff5969cad27520"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the number of datablock stored. <br /></td></tr>
+<tr class="separator:a923e23c343b8da4d51ff5969cad27520"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae61617a049626869954e57ff0a7a2109"><td class="memItemLeft" align="right" valign="top"><a id="ae61617a049626869954e57ff0a7a2109"></a>
+<a class="el" href="struct_ogre__gl_t_f_1_1_model_information_1_1_model_transform.html">ModelInformation::ModelTransform</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_ogre__gl_t_f_1_1loader_adapter.html#ae61617a049626869954e57ff0a7a2109">getTransform</a> ()</td></tr>
+<tr class="memdesc:ae61617a049626869954e57ff0a7a2109"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the local transform to apply to the node to align the model with what you would expect. <br /></td></tr>
+<tr class="separator:ae61617a049626869954e57ff0a7a2109"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3dbd195b41463feaf4ad135370cf899a"><td class="memItemLeft" align="right" valign="top">Ogre::Item *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_ogre__gl_t_f_1_1loader_adapter.html#a3dbd195b41463feaf4ad135370cf899a">getItem</a> (Ogre::SceneManager *smgr) const</td></tr>
 <tr class="separator:a3dbd195b41463feaf4ad135370cf899a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:affd638929e46eeed4b14444b3319654d"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_ogre__gl_t_f_1_1loader_adapter.html#affd638929e46eeed4b14444b3319654d">loaderAdapter</a> (<a class="el" href="class_ogre__gl_t_f_1_1loader_adapter.html">loaderAdapter</a> &amp;&amp;other) noexcept</td></tr>
 <tr class="separator:affd638929e46eeed4b14444b3319654d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad0433c4e951b5133d9c7ae93096db90a"><td class="memItemLeft" align="right" valign="top"><a id="ad0433c4e951b5133d9c7ae93096db90a"></a>
 <a class="el" href="class_ogre__gl_t_f_1_1loader_adapter.html">loaderAdapter</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_ogre__gl_t_f_1_1loader_adapter.html#ad0433c4e951b5133d9c7ae93096db90a">operator=</a> (<a class="el" href="class_ogre__gl_t_f_1_1loader_adapter.html">loaderAdapter</a> &amp;&amp;other) noexcept</td></tr>
-<tr class="memdesc:ad0433c4e951b5133d9c7ae93096db90a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Move assignemnt operator. <br /></td></tr>
+<tr class="memdesc:ad0433c4e951b5133d9c7ae93096db90a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Move assignment operator. <br /></td></tr>
 <tr class="separator:ad0433c4e951b5133d9c7ae93096db90a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6b2db7f7f8f4a6b6f1d46a0843f40424"><td class="memItemLeft" align="right" valign="top"><a id="a6b2db7f7f8f4a6b6f1d46a0843f40424"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_ogre__gl_t_f_1_1loader_adapter.html#a6b2db7f7f8f4a6b6f1d46a0843f40424">isOk</a> () const</td></tr>
@@ -151,7 +165,7 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>glTFLoader</b></td><
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Class that hold the loaded content of a glTF file and that can create Ogre objects from it. </p>
 
-<p class="definition">Definition at line <a class="el" href="_ogre__gl_t_f_8hpp_source.html#l00025">25</a> of file <a class="el" href="_ogre__gl_t_f_8hpp_source.html">Ogre_glTF.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_ogre__gl_t_f_8hpp_source.html#l00090">90</a> of file <a class="el" href="_ogre__gl_t_f_8hpp_source.html">Ogre_glTF.hpp</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="affd638929e46eeed4b14444b3319654d"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#affd638929e46eeed4b14444b3319654d">&#9670;&nbsp;</a></span>loaderAdapter()</h2>
@@ -183,11 +197,39 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>glTFLoader</b></td><
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="_ogre__gl_t_f_8cpp_source.html#l00080">80</a> of file <a class="el" href="_ogre__gl_t_f_8cpp_source.html">Ogre_glTF.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_ogre__gl_t_f_8cpp_source.html#l00091">91</a> of file <a class="el" href="_ogre__gl_t_f_8cpp_source.html">Ogre_glTF.cpp</a>.</p>
 
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
+<a id="adec6084ea93de50084d45dcf5bc15d24"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adec6084ea93de50084d45dcf5bc15d24">&#9670;&nbsp;</a></span>getDatablock()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">Ogre::HlmsDatablock * loaderAdapter::getDatablock </td>
+          <td>(</td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>index</em> = <code>0</code></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Return one of the datablocks loaded from the gltf file. </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">index</td><td>of the datablocks used. In a multi-material file, it should be one different per primitive (submesh). </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="_ogre__gl_t_f_8cpp_source.html#l00087">87</a> of file <a class="el" href="_ogre__gl_t_f_8cpp_source.html">Ogre_glTF.cpp</a>.</p>
+
+<p class="reference">Referenced by <a class="el" href="_ogre__gl_t_f_8cpp_source.html#l00058">getItem()</a>, <a class="el" href="_ogre__gl_t_f_8cpp_source.html#l00262">Ogre_glTF::glTFLoader::getMeshFromFileSystem()</a>, <a class="el" href="_ogre__gl_t_f_8cpp_source.html#l00273">Ogre_glTF::glTFLoader::getMeshFromResource()</a>, and <a class="el" href="_ogre__gl_t_f_8cpp_source.html#l00213">Ogre_glTF::glTFLoader::getModelData()</a>.</p>
+
+</div>
+</div>
 <a id="a3dbd195b41463feaf4ad135370cf899a"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a3dbd195b41463feaf4ad135370cf899a">&#9670;&nbsp;</a></span>getItem()</h2>
 
@@ -210,17 +252,17 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>glTFLoader</b></td><
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="_ogre__gl_t_f_8cpp_source.html#l00062">62</a> of file <a class="el" href="_ogre__gl_t_f_8cpp_source.html">Ogre_glTF.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_ogre__gl_t_f_8cpp_source.html#l00058">58</a> of file <a class="el" href="_ogre__gl_t_f_8cpp_source.html">Ogre_glTF.cpp</a>.</p>
 
-<p class="reference">References <a class="el" href="_ogre__gl_t_f_8cpp_source.html#l00091">isOk()</a>.</p>
+<p class="reference">References <a class="el" href="_ogre__gl_t_f_8cpp_source.html#l00087">getDatablock()</a>, <a class="el" href="_ogre__gl_t_f_8cpp_source.html#l00074">getMesh()</a>, and <a class="el" href="_ogre__gl_t_f_8cpp_source.html#l00103">isOk()</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="_ogre__gl_t_f_8cpp_source.html#l00214">Ogre_glTF::glTFLoader::getItemFromFileSystem()</a>, and <a class="el" href="_ogre__gl_t_f_8cpp_source.html#l00197">Ogre_glTF::glTFLoader::getItemFromResource()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="_ogre__gl_t_f_8cpp_source.html#l00251">Ogre_glTF::glTFLoader::getItemFromFileSystem()</a>, and <a class="el" href="_ogre__gl_t_f_8cpp_source.html#l00237">Ogre_glTF::glTFLoader::getItemFromResource()</a>.</p>
 
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following files:<ul>
-<li>/home/ybalrid/dev/github/Ogre_glTF/include/<a class="el" href="_ogre__gl_t_f_8hpp_source.html">Ogre_glTF.hpp</a></li>
-<li>/home/ybalrid/dev/github/Ogre_glTF/src/<a class="el" href="_ogre__gl_t_f_8cpp_source.html">Ogre_glTF.cpp</a></li>
+<li>C:/YbalridSoftware/AnnwvynSDK64/Ogre_glTF/include/<a class="el" href="_ogre__gl_t_f_8hpp_source.html">Ogre_glTF.hpp</a></li>
+<li>C:/YbalridSoftware/AnnwvynSDK64/Ogre_glTF/src/<a class="el" href="_ogre__gl_t_f_8cpp_source.html">Ogre_glTF.cpp</a></li>
 </ul>
 </div><!-- contents -->
 </div><!-- doc-content -->

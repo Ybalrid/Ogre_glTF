@@ -87,6 +87,7 @@ $(document).ready(function(){initNavTree('struct_ogre__gl_t_f_1_1gl_t_f_loader_i
 
 <div class="header">
   <div class="summary">
+<a href="#pub-types">Public Types</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="struct_ogre__gl_t_f_1_1gl_t_f_loader_interface-members.html">List of all members</a>  </div>
   <div class="headertitle">
@@ -108,27 +109,245 @@ Inheritance diagram for Ogre_glTF::glTFLoaderInterface:</div>
 </map>
  </div></div>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-types"></a>
+Public Types</h2></td></tr>
+<tr class="memitem:a56f74d9fb7f1b1aae1e962b3c2b18416"><td class="memItemLeft" align="right" valign="top"><a id="a56f74d9fb7f1b1aae1e962b3c2b18416"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_ogre__gl_t_f_1_1gl_t_f_loader_interface.html#a56f74d9fb7f1b1aae1e962b3c2b18416">LoadFrom</a> { <b>FileSystem</b>, 
+<b>ResourceManager</b>
+ }</td></tr>
+<tr class="memdesc:a56f74d9fb7f1b1aae1e962b3c2b18416"><td class="mdescLeft">&#160;</td><td class="mdescRight">location where to load the data <br /></td></tr>
+<tr class="separator:a56f74d9fb7f1b1aae1e962b3c2b18416"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:af55cba329954d9f2eade9415f05f37b7"><td class="memItemLeft" align="right" valign="top"><a id="af55cba329954d9f2eade9415f05f37b7"></a>
 virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_ogre__gl_t_f_1_1gl_t_f_loader_interface.html#af55cba329954d9f2eade9415f05f37b7">~glTFLoaderInterface</a> ()=default</td></tr>
 <tr class="memdesc:af55cba329954d9f2eade9415f05f37b7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Polymorphic dtor. <br /></td></tr>
 <tr class="separator:af55cba329954d9f2eade9415f05f37b7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a95e25de27484ea401c4310c5006f2f7c"><td class="memItemLeft" align="right" valign="top"><a id="a95e25de27484ea401c4310c5006f2f7c"></a>
-virtual Ogre::Item *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_ogre__gl_t_f_1_1gl_t_f_loader_interface.html#a95e25de27484ea401c4310c5006f2f7c">getItemFromResource</a> (const std::string &amp;name, Ogre::SceneManager *smgr)=0</td></tr>
-<tr class="memdesc:a95e25de27484ea401c4310c5006f2f7c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get you an item from a GLB file loaded inside an Ogre resource group. <br /></td></tr>
+<tr class="memitem:a89b5b19f69478db8179315b28256fa12"><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="struct_ogre__gl_t_f_1_1_model_information.html">ModelInformation</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_ogre__gl_t_f_1_1gl_t_f_loader_interface.html#a89b5b19f69478db8179315b28256fa12">getModelData</a> (const std::string &amp;modelName, <a class="el" href="struct_ogre__gl_t_f_1_1gl_t_f_loader_interface.html#a56f74d9fb7f1b1aae1e962b3c2b18416">LoadFrom</a> loadLocation)=0</td></tr>
+<tr class="separator:a89b5b19f69478db8179315b28256fa12"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a95e25de27484ea401c4310c5006f2f7c"><td class="memItemLeft" align="right" valign="top">virtual Ogre::Item *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_ogre__gl_t_f_1_1gl_t_f_loader_interface.html#a95e25de27484ea401c4310c5006f2f7c">getItemFromResource</a> (const std::string &amp;name, Ogre::SceneManager *smgr)=0</td></tr>
 <tr class="separator:a95e25de27484ea401c4310c5006f2f7c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6c3d2dd855148f7402a11f395461cf81"><td class="memItemLeft" align="right" valign="top"><a id="a6c3d2dd855148f7402a11f395461cf81"></a>
-virtual Ogre::Item *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_ogre__gl_t_f_1_1gl_t_f_loader_interface.html#a6c3d2dd855148f7402a11f395461cf81">getItemFromFileSystem</a> (const std::string &amp;fileName, Ogre::SceneManager *smgr)=0</td></tr>
-<tr class="memdesc:a6c3d2dd855148f7402a11f395461cf81"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get you an item from a GLB or a GLTF file from the filesystem. <br /></td></tr>
+<tr class="memitem:a6c3d2dd855148f7402a11f395461cf81"><td class="memItemLeft" align="right" valign="top">virtual Ogre::Item *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_ogre__gl_t_f_1_1gl_t_f_loader_interface.html#a6c3d2dd855148f7402a11f395461cf81">getItemFromFileSystem</a> (const std::string &amp;fileName, Ogre::SceneManager *smgr)=0</td></tr>
 <tr class="separator:a6c3d2dd855148f7402a11f395461cf81"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aeb59bfe270efed0b8a6d549c6f748e85"><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="struct_ogre__gl_t_f_1_1_mesh_and_data_block.html">MeshAndDataBlock</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_ogre__gl_t_f_1_1gl_t_f_loader_interface.html#aeb59bfe270efed0b8a6d549c6f748e85">getMeshFromResource</a> (const std::string &amp;name)=0</td></tr>
+<tr class="separator:aeb59bfe270efed0b8a6d549c6f748e85"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a75e780cc1748f4ee47cc1d7c810159b6"><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="struct_ogre__gl_t_f_1_1_mesh_and_data_block.html">MeshAndDataBlock</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_ogre__gl_t_f_1_1gl_t_f_loader_interface.html#a75e780cc1748f4ee47cc1d7c810159b6">getMeshFromFileSystem</a> (const std::string &amp;name)=0</td></tr>
+<tr class="separator:a75e780cc1748f4ee47cc1d7c810159b6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Plugin accessible interface that plugin users can use. </p>
 
-<p class="definition">Definition at line <a class="el" href="_ogre__gl_t_f_8hpp_source.html#l00014">14</a> of file <a class="el" href="_ogre__gl_t_f_8hpp_source.html">Ogre_glTF.hpp</a>.</p>
-</div><hr/>The documentation for this struct was generated from the following file:<ul>
-<li>/home/ybalrid/dev/github/Ogre_glTF/include/<a class="el" href="_ogre__gl_t_f_8hpp_source.html">Ogre_glTF.hpp</a></li>
+<p class="definition">Definition at line <a class="el" href="_ogre__gl_t_f_8hpp_source.html#l00053">53</a> of file <a class="el" href="_ogre__gl_t_f_8hpp_source.html">Ogre_glTF.hpp</a>.</p>
+</div><h2 class="groupheader">Member Function Documentation</h2>
+<a id="a6c3d2dd855148f7402a11f395461cf81"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6c3d2dd855148f7402a11f395461cf81">&#9670;&nbsp;</a></span>getItemFromFileSystem()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual Ogre::Item* Ogre_glTF::glTFLoaderInterface::getItemFromFileSystem </td>
+          <td>(</td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>fileName</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">Ogre::SceneManager *&#160;</td>
+          <td class="paramname"><em>smgr</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">pure virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Get you an item from a GLB or a GLTF file from the filesystem. </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">fileName</td><td>The name of the resource </td></tr>
+    <tr><td class="paramname">smgr</td><td>The scene manager where the Item will be used </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>pointer to a created item in your scene manager using the mesh in the glTF asset </dd></dl>
+
+<p>Implemented in <a class="el" href="class_ogre__gl_t_f_1_1gl_t_f_loader.html#ae07109a22311da5ecfb647edc80e0d71">Ogre_glTF::glTFLoader</a>.</p>
+
+</div>
+</div>
+<a id="a95e25de27484ea401c4310c5006f2f7c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a95e25de27484ea401c4310c5006f2f7c">&#9670;&nbsp;</a></span>getItemFromResource()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual Ogre::Item* Ogre_glTF::glTFLoaderInterface::getItemFromResource </td>
+          <td>(</td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>name</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">Ogre::SceneManager *&#160;</td>
+          <td class="paramname"><em>smgr</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">pure virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Get you an item from a GLB file loaded inside an Ogre resource group </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">name</td><td>The name of the resource </td></tr>
+    <tr><td class="paramname">smgr</td><td>The scene manager where the Item will be used </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>pointer to a created item in your scene manager using the mesh in the glTF asset </dd></dl>
+
+<p>Implemented in <a class="el" href="class_ogre__gl_t_f_1_1gl_t_f_loader.html#ad7f0773e1eef31312a474d07f39c7a3c">Ogre_glTF::glTFLoader</a>.</p>
+
+</div>
+</div>
+<a id="a75e780cc1748f4ee47cc1d7c810159b6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a75e780cc1748f4ee47cc1d7c810159b6">&#9670;&nbsp;</a></span>getMeshFromFileSystem()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual <a class="el" href="struct_ogre__gl_t_f_1_1_mesh_and_data_block.html">MeshAndDataBlock</a> Ogre_glTF::glTFLoaderInterface::getMeshFromFileSystem </td>
+          <td>(</td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>name</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">pure virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Gets you a mesh and a material datablock from GLB or a GLTF file from the filesystem </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">name</td><td>The name of the resource </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>a struct containing pointers to a mesh and a datablock </dd></dl>
+
+<p>Implemented in <a class="el" href="class_ogre__gl_t_f_1_1gl_t_f_loader.html#a2a850ee80e62c910602df8feafd6ea08">Ogre_glTF::glTFLoader</a>.</p>
+
+</div>
+</div>
+<a id="aeb59bfe270efed0b8a6d549c6f748e85"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aeb59bfe270efed0b8a6d549c6f748e85">&#9670;&nbsp;</a></span>getMeshFromResource()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual <a class="el" href="struct_ogre__gl_t_f_1_1_mesh_and_data_block.html">MeshAndDataBlock</a> Ogre_glTF::glTFLoaderInterface::getMeshFromResource </td>
+          <td>(</td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>name</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">pure virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Get you a mesh and a material datablock from a GLB in the resource manager </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">name</td><td>The name of the resource </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>a struct containing pointers to a mesh and a datablock </dd></dl>
+
+<p>Implemented in <a class="el" href="class_ogre__gl_t_f_1_1gl_t_f_loader.html#a90bc322cf88bac154bf345b5932cf3f8">Ogre_glTF::glTFLoader</a>.</p>
+
+</div>
+</div>
+<a id="a89b5b19f69478db8179315b28256fa12"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a89b5b19f69478db8179315b28256fa12">&#9670;&nbsp;</a></span>getModelData()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual <a class="el" href="struct_ogre__gl_t_f_1_1_model_information.html">ModelInformation</a> Ogre_glTF::glTFLoaderInterface::getModelData </td>
+          <td>(</td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>modelName</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="struct_ogre__gl_t_f_1_1gl_t_f_loader_interface.html#a56f74d9fb7f1b1aae1e962b3c2b18416">LoadFrom</a>&#160;</td>
+          <td class="paramname"><em>loadLocation</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">pure virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Get the model data </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">modelName</td><td>name of the resource being loaded </td></tr>
+    <tr><td class="paramname">loadLocation</td><td>flag that signal if the model is loaded directly from the filesystem, or from Ogre's resource manager </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p>Implemented in <a class="el" href="class_ogre__gl_t_f_1_1gl_t_f_loader.html#a6a100aa473b61768dfa556e20df11868">Ogre_glTF::glTFLoader</a>.</p>
+
+</div>
+</div>
+<hr/>The documentation for this struct was generated from the following file:<ul>
+<li>C:/YbalridSoftware/AnnwvynSDK64/Ogre_glTF/include/<a class="el" href="_ogre__gl_t_f_8hpp_source.html">Ogre_glTF.hpp</a></li>
 </ul>
 </div><!-- contents -->
 </div><!-- doc-content -->

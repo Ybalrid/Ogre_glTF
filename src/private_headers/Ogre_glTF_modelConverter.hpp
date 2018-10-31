@@ -169,7 +169,7 @@ namespace Ogre_glTF
 		bool hasSkins() const;
 
 		/// Return the transforms.  The item pointer will be a nullptr at this point
-		ItemAndTransform getTransform();
+		ModelInformation::ModelTransform getTransform();
 
 	private:
 		///Get a pointer to the Ogre::VaoManager

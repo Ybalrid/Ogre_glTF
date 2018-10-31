@@ -209,3 +209,10 @@ Ogre::HlmsDatablock* materialLoader::getDatablock(size_t index) const
 
 	return datablock;
 }
+
+size_t materialLoader::getDatablockCount() const //todo this could use some refactoring. This information is actually fetched like, twice.
+{
+	const auto mainMeshIndex = (model.defaultScene != 0 ? model.nodes[model.scenes[model.defaultScene].nodes.front()].mesh : 0);
+	const auto& mesh = model.meshes[mainMeshIndex];
+	return mesh.primitives.size();
+}

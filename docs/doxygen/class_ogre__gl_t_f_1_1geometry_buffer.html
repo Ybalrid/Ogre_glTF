@@ -109,15 +109,15 @@ Inheritance diagram for Ogre_glTF::geometryBuffer&lt; T &gt;:</div>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:aab778a369ca82fa116e38810e4489446"><td class="memItemLeft" align="right" valign="top"><a id="aab778a369ca82fa116e38810e4489446"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_ogre__gl_t_f_1_1geometry_buffer.html#aab778a369ca82fa116e38810e4489446">_debugContentToLog</a> () const final</td></tr>
-<tr class="memdesc:aab778a369ca82fa116e38810e4489446"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write the content of the buffer to the log. This is an expensinve operation only needed when debugging the loading code itself. <br /></td></tr>
+<tr class="memdesc:aab778a369ca82fa116e38810e4489446"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write the content of the buffer to the log. This is an expensive operation only needed when debugging the loading code itself. <br /></td></tr>
 <tr class="separator:aab778a369ca82fa116e38810e4489446"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3002f7a7d6dbfb4605890edd3cb9f52e"><td class="memItemLeft" align="right" valign="top"><a id="a3002f7a7d6dbfb4605890edd3cb9f52e"></a>
 unsigned char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_ogre__gl_t_f_1_1geometry_buffer.html#a3002f7a7d6dbfb4605890edd3cb9f52e">dataAddress</a> () final</td></tr>
-<tr class="memdesc:a3002f7a7d6dbfb4605890edd3cb9f52e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return a pointer to the start of the data. Pointer doesn't carry the type information of said data. Usefull as the basic location to memcpy data in and out this buffer. <br /></td></tr>
+<tr class="memdesc:a3002f7a7d6dbfb4605890edd3cb9f52e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return a pointer to the start of the data. Pointer doesn't carry the type information of said data. Useful as the basic location to memcpy data in and out this buffer. <br /></td></tr>
 <tr class="separator:a3002f7a7d6dbfb4605890edd3cb9f52e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab2d3d1b9cd17f33d2611441d2b6e6072"><td class="memItemLeft" align="right" valign="top"><a id="ab2d3d1b9cd17f33d2611441d2b6e6072"></a>
 size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_ogre__gl_t_f_1_1geometry_buffer.html#ab2d3d1b9cd17f33d2611441d2b6e6072">dataSize</a> () const final</td></tr>
-<tr class="memdesc:ab2d3d1b9cd17f33d2611441d2b6e6072"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the lengh of the data as it was requested (in number of element) <br /></td></tr>
+<tr class="memdesc:ab2d3d1b9cd17f33d2611441d2b6e6072"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the length of the data as it was requested (in number of element) <br /></td></tr>
 <tr class="separator:ab2d3d1b9cd17f33d2611441d2b6e6072"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a757a1ee5ebe3962ffcc3426ba587e3e9"><td class="memItemLeft" align="right" valign="top"><a id="a757a1ee5ebe3962ffcc3426ba587e3e9"></a>
 size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_ogre__gl_t_f_1_1geometry_buffer.html#a757a1ee5ebe3962ffcc3426ba587e3e9">elementSize</a> () const final</td></tr>
@@ -181,7 +181,7 @@ class Ogre_glTF::geometryBuffer&lt; T &gt;</h3>
 
 <p>RAII style object that encapsulate a buffer allocated via OGRE_MALLOC_SIMD Any of theses buffer should be used with Ogre VaoManager <b>WITHOUT</b> shadow copy </p>
 
-<p class="definition">Definition at line <a class="el" href="_ogre__gl_t_f__model_converter_8hpp_source.html#l00047">47</a> of file <a class="el" href="_ogre__gl_t_f__model_converter_8hpp_source.html">Ogre_glTF_modelConverter.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_ogre__gl_t_f__model_converter_8hpp_source.html#l00048">48</a> of file <a class="el" href="_ogre__gl_t_f__model_converter_8hpp_source.html">Ogre_glTF_modelConverter.hpp</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="aea7ece66d09b7cd339338aa9ad22f56a"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#aea7ece66d09b7cd339338aa9ad22f56a">&#9670;&nbsp;</a></span>geometryBuffer() <span class="overload">[1/2]</span></h2>
@@ -210,14 +210,14 @@ template&lt;typename T&gt; </div>
 </div><div class="memdoc">
 <p>Construct a <a class="el" href="class_ogre__gl_t_f_1_1geometry_buffer.html">geometryBuffer</a>. This is templated and you will need to provide the type between angle brackets. </p><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">size</td><td>size of the buffer we are allocation (in nuber of elements, not bytes) </td></tr>
+    <tr><td class="paramname">size</td><td>size of the buffer we are allocation (in number of elements, not bytes) </td></tr>
   </table>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="_ogre__gl_t_f__model_converter_8hpp_source.html#l00090">90</a> of file <a class="el" href="_ogre__gl_t_f__model_converter_8hpp_source.html">Ogre_glTF_modelConverter.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_ogre__gl_t_f__model_converter_8hpp_source.html#l00082">82</a> of file <a class="el" href="_ogre__gl_t_f__model_converter_8hpp_source.html">Ogre_glTF_modelConverter.hpp</a>.</p>
 
-<p class="reference">References <a class="el" href="_ogre__gl_t_f__model_converter_8hpp_source.html#l00105">Ogre_glTF::geometryBuffer&lt; T &gt;::size()</a>.</p>
+<p class="reference">References <a class="el" href="_ogre__gl_t_f__model_converter_8hpp_source.html#l00091">Ogre_glTF::geometryBuffer&lt; T &gt;::size()</a>.</p>
 
 </div>
 </div>
@@ -253,7 +253,7 @@ template&lt;typename T&gt; </div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="_ogre__gl_t_f__model_converter_8hpp_source.html#l00115">115</a> of file <a class="el" href="_ogre__gl_t_f__model_converter_8hpp_source.html">Ogre_glTF_modelConverter.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_ogre__gl_t_f__model_converter_8hpp_source.html#l00101">101</a> of file <a class="el" href="_ogre__gl_t_f__model_converter_8hpp_source.html">Ogre_glTF_modelConverter.hpp</a>.</p>
 
 </div>
 </div>
@@ -290,12 +290,12 @@ template&lt;typename T&gt; </div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="_ogre__gl_t_f__model_converter_8hpp_source.html#l00124">124</a> of file <a class="el" href="_ogre__gl_t_f__model_converter_8hpp_source.html">Ogre_glTF_modelConverter.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_ogre__gl_t_f__model_converter_8hpp_source.html#l00109">109</a> of file <a class="el" href="_ogre__gl_t_f__model_converter_8hpp_source.html">Ogre_glTF_modelConverter.hpp</a>.</p>
 
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following file:<ul>
-<li>/home/ybalrid/dev/github/Ogre_glTF/src/private_headers/<a class="el" href="_ogre__gl_t_f__model_converter_8hpp_source.html">Ogre_glTF_modelConverter.hpp</a></li>
+<li>C:/YbalridSoftware/AnnwvynSDK64/Ogre_glTF/src/private_headers/<a class="el" href="_ogre__gl_t_f__model_converter_8hpp_source.html">Ogre_glTF_modelConverter.hpp</a></li>
 </ul>
 </div><!-- contents -->
 </div><!-- doc-content -->

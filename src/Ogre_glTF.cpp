@@ -6,7 +6,6 @@
 #include "Ogre_glTF_materialLoader.hpp"
 #include "Ogre_glTF_skeletonImporter.hpp"
 #include "Ogre_glTF_common.hpp"
-
 #include "Ogre_glTF_OgreResource.hpp"
 
 #define TINYGLTF_IMPLEMENTATION
@@ -52,15 +51,9 @@ struct loaderAdapter::impl
 	skeletonImporter skeletonImp;
 };
 
-loaderAdapter::loaderAdapter() : pimpl{ std::make_unique<impl>() }
-{
-	//OgreLog("Created adapter object...");
-}
+loaderAdapter::loaderAdapter() : pimpl { std::make_unique<impl>() } { OgreLog("Created adapter object..."); }
 
-loaderAdapter::~loaderAdapter()
-{
-	//OgreLog("Destructed adapter object...");
-}
+loaderAdapter::~loaderAdapter() { OgreLog("Destructed adapter object..."); }
 
 Ogre::Item* loaderAdapter::getItem(Ogre::SceneManager* smgr) const
 {
@@ -76,7 +69,7 @@ Ogre::Item* loaderAdapter::getItem(Ogre::SceneManager* smgr) const
 	return nullptr;
 }
 
-ItemAndTransform loaderAdapter::getTransform() { return this->pimpl->modelConv.getTransform(); }
+ModelInformation::ModelTransform loaderAdapter::getTransform() { return this->pimpl->modelConv.getTransform(); }
 
 Ogre::MeshPtr loaderAdapter::getMesh() const
 {
@@ -93,9 +86,12 @@ Ogre::MeshPtr loaderAdapter::getMesh() const
 
 Ogre::HlmsDatablock* loaderAdapter::getDatablock(size_t index) const { return pimpl->materialLoad.getDatablock(index); }
 
-loaderAdapter::loaderAdapter(loaderAdapter&& other) noexcept : pimpl{ std::move(other.pimpl) }
+size_t loaderAdapter::getDatablockCount() { return pimpl->materialLoad.getDatablockCount(); }
+
+loaderAdapter::loaderAdapter(loaderAdapter&& other) noexcept : pimpl { std::move(other.pimpl) }
 {
-	//OgreLog("Moved adapter object...");
+
+	OgreLog("Moved adapter object...");
 }
 
 loaderAdapter& loaderAdapter::operator=(loaderAdapter&& other) noexcept
@@ -128,8 +124,8 @@ struct glTFLoader::glTFLoaderImpl
 			auto probe = std::ifstream(path, std::ios_base::binary);
 			if(!probe) throw std::runtime_error("Could not open " + path);
 
-			std::array<char, 5> buffer{};
-			for(size_t i{ 0 }; i < 4; ++i) probe >> buffer[i];
+			std::array<char, 5> buffer {};
+			for(size_t i { 0 }; i < 4; ++i) probe >> buffer[i];
 			buffer[4] = 0;
 
 			if(std::string("glTF") == std::string(buffer.data()))
@@ -171,7 +167,7 @@ struct glTFLoader::glTFLoaderImpl
 	}
 };
 
-glTFLoader::glTFLoader() : loaderImpl{ std::make_unique<glTFLoaderImpl>() }
+glTFLoader::glTFLoader() : loaderImpl { std::make_unique<glTFLoaderImpl>() }
 {
 	if(Ogre::Root::getSingletonPtr() == nullptr) throw std::runtime_error("Please create an Ogre::Root instance before initializing the glTF library!");
 
@@ -186,6 +182,7 @@ loaderAdapter glTFLoader::loadFromFileSystem(const std::string& path) const
 	loaderAdapter adapter;
 	adapter.adapterName = path;
 	loaderImpl->loadInto(adapter, path);
+
 	//if (adapter.getLastError().empty())
 	{
 		OgreLog("Debug : it looks like the file was loaded without error!");
@@ -213,7 +210,31 @@ loaderAdapter glTFLoader::loadGlbResource(const std::string& name) const
 	return adapter;
 }
 
-Ogre::Item* glTFLoader::getItemFromResource(const std::string& name, Ogre::SceneManager* smgr)
+ModelInformation glTFLoader::getModelData(const std::string& modelName, LoadFrom loadLocation)
+{
+	auto adapter = [&] {
+		switch(loadLocation)
+		{
+			case LoadFrom::FileSystem: return loadFromFileSystem(modelName);
+			case LoadFrom::ResourceManager: return loadGlbResource(modelName);
+		}
+
+		return loaderAdapter {};
+	}();
+
+	if(!adapter.isOk()) OgreLog("adapter is signaling it isn't in \"ok\" state");
+
+	adapter.pimpl->textureImp.loadTextures();
+
+	ModelInformation model;
+	model.mesh		= adapter.getMesh();
+	model.transform = adapter.getTransform();
+	for(size_t i { 0 }; i < adapter.getDatablockCount(); i++) model.pbrMaterialList.push_back(adapter.getDatablock(i));
+
+	return model;
+}
+
+[[deprecated]] Ogre::Item* glTFLoader::getItemFromResource(const std::string& name, Ogre::SceneManager* smgr)
 {
 	OgreLog("Getting resource");
 	auto adapter = loadGlbResource(name);
@@ -227,39 +248,7 @@ Ogre::Item* glTFLoader::getItemFromResource(const std::string& name, Ogre::Scene
 	return adapter.getItem(smgr);
 }
 
-ItemAndTransform glTFLoader::getItemAndTransformFromResource(const std::string& name, Ogre::SceneManager* smgr)
-{
-	OgreLog("Getting resource");
-	auto adapter = loadGlbResource(name);
-	if(adapter.isOk()) { OgreLog("Adapter is ok!"); }
-	else
-	{
-		OgreLog("Adapter is not okay!");
-	}
-	OgreLog("Calling get item with your smgr...");
-
-	auto itemTransform = adapter.getTransform();
-	itemTransform.item = adapter.getItem(smgr);
-
-	return itemTransform;
-}
-
-ItemAndTransform glTFLoader::getItemAndTransformFromFileSystem(const std::string& fileName, Ogre::SceneManager* smgr)
-{
-	auto adapter = loadFromFileSystem(fileName);
-	if(adapter.isOk()) { OgreLog("Adapter is ok!"); }
-	else
-	{
-		OgreLog("Adapter is not okay!");
-	}
-
-	auto itemTransform = adapter.getTransform();
-	itemTransform.item = adapter.getItem(smgr);
-
-	return itemTransform;
-}
-
-Ogre::Item* glTFLoader::getItemFromFileSystem(const std::string& fileName, Ogre::SceneManager* smgr)
+[[deprecated]] Ogre::Item* glTFLoader::getItemFromFileSystem(const std::string& fileName, Ogre::SceneManager* smgr)
 {
 	auto adapter = loadFromFileSystem(fileName);
 	if(adapter.isOk()) { OgreLog("Adapter is ok!"); }
@@ -270,7 +259,7 @@ Ogre::Item* glTFLoader::getItemFromFileSystem(const std::string& fileName, Ogre:
 	return adapter.getItem(smgr);
 }
 
-MeshAndDataBlock glTFLoader::getMeshFromFileSystem(const std::string& name)
+[[deprecated]] MeshAndDataBlock glTFLoader::getMeshFromFileSystem(const std::string& name)
 {
 	auto adapter = loadFromFileSystem(name);
 	if(adapter.isOk()) { OgreLog("Adapter is ok!"); }
@@ -281,7 +270,7 @@ MeshAndDataBlock glTFLoader::getMeshFromFileSystem(const std::string& name)
 	return { adapter.getMesh(), adapter.getDatablock(0) };
 }
 
-MeshAndDataBlock glTFLoader::getMeshFromResource(const std::string& name)
+[[deprecated]] MeshAndDataBlock glTFLoader::getMeshFromResource(const std::string& name)
 {
 	auto adapter = loadGlbResource(name);
 	if(adapter.isOk()) { OgreLog("Adapter is ok!"); }
