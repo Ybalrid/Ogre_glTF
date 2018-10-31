@@ -6,7 +6,6 @@
 #include "Ogre_glTF_materialLoader.hpp"
 #include "Ogre_glTF_skeletonImporter.hpp"
 #include "Ogre_glTF_common.hpp"
-
 #include "Ogre_glTF_OgreResource.hpp"
 
 #define TINYGLTF_IMPLEMENTATION
@@ -91,7 +90,8 @@ size_t loaderAdapter::getDatablockCount() { return pimpl->materialLoad.getDatabl
 
 loaderAdapter::loaderAdapter(loaderAdapter&& other) noexcept : pimpl { std::move(other.pimpl) }
 {
-	//OgreLog("Moved adapter object...");
+
+	OgreLog("Moved adapter object...");
 }
 
 loaderAdapter& loaderAdapter::operator=(loaderAdapter&& other) noexcept
@@ -182,6 +182,7 @@ loaderAdapter glTFLoader::loadFromFileSystem(const std::string& path) const
 	loaderAdapter adapter;
 	adapter.adapterName = path;
 	loaderImpl->loadInto(adapter, path);
+
 	//if (adapter.getLastError().empty())
 	{
 		OgreLog("Debug : it looks like the file was loaded without error!");
@@ -225,20 +226,15 @@ ModelInformation glTFLoader::getModelData(const std::string& modelName, LoadFrom
 
 	adapter.pimpl->textureImp.loadTextures();
 
-	const auto mesh		 = adapter.getMesh();
-	const auto transform = adapter.getTransform();
-
 	ModelInformation model;
-	model.mesh = mesh;
-
-	for(size_t i { 0 }; i < adapter.getDatablockCount(); i++) model.pbrMaterialList.push_back(adapter.getDatablock(i));
-
+	model.mesh		= adapter.getMesh();
 	model.transform = adapter.getTransform();
+	for(size_t i { 0 }; i < adapter.getDatablockCount(); i++) model.pbrMaterialList.push_back(adapter.getDatablock(i));
 
 	return model;
 }
 
-Ogre::Item* glTFLoader::getItemFromResource(const std::string& name, Ogre::SceneManager* smgr)
+[[deprecated]] Ogre::Item* glTFLoader::getItemFromResource(const std::string& name, Ogre::SceneManager* smgr)
 {
 	OgreLog("Getting resource");
 	auto adapter = loadGlbResource(name);
@@ -252,7 +248,7 @@ Ogre::Item* glTFLoader::getItemFromResource(const std::string& name, Ogre::Scene
 	return adapter.getItem(smgr);
 }
 
-Ogre::Item* glTFLoader::getItemFromFileSystem(const std::string& fileName, Ogre::SceneManager* smgr)
+[[deprecated]] Ogre::Item* glTFLoader::getItemFromFileSystem(const std::string& fileName, Ogre::SceneManager* smgr)
 {
 	auto adapter = loadFromFileSystem(fileName);
 	if(adapter.isOk()) { OgreLog("Adapter is ok!"); }
@@ -263,7 +259,7 @@ Ogre::Item* glTFLoader::getItemFromFileSystem(const std::string& fileName, Ogre:
 	return adapter.getItem(smgr);
 }
 
-MeshAndDataBlock glTFLoader::getMeshFromFileSystem(const std::string& name)
+[[deprecated]] MeshAndDataBlock glTFLoader::getMeshFromFileSystem(const std::string& name)
 {
 	auto adapter = loadFromFileSystem(name);
 	if(adapter.isOk()) { OgreLog("Adapter is ok!"); }
@@ -274,7 +270,7 @@ MeshAndDataBlock glTFLoader::getMeshFromFileSystem(const std::string& name)
 	return { adapter.getMesh(), adapter.getDatablock(0) };
 }
 
-MeshAndDataBlock glTFLoader::getMeshFromResource(const std::string& name)
+[[deprecated]] MeshAndDataBlock glTFLoader::getMeshFromResource(const std::string& name)
 {
 	auto adapter = loadGlbResource(name);
 	if(adapter.isOk()) { OgreLog("Adapter is ok!"); }
