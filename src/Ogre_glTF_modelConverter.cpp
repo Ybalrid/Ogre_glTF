@@ -200,9 +200,9 @@ void modelConverter::debugDump() const
 
 bool modelConverter::hasSkins() const { return !model.skins.empty(); }
 
-ItemAndTransform modelConverter::getTransform()
+ModelInformation::ModelTransform modelConverter::getTransform()
 {
-	ItemAndTransform trans;
+	ModelInformation::ModelTransform trans;
 	std::array<float, 3> translation { 0 }, scale { 0 };
 	std::array<float, 4> rotation { 0 };
 	std::array<float, 4 * 4> local_matrix { 0 };
@@ -213,7 +213,7 @@ ItemAndTransform modelConverter::getTransform()
 	if(!nodes.translation.empty())
 	{
 		internal_utils::container_double_to_float(nodes.translation, translation);
-		trans.pos = Ogre::Vector3 { translation.data() };
+		trans.position = Ogre::Vector3 { translation.data() };
 		set		  = true;
 	}
 	if(!nodes.scale.empty())
@@ -225,7 +225,7 @@ ItemAndTransform modelConverter::getTransform()
 	if(!nodes.rotation.empty())
 	{
 		internal_utils::container_double_to_float(nodes.rotation, rotation);
-		trans.rot = Ogre::Quaternion { rotation[3], rotation[0], rotation[1], rotation[2] };
+		trans.orientation = Ogre::Quaternion { rotation[3], rotation[0], rotation[1], rotation[2] };
 		set		  = true;
 	}
 
@@ -234,7 +234,7 @@ ItemAndTransform modelConverter::getTransform()
 		internal_utils::container_double_to_float(nodes.matrix, local_matrix);
 		Ogre::Matrix4 transform_matrix { local_matrix.data() };
 
-		transform_matrix.transpose().decomposition(trans.pos, trans.scale, trans.rot);
+		transform_matrix.transpose().decomposition(trans.position, trans.scale, trans.orientation);
 	}
 
 	return trans;
