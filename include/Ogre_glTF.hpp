@@ -35,6 +35,13 @@ namespace Ogre_glTF
 			Ogre::Vector3 position		 = Ogre::Vector3::ZERO;
 			Ogre::Vector3 scale			 = Ogre::Vector3::UNIT_SCALE;
 			Ogre::Quaternion orientation = Ogre::Quaternion::IDENTITY;
+
+			void apply (Ogre::SceneNode* node)
+			{
+				node->setPosition(position);
+				node->setScale(scale);
+				node->setOrientation(orientation);
+			}
 		} transform;
 	};
 

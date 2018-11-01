@@ -142,9 +142,7 @@ int main()
 	auto item = model.makeItem(smgr);
 	auto itemNode   = smgr->getRootSceneNode()->createChildSceneNode();
 	itemNode->attachObject(item);
-	itemNode->setPosition(model.transform.position);
-	itemNode->setOrientation(model.transform.orientation);
-	itemNode->setScale(model.transform.scale);
+	model.transform.apply(itemNode);
 
 	//Add light
 	auto light = smgr->createLight();
