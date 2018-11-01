@@ -2,8 +2,6 @@
 
 Ogre_glTF::glTFLoaderPlugin* gPluginInstaller = nullptr;
 
-
-
 extern "C" {
 
 void Ogre_glTF_EXPORT dllStartPlugin(void)
@@ -15,15 +13,15 @@ void Ogre_glTF_EXPORT dllStartPlugin(void)
 		//able to retrieve it's address by name independently of compiler mangling.
 		//We should ignore any warning about this.
 #ifdef _MSC_VER
-#pragma warning (push)
-#pragma warning (disable : 4297)
+#pragma warning(push)
+#pragma warning(disable : 4297)
 #endif
 		throw Ogre_glTF::InitError("Apparently called dllStartPlugin on the Ogre_glTF"
-								 "plugin twice. I'm afraid you can't do that... ");
+								   "plugin twice. I'm afraid you can't do that... ");
 #ifdef _MSC_VER
-#pragma warning (pop)
+#pragma warning(pop)
 #endif
- 	}
+	}
 
 	gPluginInstaller = new Ogre_glTF::glTFLoaderPlugin;
 	Ogre::Root::getSingleton().installPlugin(gPluginInstaller);
