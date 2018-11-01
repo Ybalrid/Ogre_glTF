@@ -28,7 +28,7 @@ Ogre::VertexBufferPackedVec modelConverter::constructVertexBuffer(const std::vec
 		//Sanity check
 		if(previousVertexCount != 0)
 		{
-			if(vertexCount != previousVertexCount) throw std::runtime_error("Part of vertex buffer for the same primitive have different vertex counts!");
+			if(vertexCount != previousVertexCount) throw LoadingError("Part of vertex buffer for the same primitive have different vertex counts!");
 		}
 		else
 			previousVertexCount = vertexCount;
@@ -111,7 +111,7 @@ Ogre::MeshPtr modelConverter::getOgreMesh()
 				case TINYGLTF_MODE_TRIANGLES: OgreLog("Triangle List"); return Ogre::OT_TRIANGLE_LIST;
 				case TINYGLTF_MODE_TRIANGLE_FAN: OgreLog("Trinagle Fan"); return Ogre::OT_TRIANGLE_FAN;
 				case TINYGLTF_MODE_TRIANGLE_STRIP: OgreLog("Triangle Strip"); return Ogre::OT_TRIANGLE_STRIP;
-				default: OgreLog("Unknown"); throw std::runtime_error("Can't understand primitive mode!");
+				default: OgreLog("Unknown"); throw LoadingError("Can't understand primitive mode!");
 			};
 		}());
 
@@ -256,12 +256,12 @@ Ogre::IndexBufferPacked* modelConverter::extractIndexBuffer(int accessorID) cons
 	const auto indexCount  = accessor.count;
 	Ogre::IndexBufferPacked::IndexType type;
 
-	if(byteStride < 0) throw std::runtime_error("Can't get valid bytestride from accessor and bufferview. Loading data not possible");
+	if(byteStride < 0) throw LoadingError("Can't get valid bytestride from accessor and bufferview. Loading data not possible");
 
 	auto convertTo16Bit { false };
 	switch(accessor.componentType)
 	{
-		default: throw std::runtime_error("Unrecognized index data format");
+		default: throw LoadingError("Unrecognized index data format");
 		case TINYGLTF_COMPONENT_TYPE_BYTE:
 		case TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE: convertTo16Bit = true;
 		case TINYGLTF_COMPONENT_TYPE_SHORT:
@@ -331,7 +331,7 @@ vertexBufferPart modelConverter::extractVertexBuffer(const std::pair<std::string
 
 	switch(accessor.componentType)
 	{
-		case TINYGLTF_COMPONENT_TYPE_DOUBLE: throw std::runtime_error("Double pressision not implemented!");
+		case TINYGLTF_COMPONENT_TYPE_DOUBLE: throw LoadingError("Double precision not implemented!");
 		case TINYGLTF_COMPONENT_TYPE_FLOAT:
 			bufferLenghtInBufferBasicType = (vertexBufferByteLen / sizeof(float));
 			geomBuffer					  = std::make_unique<geometryBuffer<float>>(bufferLenghtInBufferBasicType);
@@ -345,7 +345,7 @@ vertexBufferPart modelConverter::extractVertexBuffer(const std::pair<std::string
 			if(numberOfElementPerVertex == 2) elementType = Ogre::VET_USHORT2;
 			if(numberOfElementPerVertex == 4) elementType = Ogre::VET_USHORT4;
 			break;
-		default: throw std::runtime_error("Unrecognized vertex buffer coponent type");
+		default: throw LoadingError("Unrecognized vertex buffer coponent type");
 	}
 
 	//if(bufferView.byteStride == 0)
@@ -355,7 +355,7 @@ vertexBufferPart modelConverter::extractVertexBuffer(const std::pair<std::string
 	const auto vertexCount				  = accessor.count;
 	const auto vertexElementLenghtInBytes = numberOfElementPerVertex * geomBuffer->elementSize();
 
-	if(byteStride < 0) throw std::runtime_error("Can't get valid bytestride from accessor and bufferview. Loading data not possible");
+	if(byteStride < 0) throw LoadingError("Can't get valid bytestride from accessor and bufferview. Loading data not possible");
 
 	//OgreLog("A vertex element on this buffer is " + std::to_string(vertexElementLenghtInBytes) + " bytes long");
 	for(size_t vertexIndex = 0; vertexIndex < vertexCount; vertexIndex++)

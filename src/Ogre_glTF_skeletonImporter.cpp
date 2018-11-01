@@ -6,6 +6,7 @@
 #include <OgreOldBone.h>
 #include <OgreLogManager.h>
 #include <OgreKeyFrame.h>
+#include "Ogre_glTF.hpp"
 
 using namespace Ogre_glTF;
 
@@ -20,7 +21,7 @@ void skeletonImporter::addChidren(const std::string& skinName, const std::vector
 		//OgreLog("Node name is " + node.name + "!");
 
 		auto bone = skeleton->getBone(nodeToJointMap[child]);
-		if(!bone) { throw std::runtime_error("could not get bone " + std::to_string(bone->getHandle())); }
+		if(!bone) { throw InitError("could not get bone " + std::to_string(bone->getHandle())); }
 
 		parent->addChild(bone);
 
@@ -90,7 +91,7 @@ void skeletonImporter::loadTimepointFromSamplerToKeyFrame(int bone, int frameID,
 		animationFrame.timePoint = data;
 	else if(animationFrame.timePoint != data)
 	{
-		throw std::runtime_error("Missmatch of timecode while loading an animation keyframe for bone joint " + std::to_string(bone)
+		throw FileIOError("Missmatch of timecode while loading an animation keyframe for bone joint " + std::to_string(bone)
 								 + "\n"
 								   "read from file : "
 								 + std::to_string(data) + " while animationFrame recorded " + std::to_string(animationFrame.timePoint));
@@ -366,7 +367,7 @@ Ogre::v1::SkeletonPtr skeletonImporter::getSkeleton(const std::string& name)
 	//Create new skeleton
 	skeleton = Ogre::v1::OldSkeletonManager::getSingleton().create(skeletonName, Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, true);
 
-	if(!skeleton) throw std::runtime_error("Coudn't create skeletion for skin" + skeletonName);
+	if(!skeleton) throw InitError("Coudn't create skeletion for skin" + skeletonName);
 
 	//OgreLog("skin.skeleton = " + std::to_string(firstSkin.skeleton));
 	//OgreLog("first joint : " + std::to_string(firstSkin.joints.front()));

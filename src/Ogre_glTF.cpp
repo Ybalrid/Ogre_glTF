@@ -122,7 +122,7 @@ struct glTFLoader::glTFLoaderImpl
 		//Quickly open the file as binary and check if there's the gltf binary magic number
 		{
 			auto probe = std::ifstream(path, std::ios_base::binary);
-			if(!probe) throw std::runtime_error("Could not open " + path);
+			if(!probe) throw FileIOError("Could not open " + path);
 
 			std::array<char, 5> buffer {};
 			for(size_t i { 0 }; i < 4; ++i) probe >> buffer[i];
@@ -169,7 +169,7 @@ struct glTFLoader::glTFLoaderImpl
 
 glTFLoader::glTFLoader() : loaderImpl { std::make_unique<glTFLoaderImpl>() }
 {
-	if(Ogre::Root::getSingletonPtr() == nullptr) throw std::runtime_error("Please create an Ogre::Root instance before initializing the glTF library!");
+	if(Ogre::Root::getSingletonPtr() == nullptr) throw RootNotInitializedYet("Please create an Ogre::Root instance before initializing the glTF library!");
 
 	if(!Ogre_glTF::GlbFileManager::getSingletonPtr()) new GlbFileManager;
 

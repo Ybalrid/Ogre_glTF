@@ -1,17 +1,18 @@
 #include "Ogre_glTF_OgreResource.hpp"
+#include "Ogre_glTF.hpp"
 
 void Ogre_glTF::GlbFile::readFromStream(Ogre::DataStreamPtr& stream)
 {
 	data.resize(stream->size());
 	stream->read(reinterpret_cast<void*>(data.data()), data.size());
 
-	if(calculateSize() < 20) throw std::runtime_error("GLB file needs to be at least 20 bytes long. This cannot be possibly valid!");
+	if(calculateSize() < 20) throw FileIOError("GLB file needs to be at least 20 bytes long. This cannot be possibly valid!");
 	{
 		char magic[5];
 		memcpy(magic, getData(), 4);
 		magic[4] = 0;
 
-		if(std::string(magic) != "glTF") throw std::runtime_error("GLB files needs to start with 0x46546C67 \"glTF\" magic number!");
+		if(std::string(magic) != "glTF") throw InitError("GLB files needs to start with 0x46546C67 \"glTF\" magic number!");
 	}
 }
 

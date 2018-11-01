@@ -8,6 +8,7 @@
 #include <OgreColourValue.h>
 #include <OgreRoot.h>
 #include <OgreRenderTarget.h>
+#include "Ogre_glTF.hpp"
 
 using namespace Ogre_glTF;
 
@@ -37,7 +38,7 @@ void textureImporter::loadTexture(const tinygltf::Texture& texture)
 		if(image.component == 3) return Ogre::PF_BYTE_RGB;
 		if(image.component == 4) return Ogre::PF_BYTE_RGBA;
 
-		throw std::runtime_error("Can get " + name + "pixel format");
+		throw InitError("Can get " + name + "pixel format");
 		//TODO do this properly. Right now it is guesswork
 
 		OgreLog("unrecognized pixel format from tinygltf image");
@@ -87,6 +88,7 @@ bool textureImporter::isHardwareGammaEnabled() const
 	}
 	catch(const std::exception& e)
 	{
+		(void)e;
 		OgreLog("It appears that render system doesn't know if it uses srgb gamma conversion? How is that possible? We're going to check the render targets "
 				"anyway");
 	}
@@ -156,7 +158,7 @@ Ogre::TexturePtr textureImporter::generateGreyScaleFromChannel(int gltfTextureSo
 		if(image.component == 3) return Ogre::PF_BYTE_RGB;
 		if(image.component == 4) return Ogre::PF_BYTE_RGBA;
 
-		throw std::runtime_error("Can get " + name + "pixel format");
+		throw InitError("Can get " + name + "pixel format");
 		//TODO do this properly. Right now it is guesswork
 
 		OgreLog("unrecognized pixel format from tinygltf image");
@@ -211,13 +213,13 @@ Ogre::TexturePtr textureImporter::getNormalSNORM(int gltfTextureSourceID)
 		//TODO do this properly. Right now it is guesswork
 
 		OgreLog("unrecognized pixel format from tinygltf image");
-		throw std::runtime_error("Can get " + name + "pixel format");
+		throw InitError("Can get " + name + "pixel format");
 	}();
 
 	const auto pixelFormatSnorm = [&] {
 		if(image.component == 3) return Ogre::PF_R8G8B8_SNORM;
 		if(image.component == 4) return Ogre::PF_R8G8B8A8_SNORM;
-		throw std::runtime_error("Can get " + name + "pixel format");
+		throw InitError("Can get " + name + "pixel format");
 	}();
 
 	Ogre::TexturePtr OgreTexture = textureManager->createManual(name,

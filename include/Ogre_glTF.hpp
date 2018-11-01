@@ -7,6 +7,7 @@
 
 namespace Ogre_glTF
 {
+
 	//Forward declare main class
 	class glTFLoader;
 
@@ -19,7 +20,7 @@ namespace Ogre_glTF
 		Ogre::Item* makeItem(Ogre::SceneManager* smgr, Ogre::SceneMemoryMgrTypes sceneType = Ogre::SCENE_DYNAMIC)
 		{
 			auto item = smgr->createItem(mesh, sceneType);
-			for (size_t i = 0; i < item->getNumSubItems(); ++i) { item->getSubItem(i)->setDatablock(pbrMaterialList[i]); }
+			for(size_t i = 0; i < item->getNumSubItems(); ++i) { item->getSubItem(i)->setDatablock(pbrMaterialList[i]); }
 			return item;
 		}
 
@@ -31,8 +32,8 @@ namespace Ogre_glTF
 		///Local transform on the glTF node this model came from
 		struct ModelTransform
 		{
-			Ogre::Vector3 position = Ogre::Vector3::ZERO;
-			Ogre::Vector3 scale = Ogre::Vector3::UNIT_SCALE;
+			Ogre::Vector3 position		 = Ogre::Vector3::ZERO;
+			Ogre::Vector3 scale			 = Ogre::Vector3::UNIT_SCALE;
 			Ogre::Quaternion orientation = Ogre::Quaternion::IDENTITY;
 		} transform;
 	};
@@ -186,6 +187,36 @@ namespace Ogre_glTF
 
 		///Deleted assignment operator
 		glTFLoader& operator=(const glTFLoader&) = delete;
+	};
+
+	class Exception : public Ogre::Exception
+	{
+	public:
+		Exception(int number, const std::string& desc, const std::string& src) : Ogre::Exception(number, "gltf exception: " + desc, "gltf: " + src) {}
+	};
+
+	class FileIOError : public Exception
+	{
+	public:
+		FileIOError(const std::string& message = "", const std::string& src = "") : Exception(ERR_FILE_NOT_FOUND, "couldn't open file: " + message, src) {}
+	};
+
+	class RootNotInitializedYet : public Exception
+	{
+	public:
+		RootNotInitializedYet(const std::string& message = "", const std::string& src = "") : Exception(ERR_INVALID_CALL, message, src) {}
+	};
+
+	class LoadingError : public Exception
+	{
+	public:
+		LoadingError(const std::string& message, const std::string& src = "") : Exception(ERR_INTERNAL_ERROR, "while loading: " + message, src) {}
+	};
+
+	class InitError : public Exception
+	{
+	public:
+		InitError(const std::string& message, const std::string& src = "") : Exception(ERR_INVALID_STATE, message, src) {}
 	};
 }
 
