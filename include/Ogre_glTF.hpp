@@ -45,18 +45,6 @@ namespace Ogre_glTF
 		} transform;
 	};
 
-	///struct that contains a mesh and the datablock that should be used with it.
-	///This represent what an extracted object from a glTF asset contains.
-	///The mash should have a skeletonInstance attached to it the glTF file defined a skin;
-	struct [[deprecated]] MeshAndDataBlock
-	{
-		///Pointer to the Ogre Mesh
-		Ogre::MeshPtr Mesh;
-
-		///Pointer to the HlmsDatablock. This should be a HlmsPbsDatablock
-		Ogre::HlmsDatablock* datablock;
-	};
-
 	///Plugin accessible interface that plugin users can use
 	struct glTFLoaderInterface
 	{
@@ -71,27 +59,6 @@ namespace Ogre_glTF
 		///\param loadLocation flag that signal if the model is loaded directly from the filesystem, or from Ogre's resource manager
 		virtual ModelInformation getModelData(const std::string& modelName, LoadFrom loadLocation) = 0;
 
-		///Get you an item from a GLB file loaded inside an Ogre resource group
-		/// \param name The name of the resource
-		/// \param smgr The scene manager where the Item will be used
-		/// \return pointer to a created item in your scene manager using the mesh in the glTF asset
-		[[deprecated]] virtual Ogre::Item* getItemFromResource(const std::string& name, Ogre::SceneManager* smgr) = 0;
-
-		///Get you an item from a GLB or a GLTF file from the filesystem.
-		/// \param fileName The name of the resource
-		/// \param smgr The scene manager where the Item will be used
-		/// \return pointer to a created item in your scene manager using the mesh in the glTF asset
-		[[deprecated]] virtual Ogre::Item* getItemFromFileSystem(const std::string& fileName, Ogre::SceneManager* smgr) = 0;
-
-		///Get you a mesh and a material datablock from a GLB in the resource manager
-		/// \param name The name of the resource
-		/// \return a struct containing pointers to a mesh and a datablock
-		[[deprecated]] virtual MeshAndDataBlock getMeshFromResource(const std::string& name) = 0;
-
-		///Gets you a mesh and a material datablock from GLB or a GLTF file from the filesystem
-		/// \param name The name of the resource
-		/// \return a struct containing pointers to a mesh and a datablock
-		[[deprecated]] virtual MeshAndDataBlock getMeshFromFileSystem(const std::string& name) = 0;
 	};
 
 	///Class that hold the loaded content of a glTF file and that can create Ogre objects from it
@@ -183,11 +150,6 @@ namespace Ogre_glTF
 
 		///Get the model data. Contains everything you need to create object from the model contained on the glTF asset
 		ModelInformation getModelData(const std::string& modelName, LoadFrom loadLocation) override;
-
-		[[deprecated]] Ogre::Item* getItemFromResource(const std::string& name, Ogre::SceneManager* smgr) override;
-		[[deprecated]] Ogre::Item* getItemFromFileSystem(const std::string& fileName, Ogre::SceneManager* smgr) override;
-		[[deprecated]] MeshAndDataBlock getMeshFromResource(const std::string& name) override;
-		[[deprecated]] MeshAndDataBlock getMeshFromFileSystem(const std::string& name) override;
 
 		///Deleted copy constructor
 		glTFLoader(const glTFLoader&) = delete;

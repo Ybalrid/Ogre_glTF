@@ -234,53 +234,6 @@ ModelInformation glTFLoader::getModelData(const std::string& modelName, LoadFrom
 	return model;
 }
 
-[[deprecated]] Ogre::Item* glTFLoader::getItemFromResource(const std::string& name, Ogre::SceneManager* smgr)
-{
-	OgreLog("Getting resource");
-	auto adapter = loadGlbResource(name);
-	if(adapter.isOk()) { OgreLog("Adapter is ok!"); }
-	else
-	{
-		OgreLog("Adapter is not okay!");
-	}
-
-	OgreLog("Calling get item with your smgr...");
-	return adapter.getItem(smgr);
-}
-
-[[deprecated]] Ogre::Item* glTFLoader::getItemFromFileSystem(const std::string& fileName, Ogre::SceneManager* smgr)
-{
-	auto adapter = loadFromFileSystem(fileName);
-	if(adapter.isOk()) { OgreLog("Adapter is ok!"); }
-	else
-	{
-		OgreLog("Adapter is not okay!");
-	}
-	return adapter.getItem(smgr);
-}
-
-[[deprecated]] MeshAndDataBlock glTFLoader::getMeshFromFileSystem(const std::string& name)
-{
-	auto adapter = loadFromFileSystem(name);
-	if(adapter.isOk()) { OgreLog("Adapter is ok!"); }
-	else
-	{
-		OgreLog("Adapter is not okay!");
-	}
-	return { adapter.getMesh(), adapter.getDatablock(0) };
-}
-
-[[deprecated]] MeshAndDataBlock glTFLoader::getMeshFromResource(const std::string& name)
-{
-	auto adapter = loadGlbResource(name);
-	if(adapter.isOk()) { OgreLog("Adapter is ok!"); }
-	else
-	{
-		OgreLog("Adapter is not okay!");
-	}
-	return { adapter.getMesh(), adapter.getDatablock(0) };
-}
-
 glTFLoader::glTFLoader(glTFLoader&& other) noexcept : loaderImpl(std::move(other.loaderImpl)) {}
 
 glTFLoader& glTFLoader::operator=(glTFLoader&& other) noexcept

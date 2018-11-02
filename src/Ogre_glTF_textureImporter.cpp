@@ -39,9 +39,6 @@ void textureImporter::loadTexture(const tinygltf::Texture& texture)
 		if(image.component == 4) return Ogre::PF_BYTE_RGBA;
 
 		throw InitError("Can get " + name + "pixel format");
-		//TODO do this properly. Right now it is guesswork
-
-		OgreLog("unrecognized pixel format from tinygltf image");
 	}();
 
 	if(image.image.size() / image.component == image.width * image.height) { OgreLog("It looks like the image.component field and the image size does match"); }
@@ -158,10 +155,8 @@ Ogre::TexturePtr textureImporter::generateGreyScaleFromChannel(int gltfTextureSo
 		if(image.component == 3) return Ogre::PF_BYTE_RGB;
 		if(image.component == 4) return Ogre::PF_BYTE_RGBA;
 
-		throw InitError("Can get " + name + "pixel format");
-		//TODO do this properly. Right now it is guesswork
-
 		OgreLog("unrecognized pixel format from tinygltf image");
+		throw InitError("Can get " + name + "pixel format");
 	}();
 
 	Ogre::Image OgreImage;
@@ -209,8 +204,6 @@ Ogre::TexturePtr textureImporter::getNormalSNORM(int gltfTextureSourceID)
 	const auto pixelFormat = [&] {
 		if(image.component == 3) return Ogre::PF_BYTE_RGB;
 		if(image.component == 4) return Ogre::PF_BYTE_RGBA;
-
-		//TODO do this properly. Right now it is guesswork
 
 		OgreLog("unrecognized pixel format from tinygltf image");
 		throw InitError("Can get " + name + "pixel format");
