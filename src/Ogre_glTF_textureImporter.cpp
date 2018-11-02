@@ -16,7 +16,7 @@ using namespace Ogre_glTF;
 //TODO rethink the oder of operations while loading texture. Some of them need to be interpreted differently for they usage (MetalRoughMap needs to be separated in two greyscale map, NormalMap need SNORM reformating). Knowing what the material is doing with them will help avoid uncessesary resource usage and load time.
 //TODO planned refactoring : pixel format selection code needs to be put into it's own method
 //TODO planned refactoring : Loading of texture via OgreImage needs to be put into it's own method
-//TODO investicate if HardwarePixelBuffer is going to be deprecated. Why is it in the Ogre::v1 namespace? What will happen in Ogre 2.2's "texture refactor"?
+//TODO investigate if HardwarePixelBuffer is going to be deprecated. Why is it in the Ogre::v1 namespace? What will happen in Ogre 2.2's "texture refactor"?
 
 size_t textureImporter::id { 0 };
 void textureImporter::loadTexture(const tinygltf::Texture& texture)

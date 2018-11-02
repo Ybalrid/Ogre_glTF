@@ -13,10 +13,10 @@ const char GL_RENDER_PLUGIN[] = "./RenderSystem_GL3Plus";
 
 #ifdef _WIN32
 #ifdef _DEBUG
-const char D3D11_RENDER_PLUGIN[] = "./RenderSystem_Direct3D11_d";
+const char D3D11_RENDER_PLUGIN[]  = "./RenderSystem_Direct3D11_d";
 const char Ogre_glTF_PluginPath[] = "./Debug/Ogre_glTF_d";
 #else
-const char D3D11_RENDER_PLUGIN[] = "./RenderSystem_Direct3D11";
+const char D3D11_RENDER_PLUGIN[]  = "./RenderSystem_Direct3D11";
 const char Ogre_glTF_PluginPath[] = "./Release/Ogre_glTF";
 #endif
 #endif
@@ -104,9 +104,8 @@ int main()
 	//Append the Ogre_glTF plugin to that list
 	root->loadPlugin(Ogre_glTF_PluginPath);
 #else
-    root->loadPlugin("./libOgre_glTF.so");
+	root->loadPlugin("./libOgre_glTF.so");
 #endif
-
 
 	//Startup Ogre as you would generally do it
 	root->showConfigDialog();
@@ -138,8 +137,8 @@ int main()
 
 	//Get access to the gltf loader, and load a GLB file in the resources to an item
 	auto glTFLoader = gltfPluginAccessor::findPlugin()->getLoader();
-	auto model =  glTFLoader->getModelData("CesiumMan.glb", glTFLoaderInterface::LoadFrom::ResourceManager);
-	auto item = model.makeItem(smgr);
+	auto model		= glTFLoader->getModelData("CesiumMan.glb", glTFLoaderInterface::LoadFrom::ResourceManager);
+	auto item		= model.makeItem(smgr);
 	auto itemNode   = smgr->getRootSceneNode()->createChildSceneNode();
 	itemNode->attachObject(item);
 	model.transform.apply(itemNode);

@@ -132,18 +132,20 @@ int main()
 	//Ogre::Item* OtherItem;
 	//Initialize the library
 	auto gltf = std::make_unique<Ogre_glTF::glTFLoader>();
+	ObjectNode = smgr->getRootSceneNode()->createChildSceneNode();
 
 	Ogre_glTF::loaderAdapter gizmoLoader;
 	try
 	{
 		//auto adapter = gltf->loadFromFileSystem("from_gltf_export_skinned_cylinder.glb");
-		auto adapter = gltf->loadGlbResource("CesiumMan.glb");
+		//auto adapter = gltf->loadGlbResource("CesiumMan.glb");
 
 		gizmoLoader = gltf->loadFromFileSystem("gizmo.glb");
 
-		//auto adapter = gltf->loadFromFileSystem("./damagedHelmet/damagedHelmet.gltf");
 		//auto adapter = gltf->loadFromFileSystem("./Corset.glb");
-		ObjectItem = adapter.getItem(smgr);
+		auto model = gltf->getModelData("./damagedHelmet/damagedHelmet.gltf", Ogre_glTF::glTFLoaderInterface::LoadFrom::FileSystem);
+		ObjectItem = model.makeItem(smgr);
+		model.transform.apply(ObjectNode);
 		//OtherItem = adapter.getItem(smgr);
 	}
 	catch(std::exception& e)
@@ -152,7 +154,6 @@ int main()
 		return -1;
 	}
 
-	ObjectNode = smgr->getRootSceneNode()->createChildSceneNode();
 	ObjectNode->attachObject(ObjectItem);
 
 	auto gizmoNode = ObjectNode->createChildSceneNode();
