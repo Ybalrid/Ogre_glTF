@@ -39,7 +39,7 @@ Library and Plugin to use glTF 2.0 resources with Ogre 2.1 licencied under the t
 auto glTFLoader = gltfPluginAccessor::findPlugin()->getLoader(); 
 
 //You can creae an Item for a scene by giving the name of the GLB file to look for in the resources
-Ogre::Item* cesiumMan = glTFLoader->getItemFromResource("CesiumMan.glb, smgr);
+Ogre::Item* cesiumMan = glTFLoader->getModelData("CesiumMan.glb", glTFLoaderInterface::LoadFrom::ResourceManager).makeItem(smgr);
 ```
  
  ## Building the source code
