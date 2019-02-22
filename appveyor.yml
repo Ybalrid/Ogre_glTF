@@ -15,6 +15,10 @@ install:
     7z x -y ogre.7z
 
     cd %build_dir%
+
+    echo %CD%
+    
+    dir
 before_build:
 - cmd: cmake -G "Visual Studio 15 2017 Win64" -DOGRE_HOME="C:\Ogre21SDK\" .
 
