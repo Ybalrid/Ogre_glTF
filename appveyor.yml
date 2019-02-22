@@ -20,7 +20,7 @@ install:
     
     dir
 before_build:
-- cmd: cmake -G "Visual Studio 15 2017 Win64" -DOGRE_HOME="C:\Ogre21SDK\" .
+- cmd: cmake . -G "Visual Studio 15 2017 Win64" -DOGRE_HOME="C:\Ogre21SDK\"
 
 build:
   project: Ogre_glTF.sln
