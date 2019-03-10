@@ -3,6 +3,8 @@
 [![Build status](https://ci.appveyor.com/api/projects/status/72mtasrq1qv1uipm/branch/master?svg=true)](https://ci.appveyor.com/project/Ybalrid/ogre-gltf/branch/master)
 [![Build Status](https://travis-ci.com/Ybalrid/Ogre_glTF.svg?branch=master)](https://travis-ci.com/Ybalrid/Ogre_glTF)
 
+[Project public taskboard](https://phabricator.polutropon.games/project/board/4/)
+
 Library and Plugin to use glTF 2.0 resources with Ogre 2.1 licencied under the terms of the [MIT licence](https://opensource.org/licenses/MIT "MIT Licence on the OSI website")
 
 *Loading an object with a PBR material as HLMS/PBS datablock*
