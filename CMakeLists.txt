@@ -16,7 +16,6 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/CMake)
 
 #get Ogre from your system. May need to set some variable for Windows folks
 find_package(OGRE COMPONENTS HlmsPbs REQUIRED)
-
 file(GLOB librarySources ./src/*.cpp ./src/private_headers/*.hpp ./include/*.hpp)
 file(GLOB testSources ./test/*.cpp ./test/*.hpp ./include/*.hpp)
 file(GLOB pluginTestSources ./pluginTest/*.cpp ./pluginTest/*.hpp ./include/*.hpp)
@@ -40,7 +39,7 @@ target_include_directories( Ogre_glTF PUBLIC
 	#Ogre and the physics based high level material system
 	${OGRE_INCLUDE_DIRS}
 	${OGRE_HlmsPbs_INCLUDE_DIRS}
-
+	${OGRE_INCLUDE_DIR}/Hlms/Common
 	#local include directory
 	./include
 	./src/private_headers
@@ -62,6 +61,7 @@ target_include_directories( Ogre_glTF_TEST PUBLIC
 	#Ogre and the physics based high level material system
 	${OGRE_INCLUDE_DIRS}
 	${OGRE_HlmsPbs_INCLUDE_DIRS}
+	${OGRE_INCLUDE_DIR}/Hlms/Common
 
 	#local include directory
 	./include
@@ -80,6 +80,7 @@ target_include_directories( Ogre_glTF_TEST PUBLIC
 target_include_directories(Ogre_gltf_PluginTest PUBLIC
 	${OGRE_INCLUDE_DIRS}
 	${OGRE_HlmsPbs_INCLUDE_DIRS}
+	${OGRE_INCLUDE_DIR}/Hlms/Common
 	./include
 )
 
