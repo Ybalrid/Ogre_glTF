@@ -166,8 +166,15 @@ Ogre::HlmsDatablock* materialLoader::getDatablock(size_t index) const
 		if(content.first == "metallicRoughnessTexture")
 			setMetalRoughTexture(datablock, content.second.TextureIndex());
 
-		if(content.first == "baseColorFactor")
+		if (content.first == "baseColorFactor")
+		{
 			setBaseColor(datablock, convertColor(content.second.ColorFactor()));
+
+			// Need to set the alpha channel separately
+			float alpha = content.second.number_array[3];
+			auto transparentMode = (alpha == 1) ? Ogre::HlmsPbsDatablock::None : Ogre::HlmsPbsDatablock::Transparent;
+			datablock->setTransparency(alpha, transparentMode);
+		}
 
 		if(content.first == "metallicFactor")
 			setMetallicValue(datablock, static_cast<float>(content.second.Factor()));
