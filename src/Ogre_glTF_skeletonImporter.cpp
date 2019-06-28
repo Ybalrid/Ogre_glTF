@@ -62,15 +62,15 @@ void skeletonImporter::loadBoneHierarchy(int boneIndex)
 	const auto& node = model.nodes[boneIndex];
 	Ogre::v1::OldBone* rootBone = skeleton->getBone(nodeToJointMap[boneIndex]);
 
-	std::array<float, 3> translation = { 0, 0, 0 };
-	std::array<float, 3> scale = { 1, 1, 1 };
-	std::array<float, 4> rotation = { 0, 0, 0, 1 };
+	std::array<Ogre::Real, 3> translation = { 0, 0, 0 };
+	std::array<Ogre::Real, 3> scale = { 1, 1, 1 };
+	std::array<Ogre::Real, 4> rotation = { 0, 0, 0, 1 };
 	if(!node.translation.empty())
-		internal_utils::container_double_to_float(node.translation, translation);
+		internal_utils::container_double_to_real(node.translation, translation);
 	if(!node.scale.empty()) 
-		internal_utils::container_double_to_float(node.scale, scale);
+		internal_utils::container_double_to_real(node.scale, scale);
 	if(!node.rotation.empty())
-		internal_utils::container_double_to_float(node.rotation, rotation);
+		internal_utils::container_double_to_real(node.rotation, rotation);
 
 	Ogre::Vector3 trans  = Ogre::Vector3 { translation.data() };
 	Ogre::Quaternion rot = Ogre::Quaternion { rotation[3], rotation[0], rotation[1], rotation[2] };
@@ -133,11 +133,11 @@ void skeletonImporter::loadVector3FromSampler(int frameID, int& count, tinygltf:
 	if(output.componentType == TINYGLTF_COMPONENT_TYPE_FLOAT) { vector = Ogre::Vector3(reinterpret_cast<float*>(dataStart + frameID * byteStride)); }
 	else if(output.componentType == TINYGLTF_COMPONENT_TYPE_DOUBLE) //need double to float conversion
 	{
-		std::array<float, 3> vectFloat {};
+		std::array<Ogre::Real, 3> vectFloat {};
 		std::array<double, 3> vectDouble {};
 
 		memcpy(vectDouble.data(), reinterpret_cast<double*>(dataStart + frameID * byteStride), 3 * sizeof(double));
-		internal_utils::container_double_to_float(vectDouble, vectFloat);
+		internal_utils::container_double_to_real(vectDouble, vectFloat);
 
 		vector = Ogre::Vector3(vectFloat.data());
 	}
@@ -161,11 +161,11 @@ void skeletonImporter::loadQuatFromSampler(int frameID, int& count, tinygltf::An
 	}
 	else if(output.componentType == TINYGLTF_COMPONENT_TYPE_DOUBLE) //need double to float conversion
 	{
-		std::array<float, 4> vectFloat {};
+		std::array<Ogre::Real, 4> vectFloat {};
 		std::array<double, 4> vectDouble {};
 
 		memcpy(vectDouble.data(), reinterpret_cast<double*>(dataStart + frameID * byteStride), 3 * sizeof(double));
-		internal_utils::container_double_to_float(vectDouble, vectFloat);
+		internal_utils::container_double_to_real(vectDouble, vectFloat);
 
 		quat = Ogre::Quaternion(vectFloat[3], vectFloat[0], vectFloat[1], vectFloat[2]);
 	}
@@ -400,7 +400,7 @@ Ogre::v1::SkeletonPtr skeletonImporter::getSkeleton(size_t index)
 		assert(inverseBindMatricesAccessor.count == skin.joints.size());
 		assert(inverseBindMatricesAccessor.type == TINYGLTF_TYPE_MAT4);
 
-		std::array<float, 4 * 4> floatMatrix {};
+		std::array<Ogre::Real, 4 * 4> floatMatrix {};
 
 		for(int i = 0; i < inverseBindMatricesAccessor.count; ++i)
 		{
@@ -414,7 +414,7 @@ Ogre::v1::SkeletonPtr skeletonImporter::getSkeleton(size_t index)
 				//Needs to do Double -> Float conversion
 				std::array<double, 4 * 4> doubleMatrix {};
 				memcpy(doubleMatrix.data(), reinterpret_cast<const double*>(dataStart + i * byteStride), 4 * 4 * sizeof(double));
-				internal_utils::container_double_to_float(doubleMatrix, floatMatrix);
+				internal_utils::container_double_to_real(doubleMatrix, floatMatrix);
 			}
 
 			Ogre::Matrix4 inverseBindMatrixTransposed = Ogre::Matrix4(floatMatrix[0],

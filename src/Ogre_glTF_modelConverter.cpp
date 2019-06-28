@@ -353,10 +353,10 @@ vertexBufferPart modelConverter::extractVertexBuffer(const std::pair<std::string
 	if(elementScemantic == Ogre::VES_POSITION)
 	{
 		//Convert to float and load into Ogre::Vector3 objects
-		std::array<float, 3> floatVector {};
-		internal_utils::container_double_to_float(accessor.minValues, floatVector);
+		std::array<Ogre::Real, 3> floatVector {};
+		internal_utils::container_double_to_real(accessor.minValues, floatVector);
 		const Ogre::Vector3 minBounds { floatVector.data() };
-		internal_utils::container_double_to_float(accessor.maxValues, floatVector);
+		internal_utils::container_double_to_real(accessor.maxValues, floatVector);
 		const Ogre::Vector3 maxBounds { floatVector.data() };
 
 		OgreLog("Updating bounding box size: ");

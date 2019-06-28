@@ -11,8 +11,8 @@ using namespace Ogre_glTF;
 
 Ogre::Vector3 materialLoader::convertColor(const tinygltf::ColorValue& color)
 {
-	std::array<float, 4> colorBuffer{};
-	internal_utils::container_double_to_float(color, colorBuffer);
+	std::array<Ogre::Real, 4> colorBuffer{};
+	internal_utils::container_double_to_real(color, colorBuffer);
 	return Ogre::Vector3 { colorBuffer.data() };
 }
 
