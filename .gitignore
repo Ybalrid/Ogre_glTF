@@ -38,3 +38,6 @@ Doxygen/
 *.exe
 *.out
 *.app
+
+# VSCode
+.vscode

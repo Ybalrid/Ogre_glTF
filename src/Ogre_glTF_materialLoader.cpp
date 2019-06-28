@@ -136,11 +136,8 @@ materialLoader::materialLoader(tinygltf::Model& input, textureImporter& textureI
 Ogre::HlmsDatablock* materialLoader::getDatablock(size_t index) const
 {
 	OgreLog("Loading material...");
-	//TODO this will need some modification if we support multiple meshes by glTF file
 	auto HlmsPbs			 = static_cast<Ogre::HlmsPbs*>(Ogre::Root::getSingleton().getHlmsManager()->getHlms(Ogre::HlmsTypes::HLMS_PBS));
-	const auto mainMeshIndex = (model.defaultScene != 0 ? model.nodes[model.scenes[model.defaultScene].nodes.front()].mesh : 0);
-	const auto& mesh		 = model.meshes[mainMeshIndex];
-	const auto material		 = model.materials[mesh.primitives.at(index).material];
+	const auto material		 = model.materials[index];
 
 	auto datablock = static_cast<Ogre::HlmsPbsDatablock*>(HlmsPbs->getDatablock(Ogre::IdString(material.name)));
 	if(datablock)

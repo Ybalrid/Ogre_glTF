@@ -24,13 +24,13 @@ namespace Ogre_glTF
 		/// \param skinName name of the skin
 		/// \param childs array contaning the indices of the childrens
 		/// \param parent a pointer to a bone that is part of the skeleton we are creating
-		void addChidren(const std::string& skinName, const std::vector<int>& childs, Ogre::v1::OldBone* parent, const std::vector<int>& joints);
+		void addChidren(const std::vector<int>& childs, Ogre::v1::OldBone* parent);
 
 		///Get the "skeleton node" from the skin object, call add children on it
 		/// \param skin tinigltf skin object we are loading
 		/// \param rootBone a freshly created bone object from an Ogre::SkeletonPtr
 		/// \param name Name of the skeleton we are loading
-		void loadBoneHierarchy(const tinygltf::Skin& skin, Ogre::v1::OldBone* rootBone, const std::string& name);
+		void loadBoneHierarchy(int boneIndex);
 
 		///Represent a keyframe as laded from tinygltf, but converted to Ogre objects
 		struct keyFrame
@@ -83,6 +83,6 @@ namespace Ogre_glTF
 		skeletonImporter(tinygltf::Model& input);
 
 		///Return the constructed skeleton pointer
-		Ogre::v1::SkeletonPtr getSkeleton(const std::string& adapterName);
+		Ogre::v1::SkeletonPtr getSkeleton(size_t index);
 	};
 }

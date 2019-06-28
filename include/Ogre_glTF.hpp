@@ -11,40 +11,6 @@ namespace Ogre_glTF
 	//Forward declare main class
 	class glTFLoader;
 
-	///Structure that contains the information of the model that you loaded
-	struct ModelInformation
-	{
-		///Easy method to build an item to use
-		/// \param smgr pointer to the scene manager where to create the item
-		/// \param sceneType tell if it will be static or dynamic
-		Ogre::Item* makeItem(Ogre::SceneManager* smgr, Ogre::SceneMemoryMgrTypes sceneType = Ogre::SCENE_DYNAMIC)
-		{
-			auto item = smgr->createItem(mesh, sceneType);
-			for(size_t i = 0; i < item->getNumSubItems(); ++i) { item->getSubItem(i)->setDatablock(pbrMaterialList[i]); }
-			return item;
-		}
-
-		///Smart pointer to the loaded mesh
-		Ogre::MeshPtr mesh;
-		///List of materials that correspond to each of the submeshes in the model
-		std::vector<Ogre::HlmsDatablock*> pbrMaterialList;
-
-		///Local transform on the glTF node this model came from
-		struct ModelTransform
-		{
-			Ogre::Vector3 position		 = Ogre::Vector3::ZERO;
-			Ogre::Vector3 scale			 = Ogre::Vector3::UNIT_SCALE;
-			Ogre::Quaternion orientation = Ogre::Quaternion::IDENTITY;
-
-			void apply (Ogre::SceneNode* node)
-			{
-				node->setPosition(position);
-				node->setScale(scale);
-				node->setOrientation(orientation);
-			}
-		} transform;
-	};
-
 	///Plugin accessible interface that plugin users can use
 	struct glTFLoaderInterface
 	{
@@ -53,12 +19,6 @@ namespace Ogre_glTF
 
 		///location where to load the data
 		enum class LoadFrom { FileSystem, ResourceManager };
-
-		///Get the model data
-		///\param modelName name of the resource being loaded
-		///\param loadLocation flag that signal if the model is loaded directly from the filesystem, or from Ogre's resource manager
-		virtual ModelInformation getModelData(const std::string& modelName, LoadFrom loadLocation) = 0;
-
 	};
 
 	///Class that hold the loaded content of a glTF file and that can create Ogre objects from it
@@ -87,9 +47,6 @@ namespace Ogre_glTF
 		///Deleted assignment constructor : non copyable class
 		loaderAdapter& operator=(const loaderAdapter&) = delete;
 
-		///Return the mesh loaded from the glTF file
-		Ogre::MeshPtr getMesh() const;
-
 		///Return one of the datablocks loaded from the gltf file.
 		///\param index of the datablocks used. In a multi-material file, it should be one different per primitive (submesh).
 		Ogre::HlmsDatablock* getDatablock(size_t index = 0) const;
@@ -97,12 +54,13 @@ namespace Ogre_glTF
 		///Return the number of datablock stored
 		size_t getDatablockCount();
 
-		///Get the local transform to apply to the node to align the model with what you would expect.
-		ModelInformation::ModelTransform getTransform();
-
 		///Construct an item for this object
 		/// \param smgr pointer to the scene manager where we are creating the item
-		Ogre::Item* getItem(Ogre::SceneManager* smgr) const;
+		Ogre::SceneNode* getFirstSceneNode(Ogre::SceneManager* smgr) const;
+
+		Ogre::SceneNode* getSceneNode(size_t index, Ogre::SceneNode* parentSceneNode, Ogre::SceneManager* smgr) const;
+
+		void createTagPoints(int boneIndex, Ogre::SkeletonInstance* skeletonInstance, Ogre::SceneManager* smgr) const;
 
 		///Move constructor : object is movable
 		/// \param other object to move
@@ -147,9 +105,6 @@ namespace Ogre_glTF
 
 		///Load a GLB from Ogre's resource manager
 		loaderAdapter loadGlbResource(const std::string& name) const;
-
-		///Get the model data. Contains everything you need to create object from the model contained on the glTF asset
-		ModelInformation getModelData(const std::string& modelName, LoadFrom loadLocation) override;
 
 		///Deleted copy constructor
 		glTFLoader(const glTFLoader&) = delete;

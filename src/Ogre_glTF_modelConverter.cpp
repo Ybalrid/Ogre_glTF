@@ -57,12 +57,36 @@ Ogre::VertexBufferPackedVec modelConverter::constructVertexBuffer(const std::vec
 	return vec;
 }
 
-//TODO make this method make the mesh id. Enumerate the meshes in the file before blindlessly loading the first one
-Ogre::MeshPtr modelConverter::getOgreMesh()
+Ogre::MeshPtr modelConverter::getOgreMesh(const Ogre::String& name)
 {
-	OgreLog("Default scene" + std::to_string(model.defaultScene));
-	const auto mainMeshIndex = (model.defaultScene != 0 ? model.nodes[model.scenes[model.defaultScene].nodes.front()].mesh : 0);
-	const auto& mesh		 = model.meshes[mainMeshIndex];
+	if(name.empty())
+	{
+		if(!model.meshes.empty()) {
+			return getOgreMesh(model.meshes.front());
+		}
+		else
+		{
+			return Ogre::MeshPtr();
+		}
+	}
+
+	for(const auto& mesh : model.meshes) {
+		if(!mesh.name.empty() && mesh.name == name) {
+			return getOgreMesh(mesh);
+		}
+	}
+	
+	return Ogre::MeshPtr();
+}
+
+Ogre::MeshPtr modelConverter::getOgreMesh(size_t index)
+{
+	assert(index < model.meshes.size());
+	return getOgreMesh(model.meshes[index]);
+}
+
+Ogre::MeshPtr modelConverter::getOgreMesh(const tinygltf::Mesh& mesh)
+{
 	Ogre::Aabb boundingBox;
 	OgreLog("Found mesh " + mesh.name + " in glTF file");
 
@@ -92,7 +116,7 @@ Ogre::MeshPtr modelConverter::getOgreMesh()
 			parts.push_back(std::move(extractVertexBuffer(atribute, boundingBox)));
 		}
 
-		//Get (if they exists) the blend weights and bone index parts of our vertex array object content
+		//Get (if they exist) the blend weights and bone index parts of our vertex array object content
 		const auto blendIndicesIt = std::find_if(std::begin(parts), std::end(parts), [](const vertexBufferPart& vertexBufferPart) {
 			return (vertexBufferPart.semantic == Ogre::VertexElementSemantic::VES_BLEND_INDICES);
 		});
@@ -198,46 +222,6 @@ void modelConverter::debugDump() const
 }
 
 bool modelConverter::hasSkins() const { return !model.skins.empty(); }
-
-ModelInformation::ModelTransform modelConverter::getTransform()
-{
-	ModelInformation::ModelTransform trans;
-	std::array<float, 3> translation { 0 }, scale { 0 };
-	std::array<float, 4> rotation { 0 };
-	std::array<float, 4 * 4> local_matrix { 0 };
-	bool set = false;
-
-	// Just get the first one - not sure if there can be more for a model but doubt it
-	const auto& nodes = (model.defaultScene != 0 ? model.nodes[model.scenes[model.defaultScene].nodes[0]] : model.nodes[0]);
-	if(!nodes.translation.empty())
-	{
-		internal_utils::container_double_to_float(nodes.translation, translation);
-		trans.position = Ogre::Vector3 { translation.data() };
-		set		  = true;
-	}
-	if(!nodes.scale.empty())
-	{
-		internal_utils::container_double_to_float(nodes.scale, scale);
-		trans.scale = Ogre::Vector3 { scale.data() };
-		set			= true;
-	}
-	if(!nodes.rotation.empty())
-	{
-		internal_utils::container_double_to_float(nodes.rotation, rotation);
-		trans.orientation = Ogre::Quaternion { rotation[3], rotation[0], rotation[1], rotation[2] };
-		set		  = true;
-	}
-
-	if(!set && !nodes.matrix.empty())
-	{
-		internal_utils::container_double_to_float(nodes.matrix, local_matrix);
-		Ogre::Matrix4 transform_matrix { local_matrix.data() };
-
-		transform_matrix.transpose().decomposition(trans.position, trans.scale, trans.orientation);
-	}
-
-	return trans;
-}
 
 Ogre::VaoManager* modelConverter::getVaoManager()
 {

@@ -12,44 +12,65 @@ using namespace Ogre_glTF;
 
 int skeletonImporter::skeletonID = 0;
 
-void skeletonImporter::addChidren(const std::string& skinName, const std::vector<int>& childs, Ogre::v1::OldBone* parent, const std::vector<int>& joints)
+void skeletonImporter::addChidren(const std::vector<int>& childs, Ogre::v1::OldBone* parent)
 {
 
 	for(auto child : childs)
 	{
 		const auto& node = model.nodes[child];
-		//OgreLog("Node name is " + node.name + "!");
+		
+		if(node.mesh >= 0)
+		{
+			// child is a mesh
+			continue;
+		}
 
 		auto bone = skeleton->getBone(nodeToJointMap[child]);
 		if(!bone) { throw InitError("could not get bone " + std::to_string(bone->getHandle())); }
 
+		if(!node.translation.empty())
+			bone->setPosition(node.translation[0], node.translation[1], node.translation[2]);
+
+		if(!node.rotation.empty())
+			bone->setOrientation(node.rotation[3], node.rotation[0], node.rotation[1], node.rotation[2]);
+
+		if(!node.scale.empty())
+			bone->setScale(node.scale[0], node.scale[1], node.scale[2]);
+
+		if(!node.matrix.empty())
+		{
+			std::array<Ogre::Real, 4 * 4> matrixArray { 0 };
+			internal_utils::container_double_to_real(node.matrix, matrixArray);
+			Ogre::Matrix4 matrix { matrixArray.data() };
+			Ogre::Vector3 position;
+			Ogre::Quaternion orientation;
+			Ogre::Vector3 scale;
+			matrix.transpose().decomposition(position, scale, orientation);
+			bone->setPosition(position);
+			bone->setOrientation(orientation);
+			bone->setScale(scale);
+		}
+
 		parent->addChild(bone);
 
-		auto bindMatrix = bindMatrices[nodeToJointMap[child]];
-
-		Ogre::Vector3 translation, scale;
-		Ogre::Quaternion rotation;
-
-		bindMatrix.decomposition(translation, scale, rotation);
-
-		bone->setPosition(parent->convertWorldToLocalPosition(translation));
-		bone->setOrientation(parent->convertWorldToLocalOrientation(rotation));
-		bone->setScale(parent->_getDerivedScale() / scale);
-
-		addChidren(skinName + std::to_string(child), model.nodes[child].children, bone, joints);
+		addChidren(model.nodes[child].children, bone);
 	}
 }
 
-void skeletonImporter::loadBoneHierarchy(const tinygltf::Skin& skin, Ogre::v1::OldBone* rootBone, const std::string& name)
+void skeletonImporter::loadBoneHierarchy(int boneIndex)
 {
-	const auto& node	 = model.nodes[skin.joints[0]];
-	const auto& skeleton = model.nodes[skin.skeleton];
+	const auto& node = model.nodes[boneIndex];
+	Ogre::v1::OldBone* rootBone = skeleton->getBone(nodeToJointMap[boneIndex]);
 
-	std::array<float, 3> translation { 0 }, scale { 0 };
-	std::array<float, 4> rotation { 0 };
-	internal_utils::container_double_to_float(skeleton.translation, translation);
-	if(skeleton.scale.size() == 3) internal_utils::container_double_to_float(skeleton.scale, scale);
-	internal_utils::container_double_to_float(skeleton.rotation, rotation);
+	std::array<float, 3> translation = { 0, 0, 0 };
+	std::array<float, 3> scale = { 1, 1, 1 };
+	std::array<float, 4> rotation = { 0, 0, 0, 1 };
+	if(!node.translation.empty())
+		internal_utils::container_double_to_float(node.translation, translation);
+	if(!node.scale.empty()) 
+		internal_utils::container_double_to_float(node.scale, scale);
+	if(!node.rotation.empty())
+		internal_utils::container_double_to_float(node.rotation, rotation);
 
 	Ogre::Vector3 trans  = Ogre::Vector3 { translation.data() };
 	Ogre::Quaternion rot = Ogre::Quaternion { rotation[3], rotation[0], rotation[1], rotation[2] };
@@ -65,7 +86,7 @@ void skeletonImporter::loadBoneHierarchy(const tinygltf::Skin& skin, Ogre::v1::O
 	rootBoneXformLog << "rootBone " << trans << " " << rot;
 	OgreLog(rootBoneXformLog);
 
-	addChidren(name, node.children, rootBone, skin.joints);
+	addChidren(node.children, rootBone);
 }
 
 skeletonImporter::skeletonImporter(tinygltf::Model& input) : model { input } {}
@@ -345,15 +366,12 @@ std::vector<int> traversal(const tinygltf::Model& m, int node)
 	return o;
 }
 
-Ogre::v1::SkeletonPtr skeletonImporter::getSkeleton(const std::string& name)
+Ogre::v1::SkeletonPtr skeletonImporter::getSkeleton(size_t index)
 {
-	const auto& skins = model.skins;
-	assert(!skins.empty());
+	assert(index < model.skins.size());
+	const auto& skin = model.skins[index];
 
-	//TODO, take the skin of a specific mesh...
-	const auto& firstSkin = skins.front();
-
-	const std::string skeletonName = name + (!firstSkin.name.empty() ? firstSkin.name : "unnamedSkeleton" + std::to_string(skeletonID++));
+	const std::string skeletonName = (!skin.name.empty() ? skin.name : "unnamedSkeleton" + std::to_string(skeletonID++));
 	OgreLog("First skin name is " + skeletonName);
 
 	//Get skeleton
@@ -367,19 +385,19 @@ Ogre::v1::SkeletonPtr skeletonImporter::getSkeleton(const std::string& name)
 	//Create new skeleton
 	skeleton = Ogre::v1::OldSkeletonManager::getSingleton().create(skeletonName, Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, true);
 
-	if(!skeleton) throw InitError("Coudn't create skeletion for skin" + skeletonName);
+	if(!skeleton) throw InitError("Couldn't create skeletion for skin" + skeletonName);
 
-	//OgreLog("skin.skeleton = " + std::to_string(firstSkin.skeleton));
-	//OgreLog("first joint : " + std::to_string(firstSkin.joints.front()));
+	//OgreLog("skin.skeleton = " + std::to_string(skin.skeleton));
+	//OgreLog("first joint : " + std::to_string(skin.joints.front()));
 	{
-		const auto inverseBindMatricesID		= firstSkin.inverseBindMatrices;
+		const auto inverseBindMatricesID		= skin.inverseBindMatrices;
 		const auto& inverseBindMatricesAccessor = model.accessors[inverseBindMatricesID];
 		const auto& bufferView					= model.bufferViews[inverseBindMatricesAccessor.bufferView];
 		const auto byteStride					= inverseBindMatricesAccessor.ByteStride(bufferView);
 		const auto& buffer						= model.buffers[bufferView.buffer];
 		const unsigned char* dataStart			= buffer.data.data() + bufferView.byteOffset + inverseBindMatricesAccessor.byteOffset;
 
-		assert(inverseBindMatricesAccessor.count == firstSkin.joints.size());
+		assert(inverseBindMatricesAccessor.count == skin.joints.size());
 		assert(inverseBindMatricesAccessor.type == TINYGLTF_TYPE_MAT4);
 
 		std::array<float, 4 * 4> floatMatrix {};
@@ -421,14 +439,21 @@ Ogre::v1::SkeletonPtr skeletonImporter::getSkeleton(const std::string& name)
 		}
 	}
 
-	//Build the "node to joint map". In the vertex buffer, proprery "JOINT_0" refer to the joints that affect a particular vertex of the skined mesh.
+	std::vector<int> rootBones;
+	std::vector<int> allChildren;
+	for(const auto& nodeIndex : skin.joints)
+	{
+		const auto& node = model.nodes[nodeIndex];
+		allChildren.insert(allChildren.end(), node.children.begin(), node.children.end());
+	}
+
+	//Build the "node to joint map". In the vertex buffer, property "JOINT_0" refer to the joints that affect a particular vertex of the skined mesh.
 	//To refer to theses joints, it refer to the index of the node in the skin.joints array.
 	//We need to be able to get the index for each of theses joints in the array easilly, so we are builind a dictionarry to be able to reverse-search them
-	for(int i = 0; i < firstSkin.joints.size(); ++i)
+	for(int i = 0; i < skin.joints.size(); ++i)
 	{
-
 		//Get the index in the "node" array in the glTF's JSON
-		const auto jointNode = firstSkin.joints[i];
+		const auto jointNode = skin.joints[i];
 
 		//Record in the dictionary the joint node-> index
 		nodeToJointMap[jointNode] = i;
@@ -438,11 +463,18 @@ Ogre::v1::SkeletonPtr skeletonImporter::getSkeleton(const std::string& name)
 
 		//Create bone with index "i"
 		auto bone = skeleton->createBone(!name.empty() ? name : skeletonName + std::to_string(i), i);
+
+		if(std::find(allChildren.begin(), allChildren.end(), jointNode) == allChildren.end()) {
+			rootBones.push_back(jointNode);
+		}
 	}
 
-	loadBoneHierarchy(firstSkin, skeleton->getBone(nodeToJointMap[firstSkin.skeleton]), skeletonName);
+	for(int boneIndex : rootBones)
+	{
+		loadBoneHierarchy(boneIndex);
+	}
 	skeleton->setBindingPose();
-	loadSkeletonAnimations(firstSkin, skeletonName);
+	loadSkeletonAnimations(skin, skeletonName);
 
 	return skeleton;
 }

@@ -158,8 +158,10 @@ namespace Ogre_glTF
 		/// \param input model we are converting into an Ogre model
 		modelConverter(tinygltf::Model& input);
 
-		///Return a mesh generated from the data inside the gltf model. Currently look for the mesh attached on the first node of the default scene
-		Ogre::MeshPtr getOgreMesh();
+		///Returns the mesh with the given name in the glTF file. If name is empty it will return the first mesh if any.
+		Ogre::MeshPtr getOgreMesh(const Ogre::String& name = "");
+		Ogre::MeshPtr getOgreMesh(size_t index);
+		Ogre::MeshPtr getOgreMesh(const tinygltf::Mesh& mesh);
 
 		///Print out debug information on the model structure
 		// nodes contain transformation and scale information
@@ -167,9 +169,6 @@ namespace Ogre_glTF
 
 		///Return true if the model defines skins. Skins are "vertex to bone" asignment for skeletal animation
 		bool hasSkins() const;
-
-		/// Return the transforms.  The item pointer will be a nullptr at this point
-		ModelInformation::ModelTransform getTransform();
 
 	private:
 		///Get a pointer to the Ogre::VaoManager
