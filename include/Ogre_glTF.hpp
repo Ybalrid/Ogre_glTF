@@ -54,6 +54,8 @@ namespace Ogre_glTF
 		///Return the number of datablock stored
 		size_t getDatablockCount();
 
+		void loadMainScene(Ogre::SceneNode* parentNode, Ogre::SceneManager* smgr) const;
+
 		///Construct an item for this object
 		/// \param smgr pointer to the scene manager where we are creating the item
 		Ogre::SceneNode* getFirstSceneNode(Ogre::SceneManager* smgr) const;

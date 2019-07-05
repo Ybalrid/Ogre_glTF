@@ -57,6 +57,21 @@ int main()
 	{
 		auto adapter = gltf->loadFromFileSystem("../Media/damagedHelmet/damagedHelmet.gltf");
 		objectNode = adapter.getFirstSceneNode(smgr);
+
+		// On a scene with multiple root objects `loadMainScene` can be used to load all objects.
+		/*
+		auto root = smgr->getRootSceneNode();
+		adapter.loadMainScene(root, smgr);
+		auto childIt = root->getChildIterator();
+		while(childIt.hasMoreElements())
+		{
+			auto child = childIt.getNext();
+			if(child->getName() == "UnityGlTF_root")
+			{
+				objectNode = static_cast<Ogre::SceneNode*>(child);
+				break;
+			}
+		}*/
 	}
 	catch(std::exception& e)
 	{

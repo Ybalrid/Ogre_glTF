@@ -57,29 +57,28 @@ loaderAdapter::loaderAdapter() : pimpl { std::make_unique<impl>() } { OgreLog("C
 
 loaderAdapter::~loaderAdapter() { OgreLog("Destructed adapter object..."); }
 
+void loaderAdapter::loadMainScene(Ogre::SceneNode* parentNode, Ogre::SceneManager* smgr) const
+{
+	if(!isOk())
+		return;
+
+	pimpl->textureImp.loadTextures();
+	auto sceneIdx = pimpl->model.defaultScene >= 0 ? pimpl->model.defaultScene : 0;
+	const auto& scene = pimpl->model.scenes[sceneIdx];
+
+	for(auto nodeIdx : scene.nodes)
+	{
+		getSceneNode(nodeIdx, parentNode, smgr);
+	}
+}
+
 Ogre::SceneNode* loaderAdapter::getFirstSceneNode(Ogre::SceneManager* smgr) const
 {
-	if(isOk())
-	{
-		pimpl->textureImp.loadTextures();
-
-		// Find a node which is not a child of another node
-		std::vector<int> allChildren;
-		for(const auto& node : pimpl->model.nodes)
-		{
-			allChildren.insert(allChildren.end(), node.children.begin(), node.children.end());
-		}
-		// Find a node index that is not preset in the allChildren array and build 
-		// the hierarchy from there.
-		for(size_t i = 0; i < pimpl->model.nodes.size(); ++i)
-		{
-			if(std::find(allChildren.begin(), allChildren.end(), i) == allChildren.end()) {
-				return getSceneNode(i, smgr->getRootSceneNode(), smgr);
-			}
-		}
-	}
-
-	return nullptr;
+	if(!isOk())
+		return nullptr;
+	
+	pimpl->textureImp.loadTextures();
+	return getSceneNode(pimpl->model.scenes[0].nodes[0], smgr->getRootSceneNode(), smgr);
 }
 
 Ogre::SceneNode* loaderAdapter::getSceneNode(size_t index, Ogre::SceneNode* parentSceneNode, Ogre::SceneManager* smgr) const
