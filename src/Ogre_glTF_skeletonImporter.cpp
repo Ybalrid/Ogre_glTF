@@ -28,30 +28,18 @@ void skeletonImporter::addChidren(const std::vector<int>& childs, Ogre::v1::OldB
 		auto bone = skeleton->getBone(nodeToJointMap[child]);
 		if(!bone) { throw InitError("could not get bone " + std::to_string(bone->getHandle())); }
 
-		if(!node.translation.empty())
-			bone->setPosition(node.translation[0], node.translation[1], node.translation[2]);
-
-		if(!node.rotation.empty())
-			bone->setOrientation(node.rotation[3], node.rotation[0], node.rotation[1], node.rotation[2]);
-
-		if(!node.scale.empty())
-			bone->setScale(node.scale[0], node.scale[1], node.scale[2]);
-
-		if(!node.matrix.empty())
-		{
-			std::array<Ogre::Real, 4 * 4> matrixArray { 0 };
-			internal_utils::container_double_to_real(node.matrix, matrixArray);
-			Ogre::Matrix4 matrix { matrixArray.data() };
-			Ogre::Vector3 position;
-			Ogre::Quaternion orientation;
-			Ogre::Vector3 scale;
-			matrix.transpose().decomposition(position, scale, orientation);
-			bone->setPosition(position);
-			bone->setOrientation(orientation);
-			bone->setScale(scale);
-		}
-
 		parent->addChild(bone);
+
+		auto bindMatrix = bindMatrices[nodeToJointMap[child]];
+
+		Ogre::Vector3 translation, scale;
+		Ogre::Quaternion rotation;
+
+		bindMatrix.decomposition(translation, scale, rotation);
+
+		bone->setPosition(parent->convertWorldToLocalPosition(translation));
+		bone->setOrientation(parent->convertWorldToLocalOrientation(rotation));
+		bone->setScale(parent->_getDerivedScale() / scale);
 
 		addChidren(model.nodes[child].children, bone);
 	}
@@ -112,7 +100,7 @@ void skeletonImporter::loadTimepointFromSamplerToKeyFrame(int bone, int frameID,
 		animationFrame.timePoint = data;
 	else if(animationFrame.timePoint != data)
 	{
-		throw FileIOError("Missmatch of timecode while loading an animation keyframe for bone joint " + std::to_string(bone)
+		throw FileIOError("Mismatch of timecode while loading an animation keyframe for bone joint " + std::to_string(bone)
 								 + "\n"
 								   "read from file : "
 								 + std::to_string(data) + " while animationFrame recorded " + std::to_string(animationFrame.timePoint));
@@ -128,7 +116,7 @@ void skeletonImporter::loadVector3FromSampler(int frameID, int& count, tinygltf:
 	unsigned char* dataStart = buffer.data.data() + bufferView.byteOffset + output.byteOffset;
 	const size_t byteStride  = output.ByteStride(bufferView);
 
-	assert(output.type == TINYGLTF_TYPE_VEC3); //Need to be a 3D vectorsince it's a translation vector
+	assert(output.type == TINYGLTF_TYPE_VEC3); //Need to be a 3D vector since it's a translation vector
 
 	if(output.componentType == TINYGLTF_COMPONENT_TYPE_FLOAT) { vector = Ogre::Vector3(reinterpret_cast<float*>(dataStart + frameID * byteStride)); }
 	else if(output.componentType == TINYGLTF_COMPONENT_TYPE_DOUBLE) //need double to float conversion
@@ -152,7 +140,7 @@ void skeletonImporter::loadQuatFromSampler(int frameID, int& count, tinygltf::An
 	unsigned char* dataStart = buffer.data.data() + bufferView.byteOffset + output.byteOffset;
 	const size_t byteStride  = output.ByteStride(bufferView);
 
-	assert(output.type == TINYGLTF_TYPE_VEC4); //Need to be a 4D vectorsince it's a translation vector
+	assert(output.type == TINYGLTF_TYPE_VEC4); //Need to be a 4D vector since it's a quaternion
 
 	if(output.componentType == TINYGLTF_COMPONENT_TYPE_FLOAT)
 	{
@@ -164,7 +152,7 @@ void skeletonImporter::loadQuatFromSampler(int frameID, int& count, tinygltf::An
 		std::array<Ogre::Real, 4> vectFloat {};
 		std::array<double, 4> vectDouble {};
 
-		memcpy(vectDouble.data(), reinterpret_cast<double*>(dataStart + frameID * byteStride), 3 * sizeof(double));
+		memcpy(vectDouble.data(), reinterpret_cast<double*>(dataStart + frameID * byteStride), 4 * sizeof(double));
 		internal_utils::container_double_to_real(vectDouble, vectFloat);
 
 		quat = Ogre::Quaternion(vectFloat[3], vectFloat[0], vectFloat[1], vectFloat[2]);
@@ -270,7 +258,7 @@ void skeletonImporter::loadSkeletonAnimations(const tinygltf::Skin skin, const s
 
 	std::unordered_map<tinygltfJointNodeIndex, keyFrameList> boneIndexedKeyFrames;
 
-	const auto getAnimationLenght = [](const keyFrameList& l) {
+	const auto getAnimationLength = [](const keyFrameList& l) {
 		if(l.empty()) return 0.0f;
 		return l.back().timePoint;
 	};
@@ -293,8 +281,8 @@ void skeletonImporter::loadSkeletonAnimations(const tinygltf::Skin skin, const s
 			for(auto& channel : animation.channels)
 			{
 				const auto joint					   = nodeToJointMap[channel.target_node];
-				const auto& boneRawAnnimationChannelIt = boneRawAnimationChannels.find(joint);
-				if(boneRawAnnimationChannelIt == boneRawAnimationChannels.end()) boneRawAnimationChannels[joint];
+				const auto& boneRawAnimationChannelIt = boneRawAnimationChannels.find(joint);
+				if(boneRawAnimationChannelIt == boneRawAnimationChannels.end()) boneRawAnimationChannels[joint];
 
 				boneRawAnimationChannels[joint].push_back(channel);
 			}
@@ -317,7 +305,7 @@ void skeletonImporter::loadSkeletonAnimations(const tinygltf::Skin skin, const s
 
 				//here, we have a list of all key frames for one bone
 				boneIndexedKeyFrames[bone] = keyFrames;
-				maxLen					   = getAnimationLenght(keyFrames);
+				maxLen					   = getAnimationLength(keyFrames);
 			}
 
 			//Create animation

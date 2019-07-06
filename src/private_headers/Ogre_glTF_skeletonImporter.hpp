@@ -35,10 +35,12 @@ namespace Ogre_glTF
 		///Represent a keyframe as laded from tinygltf, but converted to Ogre objects
 		struct keyFrame
 		{
-			float timePoint{ -1 };
-			float weights{};
-			Ogre::Quaternion rotation{};
-			Ogre::Vector3 position, scale{};
+			float timePoint;
+			float weights;
+			Ogre::Quaternion rotation;
+			Ogre::Vector3 position, scale;
+
+			keyFrame() : timePoint(-1), weights(0), position(0,0,0), scale(1,1,1) {}
 		};
 
 		///Vector of keyframes
