@@ -1,5 +1,6 @@
 #pragma once
 #include <Ogre.h>
+#include "OgreMesh2.h"
 #include <tiny_gltf.h>
 #include "Ogre_glTF.hpp"
 
@@ -158,11 +159,10 @@ namespace Ogre_glTF
 		/// \param input model we are converting into an Ogre model
 		modelConverter(tinygltf::Model& input);
 
-		///Returns the mesh with the given name in the glTF file. If name is empty it will return the first mesh if any.
-		Ogre::MeshPtr getOgreMesh(const Ogre::String& name = "");
-		Ogre::MeshPtr getOgreMesh(size_t index);
-		Ogre::MeshPtr getOgreMesh(const tinygltf::Mesh& mesh);
-
+		///Returns the mesh with the given name in the glTF file.
+		Ogre::MeshPtr getOgreMesh(const Ogre::String& name);
+		Ogre::MeshPtr getOgreMesh(size_t meshIdx);
+		
 		///Print out debug information on the model structure
 		// nodes contain transformation and scale information
 		void debugDump() const;

@@ -62,7 +62,7 @@ Ogre::MeshPtr modelConverter::getOgreMesh(const Ogre::String& name)
 	if(name.empty())
 	{
 		if(!model.meshes.empty()) {
-			return getOgreMesh(model.meshes.front());
+			return getOgreMesh(0);
 		}
 		else
 		{
@@ -70,41 +70,37 @@ Ogre::MeshPtr modelConverter::getOgreMesh(const Ogre::String& name)
 		}
 	}
 
-	for(const auto& mesh : model.meshes) {
+	for(size_t meshIdx = 0; meshIdx < model.meshes.size(); ++meshIdx) {
+		const auto& mesh = model.meshes[meshIdx];
 		if(!mesh.name.empty() && mesh.name == name) {
-			return getOgreMesh(mesh);
+			return getOgreMesh(meshIdx);
 		}
 	}
 	
 	return Ogre::MeshPtr();
 }
 
-Ogre::MeshPtr modelConverter::getOgreMesh(size_t index)
-{
-	assert(index < model.meshes.size());
-	return getOgreMesh(model.meshes[index]);
-}
-
-Ogre::MeshPtr modelConverter::getOgreMesh(const tinygltf::Mesh& mesh)
+Ogre::MeshPtr modelConverter::getOgreMesh(size_t meshIdx)
 {
 	Ogre::Aabb boundingBox;
+	auto& mesh = model.meshes[meshIdx];
 	OgreLog("Found mesh " + mesh.name + " in glTF file");
 
-	auto OgreMesh = Ogre::MeshManager::getSingleton().getByName(mesh.name);
-	if(OgreMesh)
+	auto ogreMesh = Ogre::MeshManager::getSingleton().getByName(mesh.name);
+	if(ogreMesh)
 	{
 		OgreLog("Found mesh " + mesh.name + " in Ogre::MeshManager(v2)");
-		return OgreMesh;
+		return ogreMesh;
 	}
 
 	OgreLog("Loading mesh from glTF file");
 	OgreLog("mesh has " + std::to_string(mesh.primitives.size()) + " primitives");
-	OgreMesh = Ogre::MeshManager::getSingleton().createManual(mesh.name, Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+	ogreMesh = Ogre::MeshManager::getSingleton().createManual(mesh.name, Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 	OgreLog("Created mesh on v2 MeshManager");
 
 	for(const auto& primitive : mesh.primitives)
 	{
-		auto subMesh = OgreMesh->createSubMesh();
+		auto subMesh = ogreMesh->createSubMesh();
 		OgreLog("Created one submesh");
 		const auto indexBuffer = extractIndexBuffer(primitive.indices);
 
@@ -193,10 +189,10 @@ Ogre::MeshPtr modelConverter::getOgreMesh(const tinygltf::Mesh& mesh)
 		}
 	}
 
-	OgreMesh->_setBounds(boundingBox, true);
+	ogreMesh->_setBounds(boundingBox, true);
 	//OgreLog("Setting 'bounding sphere radius' from bounds : " + std::to_string(boundingBox.getRadius()));
 
-	return OgreMesh;
+	return ogreMesh;
 }
 
 void modelConverter::debugDump() const
