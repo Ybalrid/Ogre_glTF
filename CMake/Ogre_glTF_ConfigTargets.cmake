@@ -37,4 +37,5 @@ function(Ogre_glTF_config_sample PROJECTNAME)
 
     set_target_properties(${PROJECTNAME} PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+    set_property(TARGET ${PROJECTNAME} PROPERTY VS_DEBUGGER_WORKING_DIRECTORY ${PROJECT_BINARY_DIR})
 endfunction(Ogre_glTF_config_sample)
