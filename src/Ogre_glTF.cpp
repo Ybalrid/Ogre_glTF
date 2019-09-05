@@ -7,6 +7,7 @@
 #include "Ogre_glTF_skeletonImporter.hpp"
 #include "Ogre_glTF_common.hpp"
 #include "Ogre_glTF_OgreResource.hpp"
+#include "Ogre_glTF_internal_utils.hpp"
 
 #define TINYGLTF_IMPLEMENTATION
 #define STB_IMAGE_IMPLEMENTATION
@@ -15,6 +16,7 @@
 
 #include <OgreItem.h>
 #include <OgreMesh2.h>
+#include <Animation/OgreTagPoint.h>
 
 using namespace Ogre_glTF;
 
@@ -55,33 +57,202 @@ loaderAdapter::loaderAdapter() : pimpl { std::make_unique<impl>() } { OgreLog("C
 
 loaderAdapter::~loaderAdapter() { OgreLog("Destructed adapter object..."); }
 
-Ogre::Item* loaderAdapter::getItem(Ogre::SceneManager* smgr) const
+void loaderAdapter::loadMainScene(Ogre::SceneNode* parentNode, Ogre::SceneManager* smgr) const
 {
-	if(isOk())
-	{
-		pimpl->textureImp.loadTextures();
-		Ogre::MeshPtr Mesh = getMesh();
+	if(!isOk())
+		return;
 
-		auto Item = smgr->createItem(Mesh);
-		for(size_t i = 0; i < Item->getNumSubItems(); ++i) { Item->getSubItem(i)->setDatablock(getDatablock(i)); }
-		return Item;
+	pimpl->textureImp.loadTextures();
+	auto sceneIdx = pimpl->model.defaultScene >= 0 ? pimpl->model.defaultScene : 0;
+	const auto& scene = pimpl->model.scenes[sceneIdx];
+
+	for(auto nodeIdx : scene.nodes)
+	{
+		getSceneNode(nodeIdx, parentNode, smgr);
 	}
-	return nullptr;
 }
 
-ModelInformation::ModelTransform loaderAdapter::getTransform() { return this->pimpl->modelConv.getTransform(); }
-
-Ogre::MeshPtr loaderAdapter::getMesh() const
+Ogre::SceneNode* loaderAdapter::getFirstSceneNode(Ogre::SceneManager* smgr) const
 {
-	auto Mesh = this->pimpl->modelConv.getOgreMesh();
+	if(!isOk())
+		return nullptr;
+	
+	pimpl->textureImp.loadTextures();
+	return getSceneNode(pimpl->model.scenes[0].nodes[0], smgr->getRootSceneNode(), smgr);
+}
 
-	if(this->pimpl->modelConv.hasSkins())
+Ogre::SceneNode* loaderAdapter::getSceneNode(size_t index, Ogre::SceneNode* parentSceneNode, Ogre::SceneManager* smgr) const
+{
+	assert(index < pimpl->model.nodes.size());
+
+	const auto& node = pimpl->model.nodes[index];
+	// Check if node is not a bone
+	for(const auto& skin : pimpl->model.skins)
 	{
-		//load skeleton information
-		auto skeleton = this->pimpl->skeletonImp.getSkeleton(this->adapterName);
-		Mesh->_notifySkeleton(skeleton);
+		if(std::find(skin.joints.begin(), skin.joints.end(), index) != skin.joints.end())
+		{
+			return nullptr;
+		}
 	}
-	return Mesh;
+
+	auto sceneNode = parentSceneNode->createChildSceneNode();
+	sceneNode->setName(node.name);
+	
+	if(!node.translation.empty())
+		sceneNode->setPosition(node.translation[0], node.translation[1], node.translation[2]);
+
+	if(!node.rotation.empty())
+		sceneNode->setOrientation(node.rotation[3], node.rotation[0], node.rotation[1], node.rotation[2]);
+
+	if(!node.scale.empty())
+		sceneNode->setScale(node.scale[0], node.scale[1], node.scale[2]);
+
+	if(!node.matrix.empty())
+	{
+		std::array<Ogre::Real, 4 * 4> matrixArray { 0 };
+		internal_utils::container_double_to_real(node.matrix, matrixArray);
+		Ogre::Matrix4 matrix { matrixArray.data() };
+		Ogre::Vector3 position;
+		Ogre::Quaternion orientation;
+		Ogre::Vector3 scale;
+		matrix.transpose().decomposition(position, scale, orientation);
+		sceneNode->setPosition(position);
+		sceneNode->setOrientation(orientation);
+		sceneNode->setScale(scale);
+	}
+
+	if(node.mesh >= 0)
+	{
+		auto ogreMesh = pimpl->modelConv.getOgreMesh(node.mesh);
+
+		if(node.skin >= 0)
+		{
+			auto skeleton = this->pimpl->skeletonImp.getSkeleton(node.skin);
+			if(skeleton)
+			{
+				ogreMesh->_notifySkeleton(skeleton);
+			}
+		}
+
+		auto item = smgr->createItem(ogreMesh);
+		const auto& mesh = pimpl->model.meshes[node.mesh];
+		for(size_t i = 0; i < mesh.primitives.size(); ++i) 
+		{ 
+			auto subItem = item->getSubItem(i);
+			subItem->setDatablock(getDatablock(mesh.primitives[i].material));
+		}
+		sceneNode->attachObject(item);
+
+		// Add tag points
+		auto skeletonInstance = item->getSkeletonInstance();
+		if(skeletonInstance)
+		{
+			// Find all root bones. Collect all children of all nodes in the skin and then find
+			// all nodes in the skin that are not in the set of children. Those are all nodes
+			// that don't have a parent because they're not a child of any other node. 
+			std::vector<int> rootBones;
+			std::vector<int> allChildren;
+			const auto& skin = pimpl->model.skins[node.skin];
+
+			for(const auto& nodeIndex : skin.joints)
+			{
+				const auto& node = pimpl->model.nodes[nodeIndex];
+				allChildren.insert(allChildren.end(), node.children.begin(), node.children.end());
+			}
+
+			for(const auto& nodeIndex : skin.joints)
+			{
+				if(std::find(allChildren.begin(), allChildren.end(), nodeIndex) == allChildren.end()) {
+					rootBones.push_back(nodeIndex);
+				}
+			}
+
+			for(int boneIndex : rootBones)
+			{
+				createTagPoints(boneIndex, skeletonInstance, smgr);
+			}
+		}
+	}
+
+	for(const auto& child : node.children)
+	{
+		getSceneNode(child, sceneNode, smgr);
+	}
+
+	return sceneNode;
+}
+
+void loaderAdapter::createTagPoints(int boneIndex, Ogre::SkeletonInstance* skeletonInstance, Ogre::SceneManager* smgr) const
+{
+	const auto& boneNode = pimpl->model.nodes[boneIndex];
+
+	for(auto child : boneNode.children)
+	{
+		const auto& childNode = pimpl->model.nodes[child];
+
+		if(childNode.mesh >= 0)
+		{
+			auto tagPoint = smgr->createTagPoint();
+			tagPoint->setName(childNode.name);
+
+			Ogre::Vector3 position;
+			Ogre::Quaternion orientation;
+			Ogre::Vector3 scale(1);
+			
+			if(!childNode.translation.empty())
+				position = Ogre::Vector3(childNode.translation[0], childNode.translation[1], childNode.translation[2]);
+
+			if(!childNode.rotation.empty())
+				orientation = Ogre::Quaternion(childNode.rotation[3], childNode.rotation[0], childNode.rotation[1], childNode.rotation[2]);
+
+			if(!childNode.scale.empty())
+				scale = Ogre::Vector3(childNode.scale[0], childNode.scale[1], childNode.scale[2]);
+
+			if(!childNode.matrix.empty())
+			{
+				std::array<Ogre::Real, 4 * 4> matrixArray { 0 };
+				internal_utils::container_double_to_real(childNode.matrix, matrixArray);
+				Ogre::Matrix4 matrix { matrixArray.data() };
+				matrix.transpose().decomposition(position, scale, orientation);
+			}
+
+			tagPoint->setPosition(position);
+			tagPoint->setOrientation(orientation);
+			tagPoint->setScale(scale);
+
+			auto ogreMesh = pimpl->modelConv.getOgreMesh(childNode.mesh);
+
+			if(childNode.skin >= 0)
+			{
+				auto skeleton = this->pimpl->skeletonImp.getSkeleton(childNode.skin);
+				if(skeleton)
+				{
+					ogreMesh->_notifySkeleton(skeleton);
+				}
+			}
+
+			auto item = smgr->createItem(ogreMesh);
+			const auto& mesh = pimpl->model.meshes[childNode.mesh];
+			for(size_t i = 0; i < mesh.primitives.size(); ++i) 
+			{ 
+				auto subItem = item->getSubItem(i);
+				subItem->setDatablock(getDatablock(mesh.primitives[i].material));
+			}
+			tagPoint->attachObject(item);
+
+			auto parentBone = skeletonInstance->getBone(boneNode.name);
+			parentBone->addTagPoint(tagPoint);
+
+			for(const auto& childOfChild : childNode.children)
+			{
+				getSceneNode(childOfChild, tagPoint, smgr);
+			}
+		}
+		else
+		{
+			createTagPoints(child, skeletonInstance, smgr);
+		}
+	}
 }
 
 Ogre::HlmsDatablock* loaderAdapter::getDatablock(size_t index) const { return pimpl->materialLoad.getDatablock(index); }
@@ -208,30 +379,6 @@ loaderAdapter glTFLoader::loadGlbResource(const std::string& name) const
 
 	adapter.pimpl->modelConv.debugDump();
 	return adapter;
-}
-
-ModelInformation glTFLoader::getModelData(const std::string& modelName, LoadFrom loadLocation)
-{
-	auto adapter = [&] {
-		switch(loadLocation)
-		{
-			case LoadFrom::FileSystem: return loadFromFileSystem(modelName);
-			case LoadFrom::ResourceManager: return loadGlbResource(modelName);
-		}
-
-		return loaderAdapter {};
-	}();
-
-	if(!adapter.isOk()) OgreLog("adapter is signaling it isn't in \"ok\" state");
-
-	adapter.pimpl->textureImp.loadTextures();
-
-	ModelInformation model;
-	model.mesh		= adapter.getMesh();
-	model.transform = adapter.getTransform();
-	for(size_t i { 0 }; i < adapter.getDatablockCount(); i++) model.pbrMaterialList.push_back(adapter.getDatablock(i));
-
-	return model;
 }
 
 glTFLoader::glTFLoader(glTFLoader&& other) noexcept : loaderImpl(std::move(other.loaderImpl)) {}

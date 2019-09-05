@@ -51,6 +51,8 @@ auto glTFLoader = gltfPluginAccessor::findPlugin()->getLoader();
 Ogre::Item* cesiumMan = glTFLoader->getModelData("CesiumMan.glb", glTFLoaderInterface::LoadFrom::ResourceManager).makeItem(smgr);
 ```
 
+In case you cloned without `--recursive`, `cd` into the `Ogre_glTF` directory and use `git submodule update --init --recursive` to download dependencies correctly.
+
 
 ## Building the source code
 

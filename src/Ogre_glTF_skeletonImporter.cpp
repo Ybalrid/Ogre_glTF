@@ -12,13 +12,18 @@ using namespace Ogre_glTF;
 
 int skeletonImporter::skeletonID = 0;
 
-void skeletonImporter::addChidren(const std::string& skinName, const std::vector<int>& childs, Ogre::v1::OldBone* parent, const std::vector<int>& joints)
+void skeletonImporter::addChidren(const std::vector<int>& childs, Ogre::v1::OldBone* parent)
 {
 
 	for(auto child : childs)
 	{
 		const auto& node = model.nodes[child];
-		//OgreLog("Node name is " + node.name + "!");
+		
+		if(node.mesh >= 0)
+		{
+			// child is a mesh
+			continue;
+		}
 
 		auto bone = skeleton->getBone(nodeToJointMap[child]);
 		if(!bone) { throw InitError("could not get bone " + std::to_string(bone->getHandle())); }
@@ -36,20 +41,24 @@ void skeletonImporter::addChidren(const std::string& skinName, const std::vector
 		bone->setOrientation(parent->convertWorldToLocalOrientation(rotation));
 		bone->setScale(parent->_getDerivedScale() / scale);
 
-		addChidren(skinName + std::to_string(child), model.nodes[child].children, bone, joints);
+		addChidren(model.nodes[child].children, bone);
 	}
 }
 
-void skeletonImporter::loadBoneHierarchy(const tinygltf::Skin& skin, Ogre::v1::OldBone* rootBone, const std::string& name)
+void skeletonImporter::loadBoneHierarchy(int boneIndex)
 {
-	const auto& node	 = model.nodes[skin.joints[0]];
-	const auto& skeleton = model.nodes[skin.skeleton];
+	const auto& node = model.nodes[boneIndex];
+	Ogre::v1::OldBone* rootBone = skeleton->getBone(nodeToJointMap[boneIndex]);
 
-	std::array<float, 3> translation { 0 }, scale { 0 };
-	std::array<float, 4> rotation { 0 };
-	internal_utils::container_double_to_float(skeleton.translation, translation);
-	if(skeleton.scale.size() == 3) internal_utils::container_double_to_float(skeleton.scale, scale);
-	internal_utils::container_double_to_float(skeleton.rotation, rotation);
+	std::array<Ogre::Real, 3> translation = { 0, 0, 0 };
+	std::array<Ogre::Real, 3> scale = { 1, 1, 1 };
+	std::array<Ogre::Real, 4> rotation = { 0, 0, 0, 1 };
+	if(!node.translation.empty())
+		internal_utils::container_double_to_real(node.translation, translation);
+	if(!node.scale.empty()) 
+		internal_utils::container_double_to_real(node.scale, scale);
+	if(!node.rotation.empty())
+		internal_utils::container_double_to_real(node.rotation, rotation);
 
 	Ogre::Vector3 trans  = Ogre::Vector3 { translation.data() };
 	Ogre::Quaternion rot = Ogre::Quaternion { rotation[3], rotation[0], rotation[1], rotation[2] };
@@ -65,7 +74,7 @@ void skeletonImporter::loadBoneHierarchy(const tinygltf::Skin& skin, Ogre::v1::O
 	rootBoneXformLog << "rootBone " << trans << " " << rot;
 	OgreLog(rootBoneXformLog);
 
-	addChidren(name, node.children, rootBone, skin.joints);
+	addChidren(node.children, rootBone);
 }
 
 skeletonImporter::skeletonImporter(tinygltf::Model& input) : model { input } {}
@@ -91,7 +100,7 @@ void skeletonImporter::loadTimepointFromSamplerToKeyFrame(int bone, int frameID,
 		animationFrame.timePoint = data;
 	else if(animationFrame.timePoint != data)
 	{
-		throw FileIOError("Missmatch of timecode while loading an animation keyframe for bone joint " + std::to_string(bone)
+		throw FileIOError("Mismatch of timecode while loading an animation keyframe for bone joint " + std::to_string(bone)
 								 + "\n"
 								   "read from file : "
 								 + std::to_string(data) + " while animationFrame recorded " + std::to_string(animationFrame.timePoint));
@@ -107,16 +116,16 @@ void skeletonImporter::loadVector3FromSampler(int frameID, int& count, tinygltf:
 	unsigned char* dataStart = buffer.data.data() + bufferView.byteOffset + output.byteOffset;
 	const size_t byteStride  = output.ByteStride(bufferView);
 
-	assert(output.type == TINYGLTF_TYPE_VEC3); //Need to be a 3D vectorsince it's a translation vector
+	assert(output.type == TINYGLTF_TYPE_VEC3); //Need to be a 3D vector since it's a translation vector
 
 	if(output.componentType == TINYGLTF_COMPONENT_TYPE_FLOAT) { vector = Ogre::Vector3(reinterpret_cast<float*>(dataStart + frameID * byteStride)); }
 	else if(output.componentType == TINYGLTF_COMPONENT_TYPE_DOUBLE) //need double to float conversion
 	{
-		std::array<float, 3> vectFloat {};
+		std::array<Ogre::Real, 3> vectFloat {};
 		std::array<double, 3> vectDouble {};
 
 		memcpy(vectDouble.data(), reinterpret_cast<double*>(dataStart + frameID * byteStride), 3 * sizeof(double));
-		internal_utils::container_double_to_float(vectDouble, vectFloat);
+		internal_utils::container_double_to_real(vectDouble, vectFloat);
 
 		vector = Ogre::Vector3(vectFloat.data());
 	}
@@ -131,7 +140,7 @@ void skeletonImporter::loadQuatFromSampler(int frameID, int& count, tinygltf::An
 	unsigned char* dataStart = buffer.data.data() + bufferView.byteOffset + output.byteOffset;
 	const size_t byteStride  = output.ByteStride(bufferView);
 
-	assert(output.type == TINYGLTF_TYPE_VEC4); //Need to be a 4D vectorsince it's a translation vector
+	assert(output.type == TINYGLTF_TYPE_VEC4); //Need to be a 4D vector since it's a quaternion
 
 	if(output.componentType == TINYGLTF_COMPONENT_TYPE_FLOAT)
 	{
@@ -140,11 +149,11 @@ void skeletonImporter::loadQuatFromSampler(int frameID, int& count, tinygltf::An
 	}
 	else if(output.componentType == TINYGLTF_COMPONENT_TYPE_DOUBLE) //need double to float conversion
 	{
-		std::array<float, 4> vectFloat {};
+		std::array<Ogre::Real, 4> vectFloat {};
 		std::array<double, 4> vectDouble {};
 
-		memcpy(vectDouble.data(), reinterpret_cast<double*>(dataStart + frameID * byteStride), 3 * sizeof(double));
-		internal_utils::container_double_to_float(vectDouble, vectFloat);
+		memcpy(vectDouble.data(), reinterpret_cast<double*>(dataStart + frameID * byteStride), 4 * sizeof(double));
+		internal_utils::container_double_to_real(vectDouble, vectFloat);
 
 		quat = Ogre::Quaternion(vectFloat[3], vectFloat[0], vectFloat[1], vectFloat[2]);
 	}
@@ -249,7 +258,7 @@ void skeletonImporter::loadSkeletonAnimations(const tinygltf::Skin skin, const s
 
 	std::unordered_map<tinygltfJointNodeIndex, keyFrameList> boneIndexedKeyFrames;
 
-	const auto getAnimationLenght = [](const keyFrameList& l) {
+	const auto getAnimationLength = [](const keyFrameList& l) {
 		if(l.empty()) return 0.0f;
 		return l.back().timePoint;
 	};
@@ -272,8 +281,8 @@ void skeletonImporter::loadSkeletonAnimations(const tinygltf::Skin skin, const s
 			for(auto& channel : animation.channels)
 			{
 				const auto joint					   = nodeToJointMap[channel.target_node];
-				const auto& boneRawAnnimationChannelIt = boneRawAnimationChannels.find(joint);
-				if(boneRawAnnimationChannelIt == boneRawAnimationChannels.end()) boneRawAnimationChannels[joint];
+				const auto& boneRawAnimationChannelIt = boneRawAnimationChannels.find(joint);
+				if(boneRawAnimationChannelIt == boneRawAnimationChannels.end()) boneRawAnimationChannels[joint];
 
 				boneRawAnimationChannels[joint].push_back(channel);
 			}
@@ -296,7 +305,7 @@ void skeletonImporter::loadSkeletonAnimations(const tinygltf::Skin skin, const s
 
 				//here, we have a list of all key frames for one bone
 				boneIndexedKeyFrames[bone] = keyFrames;
-				maxLen					   = getAnimationLenght(keyFrames);
+				maxLen					   = getAnimationLength(keyFrames);
 			}
 
 			//Create animation
@@ -345,15 +354,12 @@ std::vector<int> traversal(const tinygltf::Model& m, int node)
 	return o;
 }
 
-Ogre::v1::SkeletonPtr skeletonImporter::getSkeleton(const std::string& name)
+Ogre::v1::SkeletonPtr skeletonImporter::getSkeleton(size_t index)
 {
-	const auto& skins = model.skins;
-	assert(!skins.empty());
+	assert(index < model.skins.size());
+	const auto& skin = model.skins[index];
 
-	//TODO, take the skin of a specific mesh...
-	const auto& firstSkin = skins.front();
-
-	const std::string skeletonName = name + (!firstSkin.name.empty() ? firstSkin.name : "unnamedSkeleton" + std::to_string(skeletonID++));
+	const std::string skeletonName = (!skin.name.empty() ? skin.name : "unnamedSkeleton" + std::to_string(skeletonID++));
 	OgreLog("First skin name is " + skeletonName);
 
 	//Get skeleton
@@ -367,22 +373,22 @@ Ogre::v1::SkeletonPtr skeletonImporter::getSkeleton(const std::string& name)
 	//Create new skeleton
 	skeleton = Ogre::v1::OldSkeletonManager::getSingleton().create(skeletonName, Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, true);
 
-	if(!skeleton) throw InitError("Coudn't create skeletion for skin" + skeletonName);
+	if(!skeleton) throw InitError("Couldn't create skeletion for skin" + skeletonName);
 
-	//OgreLog("skin.skeleton = " + std::to_string(firstSkin.skeleton));
-	//OgreLog("first joint : " + std::to_string(firstSkin.joints.front()));
+	//OgreLog("skin.skeleton = " + std::to_string(skin.skeleton));
+	//OgreLog("first joint : " + std::to_string(skin.joints.front()));
 	{
-		const auto inverseBindMatricesID		= firstSkin.inverseBindMatrices;
+		const auto inverseBindMatricesID		= skin.inverseBindMatrices;
 		const auto& inverseBindMatricesAccessor = model.accessors[inverseBindMatricesID];
 		const auto& bufferView					= model.bufferViews[inverseBindMatricesAccessor.bufferView];
 		const auto byteStride					= inverseBindMatricesAccessor.ByteStride(bufferView);
 		const auto& buffer						= model.buffers[bufferView.buffer];
 		const unsigned char* dataStart			= buffer.data.data() + bufferView.byteOffset + inverseBindMatricesAccessor.byteOffset;
 
-		assert(inverseBindMatricesAccessor.count == firstSkin.joints.size());
+		assert(inverseBindMatricesAccessor.count == skin.joints.size());
 		assert(inverseBindMatricesAccessor.type == TINYGLTF_TYPE_MAT4);
 
-		std::array<float, 4 * 4> floatMatrix {};
+		std::array<Ogre::Real, 4 * 4> floatMatrix {};
 
 		for(int i = 0; i < inverseBindMatricesAccessor.count; ++i)
 		{
@@ -396,7 +402,7 @@ Ogre::v1::SkeletonPtr skeletonImporter::getSkeleton(const std::string& name)
 				//Needs to do Double -> Float conversion
 				std::array<double, 4 * 4> doubleMatrix {};
 				memcpy(doubleMatrix.data(), reinterpret_cast<const double*>(dataStart + i * byteStride), 4 * 4 * sizeof(double));
-				internal_utils::container_double_to_float(doubleMatrix, floatMatrix);
+				internal_utils::container_double_to_real(doubleMatrix, floatMatrix);
 			}
 
 			Ogre::Matrix4 inverseBindMatrixTransposed = Ogre::Matrix4(floatMatrix[0],
@@ -421,14 +427,21 @@ Ogre::v1::SkeletonPtr skeletonImporter::getSkeleton(const std::string& name)
 		}
 	}
 
-	//Build the "node to joint map". In the vertex buffer, proprery "JOINT_0" refer to the joints that affect a particular vertex of the skined mesh.
+	std::vector<int> rootBones;
+	std::vector<int> allChildren;
+	for(const auto& nodeIndex : skin.joints)
+	{
+		const auto& node = model.nodes[nodeIndex];
+		allChildren.insert(allChildren.end(), node.children.begin(), node.children.end());
+	}
+
+	//Build the "node to joint map". In the vertex buffer, property "JOINT_0" refer to the joints that affect a particular vertex of the skined mesh.
 	//To refer to theses joints, it refer to the index of the node in the skin.joints array.
 	//We need to be able to get the index for each of theses joints in the array easilly, so we are builind a dictionarry to be able to reverse-search them
-	for(int i = 0; i < firstSkin.joints.size(); ++i)
+	for(int i = 0; i < skin.joints.size(); ++i)
 	{
-
 		//Get the index in the "node" array in the glTF's JSON
-		const auto jointNode = firstSkin.joints[i];
+		const auto jointNode = skin.joints[i];
 
 		//Record in the dictionary the joint node-> index
 		nodeToJointMap[jointNode] = i;
@@ -438,11 +451,18 @@ Ogre::v1::SkeletonPtr skeletonImporter::getSkeleton(const std::string& name)
 
 		//Create bone with index "i"
 		auto bone = skeleton->createBone(!name.empty() ? name : skeletonName + std::to_string(i), i);
+
+		if(std::find(allChildren.begin(), allChildren.end(), jointNode) == allChildren.end()) {
+			rootBones.push_back(jointNode);
+		}
 	}
 
-	loadBoneHierarchy(firstSkin, skeleton->getBone(nodeToJointMap[firstSkin.skeleton]), skeletonName);
+	for(int boneIndex : rootBones)
+	{
+		loadBoneHierarchy(boneIndex);
+	}
 	skeleton->setBindingPose();
-	loadSkeletonAnimations(firstSkin, skeletonName);
+	loadSkeletonAnimations(skin, skeletonName);
 
 	return skeleton;
 }

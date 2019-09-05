@@ -57,30 +57,50 @@ Ogre::VertexBufferPackedVec modelConverter::constructVertexBuffer(const std::vec
 	return vec;
 }
 
-//TODO make this method make the mesh id. Enumerate the meshes in the file before blindlessly loading the first one
-Ogre::MeshPtr modelConverter::getOgreMesh()
+Ogre::MeshPtr modelConverter::getOgreMesh(const Ogre::String& name)
 {
-	OgreLog("Default scene" + std::to_string(model.defaultScene));
-	const auto mainMeshIndex = (model.defaultScene != 0 ? model.nodes[model.scenes[model.defaultScene].nodes.front()].mesh : 0);
-	const auto& mesh		 = model.meshes[mainMeshIndex];
+	if(name.empty())
+	{
+		if(!model.meshes.empty()) {
+			return getOgreMesh(0);
+		}
+		else
+		{
+			return Ogre::MeshPtr();
+		}
+	}
+
+	for(size_t meshIdx = 0; meshIdx < model.meshes.size(); ++meshIdx) {
+		const auto& mesh = model.meshes[meshIdx];
+		if(!mesh.name.empty() && mesh.name == name) {
+			return getOgreMesh(meshIdx);
+		}
+	}
+	
+	return Ogre::MeshPtr();
+}
+
+Ogre::MeshPtr modelConverter::getOgreMesh(size_t meshIdx)
+{
 	Ogre::Aabb boundingBox;
+	auto& mesh = model.meshes[meshIdx];
 	OgreLog("Found mesh " + mesh.name + " in glTF file");
 
-	auto OgreMesh = Ogre::MeshManager::getSingleton().getByName(mesh.name);
-	if(OgreMesh)
+	auto ogreMesh = Ogre::MeshManager::getSingleton().getByName(mesh.name);
+	if(ogreMesh)
 	{
 		OgreLog("Found mesh " + mesh.name + " in Ogre::MeshManager(v2)");
-		return OgreMesh;
+		return ogreMesh;
 	}
 
 	OgreLog("Loading mesh from glTF file");
 	OgreLog("mesh has " + std::to_string(mesh.primitives.size()) + " primitives");
-	OgreMesh = Ogre::MeshManager::getSingleton().createManual(mesh.name, Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+	ogreMesh = Ogre::MeshManager::getSingleton().createManual(mesh.name, Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 	OgreLog("Created mesh on v2 MeshManager");
 
 	for(const auto& primitive : mesh.primitives)
 	{
-		auto subMesh = OgreMesh->createSubMesh();
+		auto subMesh = ogreMesh->createSubMesh();
 		OgreLog("Created one submesh");
 		const auto indexBuffer = extractIndexBuffer(primitive.indices);
 
@@ -92,7 +112,7 @@ Ogre::MeshPtr modelConverter::getOgreMesh()
 			parts.push_back(std::move(extractVertexBuffer(atribute, boundingBox)));
 		}
 
-		//Get (if they exists) the blend weights and bone index parts of our vertex array object content
+		//Get (if they exist) the blend weights and bone index parts of our vertex array object content
 		const auto blendIndicesIt = std::find_if(std::begin(parts), std::end(parts), [](const vertexBufferPart& vertexBufferPart) {
 			return (vertexBufferPart.semantic == Ogre::VertexElementSemantic::VES_BLEND_INDICES);
 		});
@@ -169,10 +189,10 @@ Ogre::MeshPtr modelConverter::getOgreMesh()
 		}
 	}
 
-	OgreMesh->_setBounds(boundingBox, true);
+	ogreMesh->_setBounds(boundingBox, true);
 	//OgreLog("Setting 'bounding sphere radius' from bounds : " + std::to_string(boundingBox.getRadius()));
 
-	return OgreMesh;
+	return ogreMesh;
 }
 
 void modelConverter::debugDump() const
@@ -198,46 +218,6 @@ void modelConverter::debugDump() const
 }
 
 bool modelConverter::hasSkins() const { return !model.skins.empty(); }
-
-ModelInformation::ModelTransform modelConverter::getTransform()
-{
-	ModelInformation::ModelTransform trans;
-	std::array<float, 3> translation { 0 }, scale { 0 };
-	std::array<float, 4> rotation { 0 };
-	std::array<float, 4 * 4> local_matrix { 0 };
-	bool set = false;
-
-	// Just get the first one - not sure if there can be more for a model but doubt it
-	const auto& nodes = (model.defaultScene != 0 ? model.nodes[model.scenes[model.defaultScene].nodes[0]] : model.nodes[0]);
-	if(!nodes.translation.empty())
-	{
-		internal_utils::container_double_to_float(nodes.translation, translation);
-		trans.position = Ogre::Vector3 { translation.data() };
-		set		  = true;
-	}
-	if(!nodes.scale.empty())
-	{
-		internal_utils::container_double_to_float(nodes.scale, scale);
-		trans.scale = Ogre::Vector3 { scale.data() };
-		set			= true;
-	}
-	if(!nodes.rotation.empty())
-	{
-		internal_utils::container_double_to_float(nodes.rotation, rotation);
-		trans.orientation = Ogre::Quaternion { rotation[3], rotation[0], rotation[1], rotation[2] };
-		set		  = true;
-	}
-
-	if(!set && !nodes.matrix.empty())
-	{
-		internal_utils::container_double_to_float(nodes.matrix, local_matrix);
-		Ogre::Matrix4 transform_matrix { local_matrix.data() };
-
-		transform_matrix.transpose().decomposition(trans.position, trans.scale, trans.orientation);
-	}
-
-	return trans;
-}
 
 Ogre::VaoManager* modelConverter::getVaoManager()
 {
@@ -369,10 +349,10 @@ vertexBufferPart modelConverter::extractVertexBuffer(const std::pair<std::string
 	if(elementScemantic == Ogre::VES_POSITION)
 	{
 		//Convert to float and load into Ogre::Vector3 objects
-		std::array<float, 3> floatVector {};
-		internal_utils::container_double_to_float(accessor.minValues, floatVector);
+		std::array<Ogre::Real, 3> floatVector {};
+		internal_utils::container_double_to_real(accessor.minValues, floatVector);
 		const Ogre::Vector3 minBounds { floatVector.data() };
-		internal_utils::container_double_to_float(accessor.maxValues, floatVector);
+		internal_utils::container_double_to_real(accessor.maxValues, floatVector);
 		const Ogre::Vector3 maxBounds { floatVector.data() };
 
 		OgreLog("Updating bounding box size: ");
