@@ -2,7 +2,15 @@
 
 #include "tiny_gltf.h"
 #include <unordered_map>
-#include <OgreTexture.h>
+#include <OgreTextureGpu.h>
+#include <OgreTextureGpuManager.h>
+#include <OgrePixelFormatGpuUtils.h>
+#include <OgreTextureBox.h>
+#include <OgrePixelFormatGpu.h>
+#include "OgreBitwise.h"
+#include <OgreHlms.h>
+#include <OgreHlmsPbs.h>
+
 
 namespace Ogre_glTF
 {
@@ -11,42 +19,29 @@ namespace Ogre_glTF
 	class textureImporter
 	{
 		///List of the loaded basic textures
-		std::unordered_map<int, Ogre::TexturePtr> loadedTextures;
+		std::unordered_map<int, Ogre::TextureGpu *> mLoadedTextures;
 
 		///Static counter to make unique texture name. Incremented by constructor
-		static size_t id;
+		static size_t mId;
 
 		///Reference to the tinygltf
-		tinygltf::Model& model;
+		tinygltf::Model& mModel;
 
-		///Load a single texture
-		/// \param texture reference to the texture that we are loading
-		void loadTexture(const tinygltf::Texture& texture);
+		Ogre::TextureGpuManager* mTextureManager;
 
-		///Checks that is hardware gamma enabled
-		bool isHardwareGammaEnabled() const;
+		std::vector<std::uint8_t> mPixelBuffer;
+
 
 	public:
 		///Construct the texture importer object. Inrement the id counter
 		/// \param input reference to the model that we are loading
 		textureImporter(tinygltf::Model& input);
 
-		///Load all the textures in the model
-		void loadTextures();
+		Ogre::TextureGpu* getTexture(
+			int glTFTextureIndex, 
+			Ogre::PbsTextureTypes texType, 
+			Ogre::PixelFormatGpu inputPixelFormat=Ogre::PixelFormatGpu::PFG_RGBA8_UNORM);
 
-		///Get the loaded texture that corespound to the given index
-		/// \param glTFTextureSourceID index of a texture in the gltf file
-		Ogre::TexturePtr getTexture(int glTFTextureSourceID);
-
-		///Get the texture that corespound to the given index, but as a greyscale one containing only
-		///the information of the given channel. It seems that the order of channel on loaded textures
-		///is BGR
-		/// \param gltfTextureSourceID index of a texture in the gltf file
-		/// \param channel index of a channel. Starts from zero
-		Ogre::TexturePtr generateGreyScaleFromChannel(int gltfTextureSourceID, int channel);
-
-		///Get the normal texture in a compatible format
-		/// \param gltfTextureSourceID index of a texture in the gltf file
-		Ogre::TexturePtr getNormalSNORM(int gltfTextureSourceID);
+		void preparePixelBuffer(Ogre::uint32 componentOffset, const tinygltf::Image* sourceImage);
 	};
 }

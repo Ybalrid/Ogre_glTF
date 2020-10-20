@@ -2,7 +2,7 @@
 //To create workspace definitions and workspaces
 #include <Compositor/OgreCompositorManager2.h>
 //To use the hlms
-#include <Hlms/Pbs/OgreHlmsPbs.h>
+#include <OgreHlmsPbs.h>
 #include <OgreHlms.h>
 //To load Hlms
 #include <OgreArchive.h>
@@ -10,15 +10,16 @@
 #include <OgreItem.h>
 #include <OgreMesh2.h>
 #include <OgreSubMesh2.h>
-#include <Hlms/Pbs/OgreHlmsPbsDatablock.h>
+#include <OgreHlmsPbsDatablock.h>
 //To play animations
 #include <Animation/OgreSkeletonAnimation.h>
+#include <Animation/OgreSkeletonInstance.h>
 //To use smart pointers
 #include <memory>
-
+#include <OgreWindow.h>
 //The library we are trying out in this program
 #include <Ogre_glTF.hpp>
-
+#include <iostream>
 #ifdef _DEBUG
 const char GL_RENDER_PLUGIN[] = "RenderSystem_GL3Plus_d";
 #else

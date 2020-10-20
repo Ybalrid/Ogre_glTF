@@ -3,6 +3,7 @@
 #include <tiny_gltf.h>
 #include <OgrePrerequisites.h>
 #include <OgreOldBone.h>
+#include <sstream>
 
 namespace Ogre_glTF
 {

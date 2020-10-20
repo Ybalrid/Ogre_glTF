@@ -3,7 +3,8 @@
 
 .idea/
 
-build/
+bin/
+build*/
 Doxygen/
 
 # Prerequisites
@@ -41,3 +42,7 @@ Doxygen/
 
 # VSCode
 .vscode
+
+# Emacs
+*~
+\#*\#

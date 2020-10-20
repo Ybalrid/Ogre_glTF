@@ -1,6 +1,7 @@
 #pragma once
 #include "Ogre_glTF_DLL.hpp"
 #include <string>
+#include <sstream>
 
 ///Easilly print a stringto the ogre log
 void OgreLog(const std::string& message);

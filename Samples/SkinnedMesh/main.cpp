@@ -1,12 +1,12 @@
 #include "SamplesCommon.h"
 
-Ogre::CompositorWorkspace* SetupCompositor(Ogre::Root* root, Ogre::RenderWindow* const window, Ogre::SceneManager* smgr, Ogre::Camera* camera)
+Ogre::CompositorWorkspace* SetupCompositor(Ogre::Root* root, Ogre::Window* const window, Ogre::SceneManager* smgr, Ogre::Camera* camera)
 {
 	//Setup rendering pipeline
 	auto compositor			   = root->getCompositorManager2();
 	const char workspaceName[] = "workspace0";
 	compositor->createBasicWorkspaceDef(workspaceName, Ogre::ColourValue { 0.2f, 0.3f, 0.4f });
-	auto workspace = compositor->addWorkspace(smgr, window, camera, workspaceName, true);
+	auto workspace = compositor->addWorkspace(smgr, window->getTexture(), camera, workspaceName, true);
 
 	return workspace;
 }
@@ -25,6 +25,7 @@ int main()
 	auto root = std::make_unique<Ogre::Root>();
 	Ogre::LogManager::getSingleton().setLogDetail(Ogre::LoggingLevel::LL_BOREME);
 
+/*
 #ifdef Ogre_glTF_STATIC
 #if __linux__
     root->installPlugin(glPlugin.get());
@@ -35,17 +36,10 @@ int main()
 	root->loadPlugin(D3D11_RENDER_PLUGIN);
 #endif
 #endif
-	root->showConfigDialog();
-	root->getRenderSystem()->setConfigOption("FSAA", "16");
-	root->getRenderSystem()->setConfigOption("sRGB Gamma Conversion", "Yes");
-	root->initialise(false);
-
-	//Create a window and a scene
-	Ogre::NameValuePairList params;
-	params["FSAA"]	= "16";
-	const auto window = root->createRenderWindow("glTF test!", 800, 600, false, &params);
-
-	auto smgr		  = root->createSceneManager(Ogre::ST_GENERIC, 2, Ogre::INSTANCING_CULLING_THREADED);
+*/
+	if(!root->showConfigDialog()) return -1;
+	Ogre::Window* window = root->initialise(true, "Gltf loader sample");
+	auto smgr		  = root->createSceneManager(Ogre::ST_GENERIC, 2);
 	smgr->setForward3D(true, 4, 4, 5, 96, 3, 200);
 	auto camera = smgr->createCamera("cam");
 	camera->setNearClipDistance(0.001f);
@@ -57,9 +51,9 @@ int main()
 	//Load workspace and hlms
 	auto workspace = SetupCompositor(root.get(), window, smgr, camera);
 
-	DeclareHlmsLibrary("./Media");
+	DeclareHlmsLibrary("../Data");
 
-	Ogre::ResourceGroupManager::getSingleton().addResourceLocation("../Media/gltfFiles.zip", "Zip");
+	Ogre::ResourceGroupManager::getSingleton().addResourceLocation("../../Media/gltfFiles.zip", "Zip");
 	Ogre::ResourceGroupManager::getSingleton().initialiseAllResourceGroups(true);
 
 	auto gltf = std::make_unique<Ogre_glTF::glTFLoader>();
