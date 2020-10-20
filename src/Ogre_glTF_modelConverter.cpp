@@ -5,6 +5,7 @@
 #include <OgreSubMesh2.h>
 #include "Ogre_glTF_internal_utils.hpp"
 
+
 using namespace Ogre_glTF;
 
 size_t vertexBufferPart::getPartStride() const { return buffer->elementSize() * perVertex; }
@@ -108,7 +109,7 @@ Ogre::MeshPtr modelConverter::getOgreMesh(size_t meshIdx)
 		//OgreLog("\tprimitive has : " + std::to_string(primitive.attributes.size()) + " atributes");
 		for(const auto& atribute : primitive.attributes)
 		{
-			//OgreLog("\t " + atribute.first);
+			OgreLog("\t " + atribute.first);
 			parts.push_back(std::move(extractVertexBuffer(atribute, boundingBox)));
 		}
 
@@ -283,6 +284,7 @@ size_t modelConverter::getVertexBufferElementsPerVertexCount(int type)
 
 Ogre::VertexElementSemantic modelConverter::getVertexElementScemantic(const std::string& type)
 {
+	OgreLog("type: " + type);
 	if(type == "POSITION") return Ogre::VES_POSITION;
 	if(type == "NORMAL") return Ogre::VES_NORMAL;
 	if(type == "TANGENT") return Ogre::VES_TANGENT;

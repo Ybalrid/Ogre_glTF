@@ -61,6 +61,9 @@ getenv_path(OGRE_BUILD)
 getenv_path(OGRE_DEPENDENCIES_DIR)
 getenv_path(PROGRAMFILES)
 
+set(OGRE_SOURCE $ENV{OGRE_SOURCE})
+set(OGRE_BUILD $ENV{OGRE_BUILD})
+
 # Determine whether to search for a dynamic or static build
 if (OGRE_STATIC)
   set(OGRE_LIB_SUFFIX "Static")
@@ -111,8 +114,8 @@ set(OGRE_PREFIX_BUILD ${OGRE_BUILD} ${ENV_OGRE_BUILD})
 set(OGRE_PREFIX_DEPENDENCIES_DIR ${OGRE_DEPENDENCIES_DIR} ${ENV_OGRE_DEPENDENCIES_DIR})
 if (OGRE_PREFIX_SOURCE AND OGRE_PREFIX_BUILD)
   foreach(dir ${OGRE_PREFIX_SOURCE})
-    set(OGRE_INC_SEARCH_PATH ${dir}/OgreMain/include ${dir}/Dependencies/include ${dir}/iOSDependencies/include ${dir}/AndroidDependencies/include ${OGRE_INC_SEARCH_PATH})
-    set(OGRE_LIB_SEARCH_PATH ${dir}/lib ${dir}/Dependencies/lib ${dir}/iOSDependencies/lib ${dir}/AndroidDependencies/lib/${ANDROID_ABI} ${OGRE_LIB_SEARCH_PATH})
+    set(OGRE_INC_SEARCH_PATH ${dir}/OgreMain/include ${dir}/Dependencies/include ${dir}/iOSDependencies/include ${dir}/AndroidDependencies/include ${OGRE_INC_SEARCH_PATH} ${dir}/build/Debug/include ${dir}/build/Debug/include)
+    set(OGRE_LIB_SEARCH_PATH ${dir}/build/Debug/lib ${dir}/build/Release/lib ${dir}/lib ${dir}/Dependencies/lib ${dir}/iOSDependencies/lib ${dir}/AndroidDependencies/lib/${ANDROID_ABI} ${OGRE_LIB_SEARCH_PATH})
     set(OGRE_BIN_SEARCH_PATH ${dir}/Samples/Common/bin ${OGRE_BIN_SEARCH_PATH})
   endforeach(dir)
   foreach(dir ${OGRE_PREFIX_BUILD})
@@ -128,6 +131,8 @@ if (OGRE_PREFIX_SOURCE AND OGRE_PREFIX_BUILD)
     endif()
 
     set(OGRE_BIN_SEARCH_PATH ${dir}/bin ${OGRE_BIN_SEARCH_PATH})
+    set(OGRE_BIN_SEARCH_PATH ${dir}/Debug/lib ${OGRE_BIN_SEARCH_PATH})
+    set(OGRE_BIN_SEARCH_PATH ${dir}/Release/lib ${OGRE_BIN_SEARCH_PATH})
     set(OGRE_BIN_SEARCH_PATH ${dir}/Samples/Common/bin ${OGRE_BIN_SEARCH_PATH})
 
     if(APPLE AND NOT OGRE_BUILD_PLATFORM_APPLE_IOS)
@@ -186,6 +191,9 @@ find_path(OGRE_CONFIG_INCLUDE_DIR NAMES OgreBuildSettings.h HINTS ${OGRE_INC_SEA
 find_path(OGRE_INCLUDE_DIR NAMES OgreRoot.h HINTS ${OGRE_CONFIG_INCLUDE_DIR} ${OGRE_INC_SEARCH_PATH} ${OGRE_FRAMEWORK_INCLUDES} ${OGRE_PKGC_INCLUDE_DIRS} PATH_SUFFIXES "OGRE")
 set(OGRE_INCOMPATIBLE FALSE)
 
+#message("OGRE_CONFIG_INCLUDE_DIR: " ${OGRE_CONFIG_INCLUDE_DIR})
+#message("OGRE_INCLUDE_DIR: " ${OGRE_INCLUDE_DIR})
+
 if (OGRE_INCLUDE_DIR)
   if (NOT OGRE_CONFIG_INCLUDE_DIR)
     set(OGRE_CONFIG_INCLUDE_DIR ${OGRE_INCLUDE_DIR})
@@ -232,6 +240,13 @@ endif ()
 find_library(OGRE_LIBRARY_REL NAMES ${OGRE_LIBRARY_NAMES} HINTS ${OGRE_LIB_SEARCH_PATH} ${OGRE_PKGC_LIBRARY_DIRS} ${OGRE_FRAMEWORK_SEARCH_PATH} PATH_SUFFIXES "" "Release" "RelWithDebInfo" "MinSizeRel")
 find_library(OGRE_LIBRARY_DBG NAMES ${OGRE_LIBRARY_NAMES_DBG} HINTS ${OGRE_LIB_SEARCH_PATH} ${OGRE_PKGC_LIBRARY_DIRS} ${OGRE_FRAMEWORK_SEARCH_PATH} PATH_SUFFIXES "" "Debug")
 
+foreach(i ${OGRE_LIB_SEARCH_PATH})
+    #message("OGRE_LIB_SEARCH_PATH: " ${i})
+endforeach(i)
+#message("OGRE_LIBRARY_NAMES: " ${OGRE_LIBRARY_NAMES})
+#message("OGRE_LIBRARY_REL: " ${OGRE_LIBRARY_REL})
+#message("OGRE_LIBRARY_DBG: " ${OGRE_LIBRARY_DBG})
+
 make_library_set(OGRE_LIBRARY)
 
 if (OGRE_INCOMPATIBLE)
@@ -245,9 +260,13 @@ set(OGRE_INCLUDE_DIR ${OGRE_CONFIG_INCLUDE_DIR} ${OGRE_INCLUDE_DIR} ${OGRE_FRAME
 list(REMOVE_DUPLICATES OGRE_INCLUDE_DIR)
 findpkg_finish(OGRE)
 add_parent_dir(OGRE_INCLUDE_DIRS OGRE_INCLUDE_DIR)
+#message("OGRE_SOURCE: " ${OGRE_SOURCE})
 if (OGRE_SOURCE)
 	# If working from source rather than SDK, add samples include
 	set(OGRE_INCLUDE_DIRS ${OGRE_INCLUDE_DIRS} "${OGRE_SOURCE}/Samples/Common/include")
+        set(OGRE_INCLUDE_DIRS ${OGRE_INCLUDE_DIRS} "${OGRE_SOURCE}/Components")
+        set(OGRE_INCLUDE_DIRS ${OGRE_INCLUDE_DIRS} "${OGRE_SOURCE}/Components/Hlms/Pbs/include/")
+        set(OGRE_INCLUDE_DIRS ${OGRE_INCLUDE_DIRS} "${OGRE_SOURCE}/Components/Hlms/Common/include/")
 endif()
 
 mark_as_advanced(OGRE_CONFIG_INCLUDE_DIR OGRE_MEDIA_DIR OGRE_PLUGIN_DIR_REL OGRE_PLUGIN_DIR_DBG)
@@ -365,10 +384,20 @@ if (NOT OGRE_STATIC)
           PATH_SUFFIXES "" Release RelWithDebInfo MinSizeRel)
 		find_file(OGRE_BINARY_DBG NAMES "OgreMain_d.dll" HINTS ${OGRE_BIN_SEARCH_PATH}
           PATH_SUFFIXES "" Debug )
+        else()
+          find_file(OGRE_BINARY_REL NAMES "libOgreMain.so" 
+                    HINTS ${OGRE_BIN_SEARCH_PATH}
+                    PATH_SUFFIXES "" Release RelWithDebInfo MinSizeRel)
+          find_file(OGRE_BINARY_DBG NAMES "libOgreMain_d.so" 
+                    HINTS ${OGRE_BIN_SEARCH_PATH}
+                    PATH_SUFFIXES "" Debug)
 	endif()
 	mark_as_advanced(OGRE_BINARY_REL OGRE_BINARY_DBG)
 endif()
 
+foreach(o ${OGRE_BIN_SEARCH_PATH})
+    message("OGRE_BIN_SEARCH_PATH: " ${o})
+endforeach(o)
 
 #########################################################
 # Find Ogre components
@@ -420,6 +449,10 @@ ogre_find_component(RTShaderSystem OgreRTShaderSystem.h "")
 ogre_find_component(Volume OgreVolumePrerequisites.h "")
 # look for Overlay component
 ogre_find_component(Overlay OgreOverlaySystem.h "")
+foreach(i ${OGRE_INCLUDE_DIRS})
+    #message("OGRE_INCLUDE_DIRS: " ${i})
+endforeach(i)
+#message("OGRE_Overlay_INCLUDE_DIR: " ${OGRE_Overlay_INCLUDE_DIR})
 #look for HlmsPbs component
 ogre_find_component(HlmsPbs OgreHlmsPbs.h Hlms/Pbs/)
 #look for HlmsPbsMobile component
@@ -520,6 +553,7 @@ ogre_find_plugin(RenderSystem_GLES OgreGLESRenderSystem.h RenderSystems/GLES/inc
 ogre_find_plugin(RenderSystem_GLES2 OgreGLES2RenderSystem.h RenderSystems/GLES2/include)
 ogre_find_plugin(RenderSystem_Direct3D9 OgreD3D9RenderSystem.h RenderSystems/Direct3D9/include)
 ogre_find_plugin(RenderSystem_Direct3D11 OgreD3D11RenderSystem.h RenderSystems/Direct3D11/include)
+
         
 if (OGRE_STATIC)
   # check if dependencies for plugins are met

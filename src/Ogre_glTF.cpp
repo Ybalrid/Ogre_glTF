@@ -17,6 +17,7 @@
 #include <OgreItem.h>
 #include <OgreMesh2.h>
 #include <Animation/OgreTagPoint.h>
+#include <Animation/OgreSkeletonInstance.h>
 
 using namespace Ogre_glTF;
 
@@ -62,7 +63,7 @@ void loaderAdapter::loadMainScene(Ogre::SceneNode* parentNode, Ogre::SceneManage
 	if(!isOk())
 		return;
 
-	pimpl->textureImp.loadTextures();
+	//pimpl->textureImp.loadTextures();
 	auto sceneIdx = pimpl->model.defaultScene >= 0 ? pimpl->model.defaultScene : 0;
 	const auto& scene = pimpl->model.scenes[sceneIdx];
 
@@ -77,7 +78,7 @@ Ogre::SceneNode* loaderAdapter::getFirstSceneNode(Ogre::SceneManager* smgr) cons
 	if(!isOk())
 		return nullptr;
 	
-	pimpl->textureImp.loadTextures();
+	//pimpl->textureImp.loadTextures();
 	return getSceneNode(pimpl->model.scenes[0].nodes[0], smgr->getRootSceneNode(), smgr);
 }
 
@@ -99,13 +100,23 @@ Ogre::SceneNode* loaderAdapter::getSceneNode(size_t index, Ogre::SceneNode* pare
 	sceneNode->setName(node.name);
 	
 	if(!node.translation.empty())
-		sceneNode->setPosition(node.translation[0], node.translation[1], node.translation[2]);
+		sceneNode->setPosition(
+			Ogre::Real(node.translation[0]), 
+			Ogre::Real(node.translation[1]), 
+			Ogre::Real(node.translation[2]));
 
 	if(!node.rotation.empty())
-		sceneNode->setOrientation(node.rotation[3], node.rotation[0], node.rotation[1], node.rotation[2]);
+		sceneNode->setOrientation(
+			Ogre::Real(node.rotation[3]),
+			Ogre::Real(node.rotation[0]), 
+			Ogre::Real(node.rotation[1]), 
+			Ogre::Real(node.rotation[2]));
 
 	if(!node.scale.empty())
-		sceneNode->setScale(node.scale[0], node.scale[1], node.scale[2]);
+		sceneNode->setScale(
+			Ogre::Real(node.scale[0]), 
+			Ogre::Real(node.scale[1]), 
+			Ogre::Real(node.scale[2]));
 
 	if(!node.matrix.empty())
 	{
@@ -134,7 +145,7 @@ Ogre::SceneNode* loaderAdapter::getSceneNode(size_t index, Ogre::SceneNode* pare
 			}
 		}
 
-		auto item = smgr->createItem(ogreMesh);
+		auto item		 = smgr->createItem(ogreMesh, Ogre::SCENE_DYNAMIC);
 		const auto& mesh = pimpl->model.meshes[node.mesh];
 		for(size_t i = 0; i < mesh.primitives.size(); ++i) 
 		{ 
@@ -200,13 +211,23 @@ void loaderAdapter::createTagPoints(int boneIndex, Ogre::SkeletonInstance* skele
 			Ogre::Vector3 scale(1);
 			
 			if(!childNode.translation.empty())
-				position = Ogre::Vector3(childNode.translation[0], childNode.translation[1], childNode.translation[2]);
+				position = Ogre::Vector3(
+					Ogre::Real(childNode.translation[0]), 
+					Ogre::Real(childNode.translation[1]), 
+					Ogre::Real(childNode.translation[2]));
 
 			if(!childNode.rotation.empty())
-				orientation = Ogre::Quaternion(childNode.rotation[3], childNode.rotation[0], childNode.rotation[1], childNode.rotation[2]);
+				orientation = Ogre::Quaternion(
+					Ogre::Real(childNode.rotation[3]), 
+					Ogre::Real(childNode.rotation[0]),
+					Ogre::Real(childNode.rotation[1]), 
+					Ogre::Real(childNode.rotation[2]));
 
 			if(!childNode.scale.empty())
-				scale = Ogre::Vector3(childNode.scale[0], childNode.scale[1], childNode.scale[2]);
+				scale = Ogre::Vector3(
+					Ogre::Real(childNode.scale[0]), 
+					Ogre::Real(childNode.scale[1]), 
+					Ogre::Real(childNode.scale[2]));
 
 			if(!childNode.matrix.empty())
 			{
@@ -231,7 +252,7 @@ void loaderAdapter::createTagPoints(int boneIndex, Ogre::SkeletonInstance* skele
 				}
 			}
 
-			auto item = smgr->createItem(ogreMesh);
+			auto item		 = smgr->createItem(ogreMesh, Ogre::SCENE_DYNAMIC);
 			const auto& mesh = pimpl->model.meshes[childNode.mesh];
 			for(size_t i = 0; i < mesh.primitives.size(); ++i) 
 			{ 

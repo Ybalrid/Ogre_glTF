@@ -75,6 +75,8 @@ namespace Ogre_glTF
 		/// \param value Alpha cutoff value
 		void setAlphaCutoff(Ogre::HlmsPbsDatablock* block, Ogre::Real value) const;
 
+		void handleMaterialValue(Ogre::HlmsPbsDatablock* dataBlock, std::string key,const tinygltf::Parameter* param) const;
+
 	public:
 		///Construct the material loader
 		/// \param input model to load material from

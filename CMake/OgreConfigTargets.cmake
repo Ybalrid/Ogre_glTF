@@ -208,16 +208,17 @@ function(ogre_config_lib LIBNAME EXPORT)
 
   if (OGRE_INSTALL_PDB)
     # install debug pdb files
-    if (OGRE_STATIC)
-	  install(FILES ${OGRE_BINARY_DIR}/lib${OGRE_LIB_DEBUG_PATH}/${LIBNAME}Static_d.pdb
-	    DESTINATION ${OGRE_LIB_DIRECTORY}${OGRE_LIB_DEBUG_PATH}
-		CONFIGURATIONS Debug
-	  )
-	  install(FILES ${OGRE_BINARY_DIR}/lib${OGRE_LIB_RELWDBG_PATH}/${LIBNAME}Static.pdb
-	    DESTINATION ${OGRE_LIB_DIRECTORY}${OGRE_LIB_RELWDBG_PATH}
-		CONFIGURATIONS RelWithDebInfo
-	  )
-	else ()
+	# Static libs don't have PDBs
+	if (NOT OGRE_STATIC)
+#	  install(FILES ${OGRE_BINARY_DIR}/lib${OGRE_LIB_DEBUG_PATH}/${LIBNAME}Static_d.pdb
+#	    DESTINATION ${OGRE_LIB_DIRECTORY}${OGRE_LIB_DEBUG_PATH}
+#		CONFIGURATIONS Debug
+#	  )
+#	  install(FILES ${OGRE_BINARY_DIR}/lib${OGRE_LIB_RELWDBG_PATH}/${LIBNAME}Static.pdb
+#	    DESTINATION ${OGRE_LIB_DIRECTORY}${OGRE_LIB_RELWDBG_PATH}
+#		CONFIGURATIONS RelWithDebInfo
+#	  )
+#	else ()
 	  install(FILES ${OGRE_BINARY_DIR}/bin${OGRE_DEBUG_PATH}/${LIBNAME}_d.pdb
 	    DESTINATION bin${OGRE_DEBUG_PATH}
 		CONFIGURATIONS Debug
@@ -271,7 +272,7 @@ function(ogre_config_plugin PLUGINNAME)
   else (OGRE_STATIC)
     if (CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
       # disable "lib" prefix on Unix
-      set_target_properties(${PLUGINNAME} PROPERTIES PREFIX "")
+      set_target_properties(${PLUGINNAME} PROPERTIES PREFIX "${OGRE_PLUGIN_LIB_PREFIX}")
     endif (CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   endif (OGRE_STATIC)
   # export only if static
@@ -279,16 +280,17 @@ function(ogre_config_plugin PLUGINNAME)
 
   if (OGRE_INSTALL_PDB)
     # install debug pdb files
-    if (OGRE_STATIC)
-	  install(FILES ${OGRE_BINARY_DIR}/lib${OGRE_LIB_DEBUG_PATH}/${PLUGINNAME}Static_d.pdb
-	    DESTINATION ${OGRE_LIB_DIRECTORY}${OGRE_LIB_DEBUG_PATH}/opt
-		CONFIGURATIONS Debug
-	  )
-	  install(FILES ${OGRE_BINARY_DIR}/lib${OGRE_LIB_RELWDBG_PATH}/${PLUGINNAME}Static.pdb
-	    DESTINATION ${OGRE_LIB_DIRECTORY}${OGRE_LIB_RELWDBG_PATH}/opt
-		CONFIGURATIONS RelWithDebInfo
-	  )
-	else ()
+	# Static libs don't have PDBs
+	if (NOT OGRE_STATIC)
+#	  install(FILES ${OGRE_BINARY_DIR}/lib${OGRE_LIB_DEBUG_PATH}/${PLUGINNAME}Static_d.pdb
+#	    DESTINATION ${OGRE_LIB_DIRECTORY}${OGRE_LIB_DEBUG_PATH}/opt
+#		CONFIGURATIONS Debug
+#	  )
+#	  install(FILES ${OGRE_BINARY_DIR}/lib${OGRE_LIB_RELWDBG_PATH}/${PLUGINNAME}Static.pdb
+#	    DESTINATION ${OGRE_LIB_DIRECTORY}${OGRE_LIB_RELWDBG_PATH}/opt
+#		CONFIGURATIONS RelWithDebInfo
+#	  )
+#	else ()
 	  install(FILES ${OGRE_BINARY_DIR}/bin${OGRE_DEBUG_PATH}/${PLUGINNAME}_d.pdb
 	    DESTINATION bin${OGRE_DEBUG_PATH}
 		CONFIGURATIONS Debug

@@ -3,6 +3,8 @@
 #include "OgreMesh2.h"
 #include <tiny_gltf.h>
 #include "Ogre_glTF.hpp"
+#include <sstream>
+#include <Vao/OgreVaoManager.h>
 
 namespace Ogre_glTF
 {
